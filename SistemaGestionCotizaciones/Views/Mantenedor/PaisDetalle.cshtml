@@ -1,0 +1,67 @@
+﻿@{
+    ViewBag.Title = "PaisDetalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="~/Content/css/grilla.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/css/mantenedorDetalle.css" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+<link rel="stylesheet" href="/resources/demos/style.css">
+
+<script>
+    $(document).ready(function () {
+        function cargarPagina(id, name) {
+            var url = '@Url.Action("vpGrillaDetallePais", "Mantenedor", new { id = "param-id", ordenarPor = "param-name" })'
+            url = url.replace("param-id", id)
+                     .replace("param-name", "idpais");
+            $('#tb_Header').load(url);
+        }
+
+        cargarPagina("0");
+
+    });
+</script>
+<div class="container">
+    <div class="row">
+        <h3 id="ttl">Mantenedor País</h3>
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="tb_Header" class="grilla container"></div>
+    </div>
+
+    <div class="row">
+
+        <!-- /.modal -->
+        <div class="modal fade" id="modCustom">
+            <div class="modal-dialog" id="modDialog">
+                <div class="modal-content">
+                    
+                        <div class="modal-header ttl_modal">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title">Nuevo Catálago de Elementos</h4>
+                        </div>
+                        <div id="nvo_header" class="modal-body" style="height:100px">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button id="btn_enviar" type="button" class="btn btn-primary">Guardar</button>
+                        </div>
+                
+                </div>
+            </div>
+        </div>
+        <!-- /.modal -->
+    </div>

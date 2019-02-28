@@ -1,0 +1,13 @@
+﻿.grilla thead{
+    color: #8FBE00;
+    font-weight: bold;
+    cursor: default;
+}
+
+.grilla span{
+    cursor: pointer;
+}
+
+.grilla span:hover{
+    color: #8FBE00;
+}

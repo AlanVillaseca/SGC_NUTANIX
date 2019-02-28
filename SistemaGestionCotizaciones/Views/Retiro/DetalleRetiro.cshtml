@@ -1,0 +1,431 @@
+﻿
+@{
+    ViewBag.Title = "DetalleRetiro";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.Retiro
+@using System.Data;
+@using System.Web.Script.Serialization;
+@using Microsoft.AspNet.Identity
+@using ExtensionMethods;
+
+<script>
+    $(document).ready(function () {
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var cabeceraJson = @Html.Raw(jss.Serialize(Model.detalleCabeceraJson));
+        var detalleJson = @Html.Raw(jss.Serialize(Model.detalleRetiroJson));
+        var mensajesJson = @Html.Raw(jss.Serialize(Model.MensajesRetiroJson));
+        var totalregistros = cabeceraJson[0].totalRegistros;
+        var pagina = cabeceraJson[0].paginaActual;
+        var totalpaginas = cabeceraJson[0].totalPaginas;
+        var idRetiro = '@ViewBag.idRetiro';
+
+        _.each(detalleJson, function(i){
+            $('#tblDetRetiros tbody').append('<tr ide="'+ i.id +'">\
+                                                <td>'+ i.tipo +'</td>\
+                                                <td>'+ i.descripcion +'</td>\
+                                                <td>'+ i.fechacreacion +'</td>\
+                                                <td>'+ i.costoinicial +'</td>\
+                                                <td>'+ i.costomensual +'</td>\
+                                                    ');
+        });
+        _.each(mensajesJson, function(i){
+            $('#modMensajes tbody').append('<tr ide="'+ i.fila +'">\
+                                                <td>'+ i.fila +'</td>\
+                                                <td>'+ i.fecha +'</td>\
+                                                <td>'+ i.usuario +'</td>\
+                                                <td>'+ i.estado +'</td>\
+                                                <td>'+ i.motivo +'</td>\
+                                                    ');
+        });
+
+        $('#pEstado').append(_.pluck(cabeceraJson, 'estado')[0]);
+        $('#pProyecto').append(_.pluck(cabeceraJson, 'proyecto')[0]);
+        $('#pCotizacion').append(_.pluck(cabeceraJson, 'cotizacion')[0]);
+        //$('#pTotal').append(_.pluck(cabeceraJson, 'totalcot')[0]);
+        //$('#pNuevoTotal').append(_.pluck(cabeceraJson, 'nuevototalcot')[0]);
+        var idEstado = _.pluck(cabeceraJson, 'idestado')[0];
+
+        $("#tblDetRetiros tbody tr").click(function () {
+            //var tipo = $(this).parent('tr').children('td').eq(0).text(); //toma el texto del primer td y lo guarada en tipo
+
+            var idComponente = $(this).attr("ide");
+
+            var dir = '@Html.Raw(Url.Action("leerComponente", "Componente", new { id =  "reemplazo", estado = "reemplazo2"}))';
+            dir = dir.replace("reemplazo", idComponente);
+            dir = dir.replace("reemplazo2", '21');
+
+            window.location.href = dir;
+
+        });
+
+
+        $("#btnmodAprobar").click(function () {
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("CambiarEstadoRetiro", "Retiro", new { id = "param-id", idAplicacion = "param-idAplicacion", idAccion = "param-idAccion", motivo = "param-motivo" }))';
+            repURL = repURL.replace("param-id", idRetiro);
+            repURL = repURL.replace("param-idAplicacion", "6"); //RETIRO
+            repURL = repURL.replace("param-idAccion", "4"); //APROBAR
+            repURL = repURL.replace("param-motivo", $("#modAprueba textarea").val());
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function(resp){
+                if (resp.length > 0){
+                    alert(resp);
+                    $('#modAprueba .bsError').show();
+                    $('#modAprueba .bsError #errLabel').text(resp);
+                }
+                else{
+                    $('#modAprueba .bsError').hide();
+                    $('#modAprueba').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha aprobado el retiro', '0', 'OK', function(){
+                        var dirUrl = '@Html.Raw(Url.Action("Lista", "Retiro"))';
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        $("#btnmodRechazar").click(function () {
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("CambiarEstadoRetiro", "Retiro", new { id = "param-id", idAplicacion = "param-idAplicacion", idAccion = "param-idAccion", motivo = "param-motivo" }))';
+            repURL = repURL.replace("param-id", idRetiro);
+            repURL = repURL.replace("param-idAplicacion", "6"); //RETIRO
+            repURL = repURL.replace("param-idAccion", "5"); //APROBAR
+            repURL = repURL.replace("param-motivo", $("#modRechaza textarea").val());
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function(resp){
+                if (resp.length > 0){
+                    $('#modRechaza .bsError').show();
+                    $('#modRechaza .bsError #errLabel').text(resp);
+                }
+                else{
+                    $('#modRechaza .bsError').hide();
+                    $('#modRechaza').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha rechazado el retiro', '0', 'OK', function(){
+                        var dirUrl = '@Html.Raw(Url.Action("Lista", "Retiro"))';
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+        $("#btnmodVersionar").click(function () {
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("CambiarEstadoRetiro", "Retiro", new { id = "param-id", idAplicacion = "param-idAplicacion", idAccion = "param-idAccion", motivo = "param-motivo" }))';
+            repURL = repURL.replace("param-id", idRetiro);
+            repURL = repURL.replace("param-idAplicacion", "6"); //RETIRO
+            repURL = repURL.replace("param-idAccion", "2"); //APROBAR
+            repURL = repURL.replace("param-motivo", $("#modVersionar textarea").val());
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function(resp){
+                if (resp.length > 0){
+                    $('#modVersionar .bsError').show();
+                    $('#modVersionar .bsError #errLabel').text(resp);
+                }
+                else{
+                    $('#modVersionar .bsError').hide();
+                    $('#modVersionar').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha enviado correctamente a aprobación', '0', 'OK', function(){
+                        var dirUrl = '@Html.Raw(Url.Action("Lista", "Retiro"))';
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        /*************************************/
+
+        $("#btn_apr").click(function () {
+            $('#modAprueba')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+            $('#modAprueba').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+        $("#btn_rech").click(function () {
+            $('#modRechaza')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+            $('#modRechaza').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+        $("#btn_env").click(function () {
+            $('#modVersionar')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+            $('#modVersionar').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btn_motiv').click(function () {
+            $('#modMensajes tbody').append();
+            $('#modMensajes')
+              .prop('class', 'modal fade')
+              .addClass('right')
+              .modal({
+                  backdrop: 'static',
+                  keyboard: false
+              });
+            $('#modMensajes').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+        $('#btn_pri_pag').on('click', function () {
+            var dir = '@Html.Raw(Url.Action("DetalleRetiro", "Retiro"))';
+            $.ajax({
+                type: 'POST',
+                url: dir,
+                data: {id: idRetiro},
+                dataType: "html",
+                async: false
+            });
+        });
+        $('#btn_pag_ant').click(function () {
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+                var dir = '@Html.Raw(Url.Action("DetalleRetiro", "Retiro"))';
+                $.ajax({
+                    type: 'POST',
+                    url: dir,
+                    data: {id: idRetiro, pagina: (parseInt(pagina) - 1)},
+                    dataType: "html",
+                    async: false
+                });
+            }
+        });
+        $('#btn_pag_sig').click(function () {
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+                var dir = '@Html.Raw(Url.Action("DetalleRetiro", "Retiro"))';
+                $.ajax({
+                    type: 'POST',
+                    url: dir,
+                    data: {id: idRetiro, pagina: (parseInt(pagina) + 1)},
+                    dataType: "html",
+                    async: false
+                });
+            }
+        });
+        $('#btn_ult_pag').click(function () {
+            var dir = '@Html.Raw(Url.Action("DetalleRetiro", "Retiro"))';
+            $.ajax({
+                type: 'POST',
+                url: dir,
+                data: {id: idRetiro, pagina: totalpaginas},
+                dataType: "html",
+                async: false
+            });
+        });
+    });
+</script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            <h3 id="ttl">Detalle del Retiro</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <label class="control-label">Proyecto</label>
+            <p id="pProyecto"></p>
+        </div>
+        <div class="col-md-3">
+            <label class="control-label">Cotización</label>
+            <p id="pCotizacion"></p>
+        </div>
+        <div class="col-md-2">
+            <label class="control-label">Estado</label>
+            <p id="pEstado"></p>
+        </div>
+        @*<div class="col-md-2">
+            <label class="control-label">Total Actual (UF)</label>
+            <p id="pTotal"></p>
+        </div>
+        <div class="col-md-2">
+            <label class="control-label">Total con Retiro (UF)</label>
+            <p id="pNuevoTotal"></p>
+        </div>*@
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12" style="border-top:solid 2px #8FBE00;"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="tblDetRetiros" class="table table-condensed table-hover table-responsive">
+                <thead>
+                    <tr>
+                        <th class="col-md-1">Tipo</th>
+                        <th class="col-md-4">Descripción</th>
+                        <th class="col-md-4">Fecha Creación</th>
+                        <th class="col-md-1">Costo Inicial</th>
+                        <th class="col-md-2">Costo Mensual</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <!-- /.toolbar -->
+    <div id="paginacion" class="row" style="background-color: #F9F9F9;">
+        <div id="regPag"></div>
+        <div class="col-sm-3 col-md-3 col-sm-offset-9 col-md-offset-9">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">             
+                    <button id="btn_motiv" type="button" class="btn btn-default" title="Mensajes" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-envelope"></span></button>           
+                    @if ((User.IsInRole("CLIENTE+") && (ViewBag.idEstado == "1" || ViewBag.idEstado == "4")) || (User.IsInRole("FACTURADOR") && ViewBag.idEstado == "5"))
+                    {
+                        <button id="btn_apr" type="button" class="btn btn-default" title="Aprobar" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-thumbs-up"></span></button>                       
+                    }
+                    @if (User.IsInRole("CLIENTE+") && (ViewBag.idEstado == "1" || ViewBag.idEstado == "4"))
+                    {                        
+                        <button id="btn_rech" type="button" class="btn btn-default" title="Rechazar" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+                    }
+                    @if (User.IsInRole("IMPLEMENT") && (ViewBag.idEstado == "2" || ViewBag.idEstado == "6"))
+                    {
+                        <button id="btn_env" type="button" class="btn btn-default" title="Enviar a Aprobación" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-saved"></span></button>
+                    }                    
+                    <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.toolbar -->
+    <!-- /.modal Aprueba -->
+    <div class="modal fade" id="modAprueba">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Aprobar Retiro</h4>
+                </div>
+                <div id="editHojas" class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label">Comentarios</label>
+                            <textarea class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="btnmodAprobar" class="btn btn-success"><span class="glyphicon glyphicon-thumbs-up"></span> Aprobar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    <!-- /.modal Aprueba -->
+    <div class="modal fade" id="modRechaza">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Rechazar Retiro</h4>
+                </div>
+                <div id="editHojas" class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label">Comentarios</label>
+                            <textarea class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="btnmodRechazar" class="btn btn-danger"><span class="glyphicon glyphicon-thumbs-down"></span> Rechazar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    <!-- /.modal Aprueba -->
+    <div class="modal fade" id="modVersionar">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Enviar a Aprobación</h4>
+                </div>
+                <div id="editHojas" class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label">Comentarios</label>
+                            <textarea class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="btnmodVersionar" class="btn btn-success"><span class="glyphicon glyphicon-saved"></span> OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    <!-- /.modal Reporte Cotizacion -->
+    <div class="modal fade" id="modMensajes">
+        <div class="modal-dialog" style="width:80%;">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Historial de Mensajes de Retiro</h4>
+                </div>
+                <div id="upd_servicio" data-id="" class="modal-body ui-front">
+                    <div>
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-1">#</th>
+                                    <th class="col-md-1">Fecha</th>                                    
+                                    <th class="col-md-2">Usuario</th>
+                                    <th class="col-md-2">Estado</th>
+                                    <th class="col-md-5">Mensaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btn_enviar" type="button" class="btn btn-primary">Exportar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal Reporte Cotizacion -->
+</div>

@@ -1,0 +1,327 @@
+﻿
+@{
+    ViewBag.Title = "Proyectos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using System.Data;
+
+<link rel="stylesheet" type="text/css" href="~/Content/css/grilla.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/css/retiroProyectos.css" />
+<script type="text/javascript" src="~/Scripts/js/retiroProyectos.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var url = '@Url.Action("vpGrillaProyectos", "Implementado")'
+        
+        function fech_sol() {
+            $('#fech_sol_min').datepicker({
+                onClose: function (selectedDate) {
+                    $('#fech_sol_max').datepicker('option', 'minDate', selectedDate);
+                }
+            });
+
+            $('#fech_sol_max').datepicker({
+                onClose: function (selectedDate) {
+                    $('#fech_sol_min').datepicker('option', 'maxDate', selectedDate);
+                }
+            });
+        };
+
+        fech_sol();
+
+        $('#agr_cot').click(function () {
+            if ($('#agr_cot_popup').is(':hidden'))
+                $('#agr_cot_popup').show();
+            else
+                $('#agr_cot_popup').hide();
+        });
+
+        $('#tb_proyectos').load(url);
+
+        $('#btn_lmp_frt').click(function () {
+
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaProyectos", "Implementado", new { id = "reemplazo" }))'
+
+            dir = dir.replace("reemplazo", pagina);
+
+            $('#tb_proyectos').load(dir);
+        });
+
+        $('#btn_pri_pag').on('click', function () {
+            alert();
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaProyectos", "Implementado", new { id = "reemplazo", negocio = "reemplazo2",
+            usrSolicitante = "reemplazo3", fchIni = "reemplazo4", fchFin = "reemplazo5", usrAsignada = "reemplazo6",
+            pagina = "1"}))'
+
+            dir = dir.replace("reemplazo", $('#txt_proyecto').val());
+            dir = dir.replace("reemplazo2", $('#cmb_negocio').val());
+            dir = dir.replace("reemplazo3", $('#cmb_solicitante').val());
+            dir = dir.replace("reemplazo4", $('#fech_sol_min').val());
+            dir = dir.replace("reemplazo5", $('#fech_sol_max').val());
+            dir = dir.replace("reemplazo6", $('#cmb_asignado').val());
+
+            $('#tb_proyectos').load(dir);
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            var totalpaginas = $("#total_pag").text().slice(4);
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaProyectos", "Implementado", new { id = "reemplazo", negocio = "reemplazo2",
+                usrSolicitante = "reemplazo3", fchIni = "reemplazo4", fchFin = "reemplazo5", usrAsignada = "reemplazo6",
+                pagina = "reemplazo7"}))'
+
+                dir = dir.replace("reemplazo", $('#txt_proyecto').val());
+                dir = dir.replace("reemplazo2", $('#cmb_negocio').val());
+                dir = dir.replace("reemplazo3", $('#cmb_solicitante').val());
+                dir = dir.replace("reemplazo4", $('#fech_sol_min').val());
+                dir = dir.replace("reemplazo5", $('#fech_sol_max').val());
+                dir = dir.replace("reemplazo6", $('#cmb_asignado').val());
+                dir = dir.replace("reemplazo7", parseInt(pagina) - 1);
+
+                $('#tb_proyectos').load(dir);
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            var totalpaginas = $("#total_pag").text().slice(4);
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaProyectos", "Implementado", new { id = "reemplazo", negocio = "reemplazo2",
+                usrSolicitante = "reemplazo3", fchIni = "reemplazo4", fchFin = "reemplazo5", usrAsignada = "reemplazo6",
+                pagina = "reemplazo7"}))'
+
+                dir = dir.replace("reemplazo", $('#txt_proyecto').val());
+                dir = dir.replace("reemplazo2", $('#cmb_negocio').val());
+                dir = dir.replace("reemplazo3", $('#cmb_solicitante').val());
+                dir = dir.replace("reemplazo4", $('#fech_sol_min').val());
+                dir = dir.replace("reemplazo5", $('#fech_sol_max').val());
+                dir = dir.replace("reemplazo6", $('#cmb_asignado').val());
+                dir = dir.replace("reemplazo7", parseInt(pagina) + 1);
+
+                $('#tb_proyectos').load(dir);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var totalpaginas = $('#total_pag').text().slice(4);
+            var pagina = $('#txt_pag').val();
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaProyectos", "Implementado", new { id = "reemplazo", negocio = "reemplazo2",
+            usrSolicitante = "reemplazo3", fchIni = "reemplazo4", fchFin = "reemplazo5", usrAsignada = "reemplazo6",
+            pagina = "reemplazo7"}))'
+
+            dir = dir.replace("reemplazo", $('#txt_proyecto').val());
+            dir = dir.replace("reemplazo2", $('#cmb_negocio').val());
+            dir = dir.replace("reemplazo3", $('#cmb_solicitante').val());
+            dir = dir.replace("reemplazo4", $('#fech_sol_min').val());
+            dir = dir.replace("reemplazo5", $('#fech_sol_max').val());
+            dir = dir.replace("reemplazo6", $('#cmb_asignado').val());
+            dir = dir.replace("reemplazo7", totalpaginas);
+
+            $('#tb_proyectos').load(dir);
+        });
+
+        $('#txt_proyecto, #fech_sol_min, #fech_sol_max').change(function () {
+
+            url = '@Html.Raw(Url.Action("vpGrillaProyectos", "Implementado", new { id = "reemplazo", negocio = "reemplazo2",
+            usrSolicitante = "reemplazo3", fchIni = "reemplazo4", fchFin = "reemplazo5", usrAsignada = "reemplazo6",
+            pagina = "1"}))'
+
+            url = url.replace("reemplazo", $('#txt_proyecto').val());
+            url = url.replace("reemplazo2", $('#cmb_negocio').val());
+            url = url.replace("reemplazo3", $('#cmb_solicitante').val());
+            url = url.replace("reemplazo4", $('#fech_sol_min').val());
+            url = url.replace("reemplazo5", $('#fech_sol_max').val());
+            url = url.replace("reemplazo6", $('#cmb_asignado').val());
+
+            $('#tb_proyectos').load(url);
+        });
+
+        $('#cmb_solicitante, #cmb_negocio, #cmb_asignado').selectmenu({
+            change: function (event, ui) {
+
+                url = '@Html.Raw(Url.Action("vpGrillaProyectos", "Implementado", new { id = "reemplazo", negocio = "reemplazo2",
+                usrSolicitante = "reemplazo3", fchIni = "reemplazo4", fchFin = "reemplazo5", usrAsignada = "reemplazo6",
+                pagina = "1"}))'
+
+                url = url.replace("reemplazo", $('#txt_proyecto').val());
+                url = url.replace("reemplazo2", $('#cmb_negocio').val());
+                url = url.replace("reemplazo3", $('#cmb_solicitante').val());
+                url = url.replace("reemplazo4", $('#fech_sol_min').val());
+                url = url.replace("reemplazo5", $('#fech_sol_max').val());
+                url = url.replace("reemplazo6", $('#cmb_asignado').val());
+
+                $('#tb_proyectos').load(url);
+            }
+        });
+    });
+</script>
+
+
+
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (true)
+{
+    <div id="contenedorPagina">
+
+        <div id="nom_prct" class="form-group fila1 col1">
+            <label for="">Nombre del Proyecto</label>
+            <input type="text" class="form-control input-sm" id="txt_proyecto" placeholder="Nombre Proyecto">
+        </div>
+
+        <div id="fech_sol" class="form-group fila1 col2">
+            <ul>
+                <li>
+                    <label for="">Fecha Solicitud</label>
+                </li>
+
+                <li>
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <input id="fech_sol_min" name="fech_sol_min" type="text" size="10" class="datepicker input-sm" placeholder="Desde">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    &nbsp;<input id="fech_sol_max" name="fech_sol_max" type="text" size="10" class="datepicker input-sm" placeholder="Hasta">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+        </div>
+
+        <div id="usu_sol" class="form-group fila1 col3">
+            <ul>
+                <li>
+                    <label for="">Usuario Solicitante</label>
+                </li>
+
+                <li>
+                    <fieldset>
+                        <select class="selectmenu" id="cmb_solicitante">
+                            <option value="" selected>Todos</option>
+                            @foreach (DataRow col in Model.dtPSolicitante.Rows)
+                            {
+                                <option>@col.ItemArray.GetValue(0)</option>
+                            }
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+        </div>
+
+        <div id="serv_neg" class="form-group fila2 col1">
+            <ul>
+                <li>
+                    <label for="">Servicio de Negocio</label>
+                </li>
+
+                <li>
+                    <fieldset>
+                        <select class="selectmenu" id="cmb_negocio">
+                            <option value="" selected>Todos</option>
+                            @foreach (DataRow col in Model.dtSNegocio.Rows)
+                            {
+                                <option>@col.ItemArray.GetValue(0)</option>
+                            }
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+        </div>
+
+        <div id="usu_sol" class="form-group fila2 col2">
+            <ul>
+                <li>
+                    <label for="">Usuario Asignado</label>
+                </li>
+
+                <li>
+                    <fieldset>
+                        <select class="selectmenu" id="cmb_asignado">
+                            <option value="" selected>Todos</option>
+                            @foreach (DataRow col in Model.dtUAsignado.Rows)
+                            {
+                                <option>@col.ItemArray.GetValue(0)</option>
+                            }
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+        </div>
+
+        <div id="neg_sol" class="form-group fila2 col3">
+            <ul>
+                <li>
+                    <label for="">Negocio Solicitante</label>
+                </li>
+
+                <li>
+                    <table>
+                        <tr>
+                            <td>
+                                <fieldset>
+                                    <select class="selectmenu" id="cmb_pais_negocio" disabled>
+                                        <option value="" selected>Todos</option>
+
+                                    </select>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    </table>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+
+
+        <div style="left:50px;right:50px;margin-right:auto;margin-left:auto;position:absolute;top:255px;background-color:#E8F5C3;height:30px;">
+
+            <label style="position:absolute;top:10px;left:45%">Proyectos</label>
+
+            <div id="btn_Func_Tools" class="btn-toolbar btn_shortcut" role="toolbar">
+                <div class="btn-group btn-group-xs" role="group">
+                    <button id="btn_lmp_frt" type="button" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button>
+                    <button id="btn_nvo_pry" type="button" class="btn btn-default" title="Nuevo Proyecto"><span class="glyphicon glyphicon-asterisk"></span></button>
+                </div>
+            </div>
+            <div id="btn_Func_Tools" class="btn-toolbar btn_tools" role="toolbar">
+                <div class="btn-group btn-group-xs" role="group">
+                    <button id="btn_pri_pag" type="button" class="btn btn-default"><span class="glyphicon glyphicon-fast-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-backward"></span></button>
+                </div>
+                <div class="btn-group btn-group-xs" role="group">
+                    <button id="btn_pag_sig" type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-forward"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default"><span class="glyphicon glyphicon-fast-forward"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tb_proyectos" class="grilla"></div>
+
+        <div id="agr_cot_popup" class="popup"></div>
+    </div>
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+}

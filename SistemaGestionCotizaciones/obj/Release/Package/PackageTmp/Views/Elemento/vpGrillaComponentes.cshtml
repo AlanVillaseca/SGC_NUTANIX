@@ -1,0 +1,452 @@
+﻿
+@model SistemaGestionCotizaciones.Models.ElementoComponentes
+@using System.Data;
+@using System.Web.Script.Serialization;
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+<script src="~/Scripts/js/paginacion.js"></script>
+<link href="~/Content/css/paginacion.css" rel="stylesheet" />
+<script src="~/Scripts/FileSaver.js"></script>
+<script src="~/Scripts/Blob.js"></script>
+
+
+@if (Model != null && Model.dtComponentesJson != null && Model.dtComponentesJson.Count != 0)
+{
+
+    <script>
+    function float(item) {
+
+        if(typeof item === 'undefined') {
+
+            item = '0,00';
+
+        } else {
+
+            item = parseFloat(item.toString().replace(',', '.')).toFixed(2).replace('.', ',');
+
+        }
+
+        return item;
+
+    }
+
+    function b64toBlob(b64Data, contentType, sliceSize) {
+        contentType = contentType || '';
+        sliceSize = sliceSize || 512;
+        var byteCharacters = atob(b64Data);
+        var byteArrays = [];
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+            var byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+        var blob = new Blob(byteArrays, { type: contentType });
+        return blob;
+    }
+
+
+    $(document).ready(function () {
+
+        var elementos = @Html.Raw(jss.Serialize(Model.dtComponentesJson));
+        var paginaActual = elementos[0].Pagina;
+        var totalRegistros = elementos[0].TotalRegistros;
+        var totalPaginas = elementos[0].TotalPaginas;
+        var tb_componentes = '';
+        var numero_elementos = _.size(elementos[0]);
+        var count = 0;
+
+        $('#txt_pag').val(paginaActual);
+        $('#ttl_pag').text(totalPaginas);
+        $('#tot_reg').text('Total de Registros ' + totalRegistros);
+
+        tb_componentes += '<table class="table table-hover table-striped">\
+                                <thead>\
+                                    <tr>\
+                                        <th>Id Cotización</th>\
+                                        <th>Nombre Componente</th>\
+                                        <th>País</th>\
+                                        <th>Negocio</th>\
+                                        <th>Servicio Negocio</th>\
+                                        <th>Costo</th>';
+
+        $.each(elementos[0], function(i,item) {
+
+            if(count > 6 && count < numero_elementos - 5) {
+
+                tb_componentes += '<th>' + i + '</th>';
+
+            }
+
+            count++;
+
+        });
+
+        tb_componentes +=   '</tr>\
+                            </thead>\
+                            <tbody>';
+
+        _.each(elementos, function(i,item){
+
+            count = 0;
+
+            tb_componentes += '<tr id="' + i.idcotizacion + '" idversion="' + i.idversion + '" idcomponente="' + i.idcomponente + '">\
+                                        <td>' + i.idcotizacion + '</td>\
+                                        <td>' + i.nombrecomponente + '</td>\
+                                        <td>' + i.pais + '</td>\
+                                        <td>' + i.negocio + '</td>\
+                                        <td>' + i.servicionegocio + '</td>\
+                                        <td>' + float(i.costo) + '</td>';
+
+            $.each(elementos[item], function(i,item2) {
+
+                if(count > 6 && count < numero_elementos - 5) {
+
+                    tb_componentes += '<td>' + item2 + '</td>';
+
+                }
+
+                count++;
+
+            });
+
+        });
+
+        tb_componentes+= '      </tr>\
+                                </tbody>\
+                            </table>';
+
+        $('#tb_comp').append(tb_componentes);
+
+        $('.solo-numero').keypress(function (e) {
+
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+
+                return false;
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if (parseInt($(this).val()) > 0 && parseInt($(this).val()) <= parseInt(totalPaginas)) {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Elemento"))';
+
+                    $('#tb_componentes').load(dir, {
+                        pagina: $(this).val(),
+                        id: $('#id_comp').val(),
+                        alias: $('#alias_comp').val(),
+                        nombre: $('#nom_comp').val(),
+                        fechadesde: $('#fech_sol_min').val(),
+                        fechahasta: $('#fech_sol_max').val(),
+                        pais: $('#cmb_pais').val(),
+                        negocio: $('#cmb_negocio').val(),
+                        servicio: $('#cmb_servicio').val()
+                    });
+
+                }
+            }
+        });
+
+        $('#txt_pag').focus(function () {
+
+            paginaActual = $.trim($(this).val());
+
+            $(this).val($.trim($(this).val()));
+
+        });
+
+        $('#txt_pag').focusout(function () {
+
+            $(this).val(pagActual);
+        });
+
+
+
+
+        $('#btn_descargar2').click(function () {
+
+
+
+            if(/.net/.test(navigator.userAgent.toLowerCase())) {
+
+
+
+                $.ajax({
+                    url: '@Html.Raw(Url.Action("FileXls2", "Elemento"))',
+                    type: 'POST',
+                    data: {idcomponente: $('#id_comp').val(),
+                        nombrecomponente: $('#nom_comp').val(),
+                        fechamin: $('#fech_sol_min').val(),
+                        fechamax: $('#fech_sol_max').val(),
+                        pais: $('#cmb_pais').val(),
+                        negocio: $('#cmb_negocio').val(),
+                        servicio: $('#cmb_servicio').val()},
+                    async: false,
+                    cache: false,
+                    success: function (data) {
+
+                        var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                        saveAs(blob, "ListadoCotizacionesDesglosado.csv");
+
+                        $('#modal-cargando').modal('hide');
+
+                    }
+                });
+
+
+
+                
+
+                return false;
+
+
+
+
+
+
+            } if(/chrome/.test(navigator.userAgent.toLowerCase())) {
+
+
+
+                window.setTimeout(function() {
+
+
+                    $('#modal-cargando').modal('show');
+
+
+                }, 0);
+
+
+                $.ajax({
+                    url: '@Html.Raw(Url.Action("FileXls2", "Elemento"))',
+                    type: 'POST',
+                    data: {idcomponente: $('#id_comp').val(),
+                        nombrecomponente: $('#nom_comp').val(),
+                        fechamin: $('#fech_sol_min').val(),
+                        fechamax: $('#fech_sol_max').val(),
+                        pais: $('#cmb_pais').val(),
+                        negocio: $('#cmb_negocio').val(),
+                        servicio: $('#cmb_servicio').val()},
+                    async: true,
+                    cache: false,
+                    success: function (data) {
+
+                        var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                        saveAs(blob, "ListadoCotizacionesDesglosado.csv");
+
+                        $('#modal-cargando').modal('hide');
+
+                    }
+                });
+
+                return false;
+
+
+
+
+
+
+            } if (/firefox/.test(navigator.userAgent.toLowerCase())) {
+
+
+                $.ajax({
+                    url: '@Html.Raw(Url.Action("FileXls2", "Elemento"))',
+                    type: 'POST',
+                    data: {idcomponente: $('#id_comp').val(),
+                        nombrecomponente: $('#nom_comp').val(),
+                        fechamin: $('#fech_sol_min').val(),
+                        fechamax: $('#fech_sol_max').val(),
+                        pais: $('#cmb_pais').val(),
+                        negocio: $('#cmb_negocio').val(),
+                        servicio: $('#cmb_servicio').val()},
+                    async: false,
+                    beforeSend: function ( xhr ) {
+
+                        $('#modal-cargando').modal('show');
+
+                    },
+                    success: function (data) {
+
+                        var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                        saveAs(blob, "ListadoCotizacionesDesglosado.csv");
+
+                        $('#modal-cargando').modal('hide');
+
+                    }
+                });
+
+            }
+
+
+
+        });
+
+
+
+        $('#btn_pag_sig').click(function () {
+
+            if (parseInt($('#txt_pag').val()) < parseInt($('#ttl_pag').text())) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Elemento"))';
+
+
+                $('#tb_componentes').load(dir, {
+                    pagina: (parseInt($('#txt_pag').val()) + 1),
+                    id: $('#id_comp').val(),
+                    alias: $('#alias_comp').val(),
+                    nombre: $('#nom_comp').val(),
+                    fechadesde: $('#fech_sol_min').val(),
+                    fechahasta: $('#fech_sol_max').val(),
+                    pais: $('#cmb_pais').val(),
+                    negocio: $('#cmb_negocio').val(),
+                    servicio: $('#cmb_servicio').val()
+                });
+
+            }
+
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Elemento"))';
+
+            $('#tb_componentes').load(dir, {
+                pagina: $('#ttl_pag').text(),
+                id: $('#id_comp').val(),
+                alias: $('#alias_comp').val(),
+                nombre: $('#nom_comp').val(),
+                fechadesde: $('#fech_sol_min').val(),
+                fechahasta: $('#fech_sol_max').val(),
+                pais: $('#cmb_pais').val(),
+                negocio: $('#cmb_negocio').val(),
+                servicio: $('#cmb_servicio').val()
+            });
+
+        });
+
+        $('#btn_pri_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Elemento"))';
+
+            $('#tb_componentes').load(dir, {
+                pagina: '1',
+                id: $('#id_comp').val(),
+                alias: $('#alias_comp').val(),
+                nombre: $('#nom_comp').val(),
+                fechadesde: $('#fech_sol_min').val(),
+                fechahasta: $('#fech_sol_max').val(),
+                pais: $('#cmb_pais').val(),
+                negocio: $('#cmb_negocio').val(),
+                servicio: $('#cmb_servicio').val()
+            });
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if (parseInt($('#txt_pag').val()) > 1) {
+
+                if (parseInt($('#txt_pag').val()) <= parseInt($('#ttl_pag').text())) {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Elemento"))';
+
+                    $('#tb_componentes').load(dir, {
+                        pagina: (parseInt($('#txt_pag').val()) - 1),
+                        id: $('#id_comp').val(),
+                        alias: $('#alias_comp').val(),
+                        nombre: $('#nom_comp').val(),
+                        fechadesde: $('#fech_sol_min').val(),
+                        fechahasta: $('#fech_sol_max').val(),
+                        pais: $('#cmb_pais').val(),
+                        negocio: $('#cmb_negocio').val(),
+                        servicio: $('#cmb_servicio').val()
+                    });
+
+                }
+            }
+
+        });
+
+        $('#btn_lmp_frt').click(function () {
+            $('#txt_proyecto').val('');
+            $('#fech_sol_min').val('');
+            $('#fech_sol_max').val('');
+            $('#cmb_jefe_pryct').val('-1');
+            $('#cmb_jefe_pryct').selectmenu('refresh');
+            $('#cmb_pais_negocio').val('-1');
+            $('#cmb_pais_negocio').selectmenu('refresh');
+            $('#cmb_solicitante').val('-1');
+            $('#cmb_solicitante').selectmenu('refresh');
+            $('#cmb_negocio').val('-1');
+            $('#cmb_negocio').selectmenu('refresh');
+
+            filtrado(0, 0, 0);
+        });
+
+    });
+</script>
+
+    
+    <div id="tb_comp" class="table-responsive"></div>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-2">
+            <div id="tot_reg" style="display:inline-block;">
+            </div>
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+            <p class="control-label ">
+                Ir a 
+                <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:13%; display:initial;" value="" />
+                de <font id="ttl_pag"></font> Pág.
+            </p>
+        </div>
+        <div class="col-md-3  col-md-offset-2">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+
+                    @*@if (!(User.IsInRole("CLIENTE") || User.IsInRole("CLIENTE+")))*@
+                    {
+                    <button id="btn_descargar2" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;color:#398AD1"><span class="glyphicon glyphicon-download"></span></button>
+                    }
+                             
+                    <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal-cargando" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog" style="width:85px">
+
+            <div class="modal-content">
+                <div class="modal-body">
+                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+
+                    <label>Cargando...</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal -->
+
+}
+else
+{
+    <div class="row alert alert-warning text-center">
+        No se encontraron Componentes.
+    </div>
+}

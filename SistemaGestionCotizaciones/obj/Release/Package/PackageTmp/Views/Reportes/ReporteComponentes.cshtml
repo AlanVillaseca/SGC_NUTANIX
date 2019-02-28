@@ -1,0 +1,317 @@
+﻿
+@{
+    ViewBag.Title = "ReporteComponentes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.ReporteComponenteSimple
+@using System.Data
+@using System.Web.Script.Serialization;
+<script>
+    $(document).ready(function () {
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var paises = @Html.Raw(jss.Serialize(Model.dtPaisJson));
+        var negocios = @Html.Raw(jss.Serialize(Model.dtNegocioPaisJson));
+        var serneg = @Html.Raw(jss.Serialize(Model.dtSerNegJson));
+        var filtro = @Html.Raw(jss.Serialize(Model.dtFiltroJson));
+        var listaFiltro = @Html.Raw(jss.Serialize(Model.dtListaFiltroJson));
+        var elementos = @Html.Raw(jss.Serialize(Model.dtElementosJson));
+        _.each(paises, function(i){
+            $('#combo_pais').append('<option id="' + i.Idpais + '">' + i.Nombre + '</option>');
+        });
+        /*_.each(serneg, function(i){
+            $('#combo_serneg').append('<option id="' + i.Idserviciodenegocio + '">' + i.Nombre + '</option>');
+        });*/
+
+        $("#combo_pais").click(function() {
+            $('#combo_negocios').html('');
+            //$('#combo_negocios').append('<option id="-1">Todos</option>');
+            var paisSel = $( "#combo_pais option:selected" ).prop('id');
+            
+            $('#combo_negocios').append('<option id="" value="">Seleccione</option>');
+            $('#combo_serneg').append('<option id="" value="">Seleccione</option>');
+            _.each(negocios, function(i){
+                if(i.Idpais == paisSel || paisSel == '-1'){
+                    $('#combo_negocios').append('<option id="' + i.Idnegocio + '">'+ i.Descripcion + '</option>');                   
+                }
+            });
+
+            //vaciando servicio de negocios
+            //$('#combo_serneg').html('');
+            //$('#combo_serneg').append('<option id="-1">Todos</option>');
+        });
+        $("#combo_negocios").click(function() {
+            //llenando negocios
+            $('#combo_serneg').html('');
+            //$('#combo_serneg').append('<option id="-1">Todos</option>');
+            var paisSel = $( "#combo_pais option:selected" ).prop('id');
+            var negSel = $( "#combo_negocios option:selected" ).prop('id');          
+
+            $('#combo_serneg').append('<option id="" value="">Seleccione</option>');
+            $('#combo_serneg').append('<option id="-1" value="-1">Todos</option>');
+            _.each(serneg, function(i){
+                if((i.idPais == paisSel && i.idNegocio == negSel) || (paisSel == '-1' && i.idNegocio == negSel) || (paisSel == '-1' && negSel == '-1')){
+                    $('#combo_serneg').append('<option id="' + i.Idserviciodenegocio + '">'+ i.Nombre + '</option>');                    
+                }
+            });
+
+        });
+
+        $("#nombreFiltro").html(_.pluck(_.first(filtro,1),"Nombreatributo"));
+        //si el tipo de dato del filtro es 3 llenamos un combo si no un textbox
+        if(_.pluck(_.first(filtro,1),"Idtipodato")==3){
+            $("#combo_valores").show();
+            $("#txt_valor").hide();
+
+            _.each(listaFiltro, function(i){
+                $('#combo_valores').append('<option id="' + i.Idlistavalores + '">' + i.Valor + '</option>');
+            });
+
+        }else{
+            $("#combo_valores").hide();
+            $("#txt_valor").show();
+        }
+
+        /*Ordenamiento*/
+        var cont=1;
+        _.each(elementos, function(i){
+            $("#combo_elemento1").append('<option id="'+cont+'"  value="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+            $("#combo_elemento2").append('<option id="'+cont+'"  value="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+            $("#combo_elemento3").append('<option id="'+cont+'"  value="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+            cont++;
+        });
+
+
+
+
+        $("#btn_rpt_pdf").click(function () {
+
+            if ($("#formdiv, #formdiv_").validar()) {
+                return;
+            }
+            var URL = '@Html.Raw(@Url.Action("getReportComponentes", "reportes", new {
+                                                                                        id = "idR",
+                                                                                        filtro= "vfiltro",
+                                                                                        pais="vpais",negocio="vnegocio",
+                                                                                        serneg="vserneg",
+                                                                                        elemento1 = "velemento1",
+                                                                                        elemento2 = "velemento2",
+                                                                                        elemento3 = "velemento3",
+                                                                                        orden1 = "vorden1",
+                                                                                        orden2 = "vorden2",
+                                                                                        orden3 = "vorden3",
+                                                                                        flg_docto = "PDF"
+                                                                                        }))';
+
+            if($("#combo_valores").is(":visible")) {
+
+                URL = URL.replace('vfiltro', $("#combo_valores option:selected").prop("id"));
+            }
+            else{
+                URL = URL.replace('vfiltro', $("#txt_valor").val());
+            }
+
+            $('#btn_rpt_pdf').prop('disabled', true);
+            $('#btn_rpt_pdf').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+            URL = URL.replace('vpais', $("#combo_pais option:selected").prop("id"));
+            URL = URL.replace('vnegocio', $("#combo_negocios  option:selected").prop("id"));
+            URL = URL.replace('vserneg', $("#combo_serneg  option:selected").prop("id"));
+
+            URL = URL.replace('velemento1', '-1');//$("#combo_elemento1  option:selected").prop("id"));
+            URL = URL.replace('velemento2', '-1');//$("#combo_elemento2  option:selected").prop("id"));
+            URL = URL.replace('velemento3', '-1');//$("#combo_elemento3  option:selected").prop("id"));
+            URL = URL.replace('vorden1', '-1');//$("#combo_order1  option:selected").prop("id"));
+            URL = URL.replace('vorden2', '-1');//$("#combo_order2  option:selected").prop("id"));
+            URL = URL.replace('vorden3', '-1');//$("#combo_order3  option:selected").prop("id"));
+
+
+
+
+            $.ajax({
+                type: "POST",
+                url: URL                
+            }).done(function (err) {
+                
+                $('#btn_rpt_pdf').prop('disabled',false);
+                $('#btn_rpt_pdf').html('<i class="fa fa-file-pdf-o"></i> Generar PDF');
+                var blob = b64toBlob(err, "data:application/pdf;");               
+                saveAs(blob, 'Resumen_Cotizaciones.pdf');
+            });
+
+
+
+        });
+
+        $('select').click(function(){            
+            $('#btn_rpt_excel').html('<i class="fa fa-file-excel-o"></i> Generar Excel');
+            $('#btn_rpt_excel').removeClass('btn-success');
+            $('#btn_rpt_excel').addClass('btn-primary');
+            $('#btn_rpt_pdf').html('<i class="fa fa-file-pdf-o"></i> Generar PDF');
+            $('#btn_rpt_pdf').removeClass('btn-success');
+            $('#btn_rpt_pdf').addClass('btn-primary');
+        });
+        $(document).on('click','#btn_rpt_excel',function () {           
+
+            if ($("#formdiv, #formdiv_").validar()) return;
+
+            var URL = '@Html.Raw(@Url.Action("getReportComponentes", "reportes", new {
+                id = "idR",
+                filtro= "vfiltro",
+                pais="vpais",negocio="vnegocio",
+                serneg="vserneg",
+                elemento1 = "velemento1",
+                elemento2 = "velemento2",
+                elemento3 = "velemento3",
+                orden1 = "vorden1",
+                orden2 = "vorden2",
+                orden3 = "vorden3",
+                flg_docto = "EXCEL"
+            }))';
+
+            if($("#combo_valores").is(":visible")) {
+
+                URL = URL.replace('vfiltro', $("#combo_valores option:selected").prop("id"));
+            }
+            else{
+                URL = URL.replace('vfiltro', $("#txt_valor").val());
+            }
+
+            URL = URL.replace('vpais', $("#combo_pais option:selected").prop("id"));
+            URL = URL.replace('vnegocio', $("#combo_negocios  option:selected").prop("id"));
+            URL = URL.replace('vserneg', $("#combo_serneg  option:selected").prop("id"));
+
+            URL = URL.replace('velemento1', '-1');//$("#combo_elemento1  option:selected").prop("id"));
+            URL = URL.replace('velemento2', '-1');//$("#combo_elemento2  option:selected").prop("id"));
+            URL = URL.replace('velemento3', '-1');//$("#combo_elemento3  option:selected").prop("id"));
+            URL = URL.replace('vorden1', '-1');//$("#combo_order1  option:selected").prop("id"));
+            URL = URL.replace('vorden2', '-1');//$("#combo_order2  option:selected").prop("id"));
+            URL = URL.replace('vorden3', '-1');//$("#combo_order3  option:selected").prop("id"));
+
+
+            $('#btn_rpt_excel').prop('disabled', true);
+            $('#btn_rpt_excel').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+            
+
+
+            $.ajax({
+                type: "POST",
+                url: URL
+            }).done(function (err) {
+                $('#btn_rpt_excel').prop('disabled',false);
+                $('#btn_rpt_excel').html('<i class="fa fa-file-excel-o"></i> Generar Excel');
+                var blob = b64toBlob(err, "application/vnd.ms-excel;");              
+                saveAs(blob, 'Resumen_Cotizaciones.xls');                
+            });
+
+
+
+        });
+    });
+</script>
+
+
+<div class="row">
+    <div class="col-md-5 col-sm-5">
+        <h3 id="ttl">Detalle Cotizaciones Facturadas</h3>
+    </div>
+</div>
+<div class="row">
+<div class="col-md-5 col-sm-5">
+    <h5 id="ttl">Filtrar por</h5>
+</div>
+
+</div>
+
+<div id="formdiv_" class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-3">
+            <label class="control-label">
+                País :
+            </label>
+            <select id="combo_pais" class="form-control input-sm es-requerido">
+               <option id="" value="" selected>Seleccione</option>
+            </select>
+        </div>
+        <div class="col-sm-3 col-md-3">
+            <label class="control-label">
+                Negocio :
+            </label>
+            <select id="combo_negocios" class="form-control input-sm es-requerido">
+                <option id="" value="" selected>Seleccione</option>
+            </select>
+        </div>
+        <div class="col-sm-3 col-md-3">
+            <label class="control-label">
+                Servicio de Negocio :
+            </label>
+            <select id="combo_serneg" class="form-control input-sm es-requerido" >
+                <option id="" value="" selected>Seleccione</option>
+            </select>
+        </div>
+        <div class="col-sm-3 col-md-3">
+            <label id="nombreFiltro" class="control-label">
+            </label>
+            <select id="combo_valores" class="form-control input-sm">
+                <option id="-1" selected>Todos</option>
+            </select>
+            <input class="form-control input-sm" type="text" id="txt_valor" />
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12" style="border-top:solid 2px #c4c4c4;margin-top:10px;margin-bottom:10px;"></div>
+</div>
+    <div class="row">
+        <div class="col-md-2 col-sm-2">
+            <a id="btn_rpt_pdf" class="btn btn-primary btn-block"><i class="fa fa-file-pdf-o"></i> Generar PDF</a>
+        </div>
+        <div class="col-md-2 col-sm-2">
+            <a id="btn_rpt_excel" class="btn btn-primary btn-block"><i class="fa fa-file-excel-o"></i> Generar Excel</a>
+        </div>
+    
+</div>
+
+<div id="vpReporte">
+
+</div>
+
+<!-- /.modal Edit -->
+<div class="modal fade" id="modRepResumen">
+    <div class="modal-dialog" id="modDialog">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Descargar Reporte</h4>
+            </div>
+            <div id="dataEdit" class="modal-body ui-front">
+                <div class="row">
+                    <div id="divCre" class="form-group col-sm-12">
+                        <label for="">Se está procesando el reporte, espere hasta que aparezca el botón descargar...</label>                        
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="modProcesa" class="btn btn-warning">Procesando...</a>                
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal end -->

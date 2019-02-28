@@ -1,0 +1,197 @@
+﻿body {
+
+   
+}
+
+   /*select[disabled]::-ms-expand {
+    display: none;
+    background: transparent;
+    text-align:left;
+     color: black;
+}*/
+ .TextBoxAsLabel {
+        border: none;
+        background-color: #fff;
+        background: transparent;
+        text-align: left;
+    }
+
+   
+       /*select[disabled] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        border: none;
+        -moz-appearance: none;
+        text-indent: 0.01px;
+        text-overflow: '';
+        color: black;
+        background: transparent;
+        text-align: left;
+    }*/
+    
+    button{
+        background: transparent;
+    }
+     table input {
+        background: transparent;
+        width:100%
+    }
+    .grilla th{
+        text-align: left; /* left checkbox horizontally */
+        vertical-align: middle ; /* left checkbox vertically */
+        color:#8FBE00;
+        /*border:solid;*/
+    }
+    .grilla td{
+        text-align: left; /* left checkbox horizontally */
+        vertical-align: middle; /* left checkbox vertically */
+        /*border:solid;*/
+    }
+
+    /*table  select {
+         background: transparent;
+        width: auto;
+        height: 21px;
+    }*/
+
+#btn btn-primary btn-sm{
+    float:right;
+
+}
+#ttl{
+    color:#8FBE00;
+    
+ 
+  
+}
+
+.modal-title{
+    color:#8FBE00;
+}
+
+#contenedorPagina{
+   
+    
+    width: 100%;
+    
+}
+
+/*.popup{
+    display: none;
+    padding: 15px;
+    border: 2px solid #8FBE00;
+    border-radius: 5px;
+    background-color: #FFF;
+    width: 200px;
+    position: fixed;
+    top: 350px;
+    left: 100px;
+    right:100px;
+    margin-left: auto;
+    margin-right: auto;
+    -webkit-box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.75);
+    text-align: right;
+}*/
+.fila1_mdl{
+    top: 20px;
+    
+}
+
+.fila2_mdl{
+    top: 110px;
+   
+}
+
+.fila3_mdl{
+    top: 140px;
+   
+}
+
+.fila4_mdl{
+    top: 200px;
+    
+}
+.fila5_mdl{
+    top:260px;
+   
+}
+
+.col1_mdl{
+    left: 20px;
+    
+}
+
+.col2_mdl{
+    left: 50%;
+   
+}
+.col3_mdl{
+    left: 70%;
+  
+}
+
+.fila1{
+    top: 120px;
+}
+
+.fila2{
+    top: 180px;
+}
+
+.fila3{
+    top: 240px;
+}
+
+.col1{
+    left: 100px;
+}
+
+.col2{
+    left: 35%;
+}
+
+.col3{
+    left: 61%;
+}
+/*ul{
+    list-style-type: none;
+  
+}*/
+
+.btn_shortcut{
+    
+}
+
+.btn_shortcut button{
+    border-color: #8fbe00;
+}
+
+.btn_tools{
+    top:4px;
+    left:78%;  
+}
+
+.btn_tools button{
+    border-color: #8fbe00;
+}
+
+.btn_tools .btn-group .btn-default span{
+    color: #000000;
+}
+
+#msg_wrn{
+    top: 70px;
+    right: 50px;
+    left: 50px;
+    margin-right: auto;
+    margin-left: auto;
+    min-width: 620px;
+    display: none;
+}
+
+
+table tbody{
+    cursor:pointer;
+}

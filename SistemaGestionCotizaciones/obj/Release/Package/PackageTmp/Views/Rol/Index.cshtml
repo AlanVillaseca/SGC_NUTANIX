@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model List<SistemaGestionCotizaciones.Models.Security.SecRol>
+@using SistemaGestionCotizaciones.Models.Security;
+
+<script>
+    $(document).ready(function () {
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        $('#btn_descargar').click(function () {
+
+            $.ajax({
+                url: '@Url.Action("SecRolFileXls", "Rol")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoSecRol.csv");
+
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        <h3 id="ttl">Roles</h3>
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+        <br />
+        <table class="table table-responsive table-striped table-condensed grilla">
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Nombre</th>
+                    <th>Descripcion</th>
+                    <th>Activo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Codigo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Nombre)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Descripcion)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Activo)
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-xs" role="group" style="display:inline-block">
+                                
+                                @if (!User.IsInRole("OBSERVADOR"))
+                                {
+                                    <a title="Editar Rol y Permisos" href="@Url.Action("Edit", "RolPermiso", new { id = item.Id })" class="btn black"><span class="glyphicon glyphicon-pencil" /></a>
+                                    <a title="Eliminar" href="@Url.Action("Delete", "Rol", new { id = item.Id })" class="btn black"><span class="glyphicon glyphicon-trash" /></a>
+                                }
+
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row pagination col-md-12 col-sm-12   " style="background-color:#F9F9F9;height:28px;">
+    <div class=" form-inline " role="form">
+        <div class="col-md-2 col-sm-2 col-md-offset-1 ">
+            <p class="control-label">Total de Registros: @Model.Count</p>
+        </div>
+        <!-- /.btn-toolbar -->
+        <div class="col-md-offset-9 col-sm-offset-9"style="display:none">
+            <div id="btn_Func_Tools" class="" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    <a title="Nuevo Rol" href="@Url.Action("Create", "Rol")" class="btn black" ><span class="glyphicon glyphicon-plus"></span></a>
+                </div>
+            </div>
+        </div>
+        <div class="ui-buttonset col-md-offset-11">
+            <button id="btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+        </div>
+    </div>
+    <!-- /.btn-toolbar -->
+</div>

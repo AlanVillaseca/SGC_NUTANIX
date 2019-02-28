@@ -1,0 +1,1899 @@
+﻿@{
+    ViewBag.Title = "Detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.DetalleCotizacion
+@using System.Data;
+@using System.Web.Script.Serialization;
+@using Microsoft.AspNet.Identity;
+@using ExtensionMethods;
+@using System.Web.Script.Serialization;
+
+
+<script src="~/Scripts/js/cotizacionDetalle.js"></script>
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<script src="~/Scripts/js/soloNumeroComa.js"></script>
+
+<style>
+    #paginacion {
+        position: absolute;
+        top: 380px;
+        width: 150px;
+        right: 400px;
+        z-index: 1;
+    }
+
+        #paginacion p {
+            position: absolute;
+            top: 4px;
+        }
+
+    .input-xs {
+        height: 22px;
+        padding: 5px;
+        font-size: 10px;
+        line-height: 1.5;
+        border-radius: 3px;
+        text-align: center;
+    }
+
+    #txt_leyend {
+        font-size: 10px;
+        position: absolute;
+        left: -20px;
+    }
+
+    #loadingDiv {
+        position: absolute;
+        top: 400px;
+        left: 50%;
+    }
+
+    .modal-scroll{
+        overflow-y: scroll;
+        max-height:600px;
+    }
+</style>
+<script>
+    /* Modal alert INI*/
+    function c_alert(heading, text, cancelButtonTxt) {
+        var confirmModal =
+          $('<div class="modal fade">' +
+              '<div class="modal-dialog">' +
+              '<div class="modal-content">' +
+              '<div class="modal-header">' +
+                  '<h4 class="modal-title">' + heading +'</h4>' +
+              '</div>' +
+              '<div class="modal-body">' +
+                '<p>' + text + '</p>' +
+              '</div>' +
+              '<div class="modal-footer">' +
+                '<a href="#!" class="btn" data-dismiss="modal">' +
+                  cancelButtonTxt +
+                '</a>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+            '</div>');
+        /*confirmModal.find('#okButton').click(function(event) {
+            callback();
+            confirmModal.modal('hide');
+        });*/
+        confirmModal.modal('show');
+    };
+    /*Modal alert END*/
+
+
+    @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+    $(document).ready(function () {
+
+        var url = '@Html.Raw(Url.Action("vpGrillaDetalle", "Cotizacion", new { id = Model.idCotizacion, pagina = "1", cotVersion = "reemplazar" }))';
+        var Servicios = @Html.Raw(jss.Serialize(Model.serviciosJson));
+        var PlantillaSubservicios = @Html.Raw(jss.Serialize(Model.plantillasubserviciosJson));
+        var PlantillaSubservicios2 = @Html.Raw(jss.Serialize(Model.plantillasubservicios2Json));
+        var SubserviciosJson;
+        var varVersion = $("#cotVersion").val();
+        var elemento;
+        var contadorServicio;
+        var totalregistros = '0';
+        var pagina = '1';
+        var totalpaginas = '0';
+        var totalregistrossubservicios = '0';
+        var paginasubservicios = '1';
+        var totalpaginassubservicios = '0';
+        var NombreSubservicio;
+        var HorasSubservicio;
+        var idservicio;
+        var idsubservicio;
+        var PlantillaActividades = [];
+        var actividades = [];
+        var horas;
+        var temp;
+        var horasservicio;
+        var SubserviciosJson;
+
+        //
+
+
+        function mostrar_grilla_subservicios(e) {
+
+
+            SubserviciosJson = $.parseJSON(e);
+            horasservicio = 0
+
+
+
+
+            $('#tb_plantillasubservicio tbody').empty();
+            $('#tot_reg_serv').empty();
+            $('#txt_pag_serv').empty();
+            $('#ttl_pag_serv').empty();
+            elemento = '';
+
+
+            if(SubserviciosJson != '') {
+
+                totalregistrossubservicios = _.pluck(SubserviciosJson, 'TotalRegistros')[0];
+                paginasubservicios = _.pluck(SubserviciosJson, 'PaginaActual')[0];
+                totalpaginassubservicios = _.pluck(SubserviciosJson, 'TotalPaginas')[0];
+
+
+                $('#modModificarServicio').attr('totalregistros', totalregistrossubservicios);
+                $('#modModificarServicio').attr('pagina', paginasubservicios);
+                $('#modModificarServicio').attr('totalpaginas', totalpaginassubservicios);
+
+            }
+
+            $('#tot_reg_serv').append('<p>Total de Registros ' + totalregistrossubservicios + '</p>');
+            $('#txt_pag_serv').val(paginasubservicios);
+            $('#ttl_pag_serv').append(totalpaginassubservicios);
+
+
+            _.each(SubserviciosJson, function(i) {
+
+
+                console.log(i);
+
+                horasservicio = i.HorasTotales;
+
+                elemento += '<tr>\
+                                <td valoractual="' + i.Nombre + '">' + i.Nombre + '</td>\
+                                <td valoractual="' + i.Horas + '">' + i.Horas + '</td>\
+                                <td>';
+
+
+                if ('@User.IsInRole("OBSERVADOR")' == 'False')
+                {
+                    elemento += '<span class="glyphicon glyphicon-pencil" idsubservicio="' + i.Idsubservicio + '"></span>\
+                                        <span class="glyphicon glyphicon-trash" idsubservicio="' + i.Idsubservicio + '"></span>\
+                                        <span class="glyphicon glyphicon-ok" idsubservicio="' + i.Idsubservicio + '"></span>\
+                                        <span class="glyphicon glyphicon-remove" idsubservicio="' + i.Idsubservicio + '"></span>';
+                }
+
+                elemento += '</td>\
+                        </tr>';
+
+
+
+
+            });
+
+
+            $('#tb_plantillasubservicio tbody').append(elemento);
+
+            $('#tb_plantillasubservicio .glyphicon-pencil').show();
+            $('#tb_plantillasubservicio .glyphicon-trash').show();
+            $('#tb_plantillasubservicio .glyphicon-ok').hide();
+            $('#tb_plantillasubservicio .glyphicon-remove').hide();
+
+            $('#lbDesHorasServicio').empty();
+
+            $('#lbDesHorasServicio').append(horasservicio);
+
+            recargaGrilla();
+
+        }
+
+
+        function carga_variables_paginacion() {
+
+
+            totalregistrossubservicios = $('#modModificarServicio').attr('totalregistros');
+            paginasubservicios = $('#modModificarServicio').attr('pagina');
+            totalpaginassubservicios = $('#modModificarServicio').attr('totalpaginas');
+
+        }
+
+
+        url = url.replace("reemplazar", varVersion);
+
+        $('#tb_comp').load(url);
+
+        function recargaGrilla() {
+
+            $('#tb_comp').load(url);
+
+
+
+        }
+
+
+        $('#loadingDiv').hide();
+        $(document).ajaxStart(function () {
+
+            $('#loadingDiv').show();
+
+        }).ajaxStop(function () {
+
+            $('#loadingDiv').hide();
+
+        });
+
+        $('#lbTipoUnidad').hide();
+        $('#tbCantidad').hide();
+
+
+        contadorServicio = 0;
+
+        _.each(Servicios,function(i) {
+
+            contadorServicio++;
+            $('#cmbServicio').append('<option value="'+ i.Idcatalogoservicio+'">'+i.Nombreservicio+' </option>');
+
+        });
+
+
+        var seleccion;
+        var objeto;
+
+
+        $(document).on('keypress', '.numerico', function (e) {
+
+
+            if ((e.which < 48 || e.which > 57) && e.which != 8 ) {
+                e.preventDefault();
+            }
+
+        });
+
+
+        $('#cmbServicio').on('change', function() {
+
+            seleccion = $("#cmbServicio").val();
+
+            var idJson;
+            var contador=0;
+
+
+
+            _.each(Servicios,function(i) {
+
+                if(i.Idcatalogoservicio == seleccion ) {
+
+                    $('#modAgregServicio').attr('tiposervicio', i.Idtiposervicio);
+
+                    $('#tab_horas').empty();
+                    $('#agregar_servicio_1').empty();
+                    $('#agregar_servicio_2').empty();
+                    $('#agregar_servicio_enviar').empty();
+
+                    if(i.Idtiposervicio == '1') {
+                        console.log(i);
+                        $('#agregar_servicio_1').append('<div class="col-md-4 col-xs-4">\
+                                                            <label id="lbDescripcion" class="control-label">Descripción:</label>\
+                                                            <label id="lbDescripcionBot" class="control-label">  </label>\
+                                                        </div>');
+
+                        $('#lbDescripcionBot').text(i.Descripcion);
+
+
+
+                        if(i.Tipocobroinicial == '1') {
+
+                            $('#agregar_servicio_2').append('<div class="col-sm-4 col-xs-12">\
+                                                                <label class="control-label">Costo Fijo</label>\
+                                                                <label id="lbTipoUnidad" class="control-label">Costo Inicial : ' + i.Costounidadinicial + '</label>\
+                                                            </div>');
+
+                        }
+
+                        if(i.Tipocobroinicial == '2') {
+
+                            $('#agregar_servicio_2').append('<div class="col-sm-4 col-xs-12">\
+                                                                <label id="lbTipoUnidad" class="control-label">Costo Inicial : ' + i.TipoUnidad + '</label>\
+                                                                <input id="tbCantidad" type="text" size="9" maxlength="9" class="es-requerido solo-numero-coma form-control input-sm"/>\
+                                                            </div>');
+
+                        }
+
+                        if(i.Tipocobromensual == '1') {
+
+                            $('#agregar_servicio_2').append('<div class="col-sm-4 col-xs-12">\
+                                                                <label class="control-label">Costo Fijo</label>\
+                                                                <label id="lbTipoUnidadMensual" class="control-label">Costo Mensual : ' + i.Costounidadmensual + '</label>\
+                                                            </div>');
+
+                        }
+
+                        if(i.Tipocobromensual == '2') {
+
+                            $('#agregar_servicio_2').append('<div class="col-sm-4 col-xs-12">\
+                                                                <label id="lbTipoUnidadMensual" class="control-label">Costo Mensual : ' + i.TipoUnidadMensual + '</label>\
+                                                                <input id="tbAgregarCantidadMensual" type="text" size="9" maxlength="9" class="es-requerido solo-numero-coma form-control input-sm"/>\
+                                                            </div>');
+
+                        }
+
+                    }
+
+                    if(i.Idtiposervicio == '2') {
+
+
+
+                        $('#agregar_servicio_1').append('<div class="col-md-4 col-xs-4">\
+                                                            <label id="lbDescripcion" class="control-label">Descripción:</label>\
+                                                            <label id="lbDescripcionBot" class="control-label">  </label>\
+                                                        </div>');
+
+                        $('#agregar_servicio_1').append('<div class="col-md-4 col-xs-4">\
+                                                            <label id="lbHoras" class="control-label">Horas:</label>\
+                                                            <label id="lbHorasTotales" class="control-label">0</label>\
+                                                        </div>');
+
+                        $('#lbDescripcionBot').text(i.Descripcion);
+
+
+
+                        $('#tab_horas').append('<div class="row">\
+                                                    <div class="form-group col-md-3">\
+                                                        <label class="control-label">Plantilla de Actividades</label>\
+                                                        <fieldset>\
+                                                            <select id="cmb_plantilla_agregar" class="input-sm form-control"></select>\
+                                                        </fieldset>\
+                                                    </div>\
+                                                    <div class="col-md-2 centrado">\
+                                                        <label class="control-label">\
+                                                            Agregar :\
+                                                            </label>\
+                                                            <span id="agregar_plantilla_actividad" class="glyphicon glyphicon-plus icono" />\
+                                                        </div>\
+                                                    </div>\
+                                                    <div class="row">\
+                                                        <div class="col-md-3">\
+                                                            <label class="control-label">\
+                                                                Nombre Actividad :\
+                                                            </label>\
+                                                            <input id="actividad_in_nombre" class="form-control input-sm es-requerido" type="text" />\
+                                                        </div>\
+                                                        <div class="col-md-3">\
+                                                            <label class="control-label">\
+                                                                Horas Actividad :\
+                                                            </label>\
+                                                            <input id="actividad_in_horas" class="form-control input-sm es-requerido es-flotante solo-numero-coma" type="text" />\
+                                                        </div>\
+                                                        <div class="col-md-2 centrado">\
+                                                            <label class="control-label">\
+                                                            Agregar :\
+                                                            </label>\
+                                                            <span id="agregar_actividad" class="glyphicon glyphicon-plus icono" />\
+                                                        </div>\
+                                                    </div>\
+                                                    <div class="row">\
+                                                        <table id="tb_actividades" class="table table-hover table-striped">\
+                                                            <thead>\
+                                                                <tr>\
+                                                                    <th class="col-md-7">Nombre</th>\
+                                                                    <th class="col-md-3">Horas</th>\
+                                                                    <th class="col-md-2">Acción</th>\
+                                                                </tr>\
+                                                            </thead>\
+                                                            <tbody></tbody>\
+                                                        </table>\
+                                                    </div>');
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("CargaPlantillaSubservicio", "Cotizacion")',
+                            dataType: "html",
+                            data: {
+                                idservicio: $('#cmbServicio').val(),
+                            },
+                            async: false
+                        }).done(function(e) {
+
+                            PlantillaSubservicios = $.parseJSON(e);
+
+                        });
+
+                        $('#cmb_plantilla_agregar').empty();
+
+                        _.each(PlantillaSubservicios, function(i) {
+
+                            $('#cmb_plantilla_agregar').append('<option value="' + i.Idplantillasubservicio + '">' + i.Nombre + ' </option>');
+
+
+                        });
+
+                    }
+
+                    if(i.Idtiposervicio == '3') {
+
+
+                        $('#agregar_servicio_2').append('<div class="col-md-4">\
+                                                            <label class="control-label">Unidad Monetaria</label>\
+                                                            <select id="sl_tipo_moneda" class="input-sm form-control">\
+                                                                <option value="Dolar">Dolar</option>\
+                                                                <option value="UF">UF</option>\
+                                                            </select>\
+                                                        </div>\
+                                                        <div class="col-sm-4 col-md-4">\
+                                                            <label class="control-label">Valor</label>\
+                                                            <input id="tbAgregarCantidadMensual" type="text" size="9" maxlength="9" class="es-requerido solo-numero-coma form-control input-sm"/>\
+                                                        </div>');
+
+                    }
+
+
+
+
+                }
+            });
+
+        });
+
+        $('#modAgregServicio #btn_enviar').click(function () {
+
+
+            var cantidad = $('#tbCantidad').val();
+            var Mensual = $('#tbAgregarCantidadMensual').val();
+            var descripcion = $('#tbDescripcion').val();
+            var tiposervidor = $('#modAgregServicio').attr('tiposervicio');
+            var tipomoneda = $('#sl_tipo_moneda').val();
+            var valido = 1;
+
+
+            //validar si servicio tiene el mismo centro de costo que el usuario
+
+            var valor = 0;
+            $.ajax({
+                type: 'POST',
+                data: {idcotizacion: '@Model.idCotizacion', id: seleccion, tipo: 'S'},
+                url: '@Url.Action("vpValidarServicioComponente", "Cotizacion")',
+                async: false
+            }).done(function(response){
+                valor = parseInt(response);
+            
+            });
+
+            if(valor == -1){
+                alert("No se pueden combinar servicios de gerencias diferentes.");
+                return;
+            }
+
+            if(valor == -2){
+                alert("El servicio que quiere ingresar no tiene centro de costo asignado");
+                return;
+            }
+
+
+            if(tiposervidor == "1") {
+
+
+                if($('#tbCantidad').length != 0 && $('#tbAgregarCantidadMensual').val() == '') {
+
+                    valido = 0;
+
+                }
+
+                if($('#tbAgregarCantidadMensual').length != 0 && $('#tbAgregarCantidadMensual').val() == '') {
+
+                    valido = 0;
+
+                }
+
+                if(valido == 1) {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("vpAgregarServicioCotizacion", "Cotizacion")',
+                        data: {
+                            id: seleccion,
+                            idCotizacion : '@Model.idCotizacion',
+                            cantidad: cantidad,
+                            cantidadMensual: Mensual,
+                            descripcion: descripcion},
+                        async: false
+                    }).done(function() {
+                        alert('cambio guardado');
+                    }).fail(function(e) {
+                        console.log(JSON.stringify(e));
+                    });
+
+                    location.reload();
+
+                }
+
+
+
+            }
+
+            if(tiposervidor == "2") {
+
+                if(actividades != '') {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("vpAgregarServicioActividadesCotizacion", "Cotizacion")',
+                        data: JSON.stringify({
+                            actividadesJson: actividades,
+                            idcotizacion : '@Model.idCotizacion',
+                            idservicio: seleccion,
+                            cantidad: horas.toString()}),
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        async: false
+                    }).done(function(){
+                        alert('cambio guardado');
+                    }).fail(function(e){
+                        console.log(JSON.stringify(e));
+                    });
+
+                    location.reload();
+
+                } else {
+
+                    alert('Se deben ingresar actividades para guardar este servicio');
+
+                }
+
+
+            }
+
+            if(tiposervidor == "3") {
+
+                if($('#tbCantidad').length != 0 && $('#tbAgregarCantidadMensual').val() == '') {
+
+                    valido = 0;
+
+                }
+
+                if(valido == 1) {
+
+
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("vpAgregarServicioCotizacion", "Cotizacion")',
+                        data: {
+                            id: seleccion,
+                            idCotizacion: '@Model.idCotizacion',
+                            cantidadMensual: Mensual,
+                            tipomoneda: tipomoneda},
+                        async: false
+                    }).done(function() {
+                        alert('cambio guardado');
+                    }).fail(function(e) {
+                        console.log(JSON.stringify(e));
+                    });
+
+                    location.reload();
+
+                }
+
+            }
+
+        });
+
+        $('#modbtnDescok').click(function() {
+
+            if($('#txtUF').val().length < 1)
+            {
+                $('#modbtnDcto').hide();
+                alert('Debe ingresar un valor en el campo descuento');
+                return;
+            }
+            var descUF = parseFloat($('#txtUF').val().replace(',','.'));
+            var totCot = parseFloat($('#modptotCot').html().replace(',','.'));
+            var porcDesc = descUF * 100 / totCot;
+            var totalpostdescCot = totCot - descUF;
+            if(descUF > totCot)
+            {
+                $('#modbtnDcto').hide();
+                alert('Debe ingresar un valor inferior al monto mensual');
+                return;
+            }
+            $('#modptotal').html(totalpostdescCot.toFixed(2).toString().replace('.',','));
+            $('#modpporcentaje').html(porcDesc.toFixed(2).toString().replace('.',','));
+            $('#modbtnDcto').show();
+        });
+
+        var ppmontom = '@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(15)';
+        var ppmontoI = '@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(16)';
+
+        $('#pidMontoMensual').text(ppmontom);
+        $('#pidMontoInicial').text(ppmontoI);
+
+        $('#btnGuardaVers').click(function (e) {
+
+            e.preventDefault();
+
+            $('#modVers').modal('hide');
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("VersionarCotizacion", "Cotizacion")',
+                data: {id: $("#cotVersion").val(), comentarios: $("#tArComVersionar").val()},
+                async: false,
+            }).done(function(resp){
+                if (resp.length > 0){
+                    confirm('Acción Erronea', 'Ha ocurrido un error: ' + resp, '0', 'OK', function(){
+                        location.reload();
+                    });
+                }
+                else{
+                    confirm('Acción Exitosa', 'Se ha realizado la versión correctamente. Se envía para su aprobación', '0', 'OK', function(){
+                        location.reload();
+                    });
+                }
+            });
+
+            return false;
+
+        });
+
+        $(document).on('click', '#subservicio_icono_agregar_plantilla', function () {
+
+
+            var callback = function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GuardarSubservicioPlantilla", "Cotizacion")',
+                    data: {
+                        idservicio: $('#modModificarServicio').attr('idservicio'),
+                        idplantillasubservicio: $('#cmb_plantilla_subservicio').val(),
+                        idversion : $("#cotVersion").val()
+                    },
+                    async: false
+                }).done(function (e) {
+
+
+                    mostrar_grilla_subservicios(e);
+
+                });
+
+            };
+
+            confirm('', '¿Esta seguro que desea añadir todos los adtos de la plantilla de actividades?', 'Cancelar', 'Agregar', callback);
+
+
+
+        });
+
+        $(document).on('click', '#agregar_plantilla_actividad', function () {
+
+
+
+            var callback = function () {
+
+                horas = 0;
+                elemento = '';
+
+
+                if(!_.contains(PlantillaActividades, $('#cmb_plantilla_agregar').val())) {
+
+                    PlantillaActividades.push($('#cmb_plantilla_agregar').val());
+
+                    $('#lbHorasTotales').text(0);
+
+
+                    _.each(_.sortBy(
+                                _.where(PlantillaSubservicios2, {
+                                    Idplantillasubservicio: $('#cmb_plantilla_agregar').val()
+                                }), 'NombreSubservicio'),function(i) {
+
+
+                                    elemento = '';
+
+                                    actividades.push({
+                                        idplantillasubservicio: i.Idplantillasubservicio,
+                                        subservicio: i.NombreSubservicio,
+                                        horas: i.Horas}
+                                        );
+
+                                    elemento += '<tr idplantilla="' + i.Idplantillasubservicio + '">\
+                                        <td valoractual="' + i.NombreSubservicio + '">' + i.NombreSubservicio + '</td>\
+                                        <td valoractual="' + i.Horas + '">' + i.Horas + '</td>\
+                                        <td>';
+
+
+                                    if ('@User.IsInRole("OBSERVADOR")' == 'False')
+                                    {
+                                        elemento += '<span class="glyphicon glyphicon-pencil" idplantilla="' + i.Idplantillasubservicio + '"></span>\
+                                            <span class="glyphicon glyphicon-trash" idplantilla="' + i.Idplantillasubservicio + '"></span>\
+                                            <span class="glyphicon glyphicon-ok" idplantilla="' + i.Idplantillasubservicio + '"></span>\
+                                            <span class="glyphicon glyphicon-remove" idplantilla="' + i.Idplantillasubservicio + '"></span>';
+                                    }
+
+                                    elemento += '</td>\
+                                            </tr>';
+
+
+                                    $('#tb_actividades tbody').append(elemento);
+
+                                });
+
+                    _.each(actividades, function(i) {
+
+                        horas += parseFloat((i.horas).replace(',', '.'));
+
+                    });
+
+                    $('#lbHorasTotales').text(horas);
+
+                    $('#tb_actividades .glyphicon-pencil').show();
+                    $('#tb_actividades .glyphicon-trash').show();
+                    $('#tb_actividades .glyphicon-ok').hide();
+                    $('#tb_actividades .glyphicon-remove').hide();
+
+                } else {
+
+                    alert('Ya se ha añadido esta plantilla a este servicio');
+
+                }
+
+            };
+
+
+            if(cmb_plantilla_agregar.length > 0) {
+
+                confirm('', '¿Esta seguro que desea añadir todos los datos de la plantilla de actividades?', 'Cancelar', 'Agregar', callback);
+
+            }
+
+
+        });
+
+        $(document).on('click', '#agregar_actividad', function () {
+
+
+
+            if($('#actividad_in_nombre').val() != '' && $('#actividad_in_horas').val() != '') {
+
+                elemento = '';
+
+                horas = parseFloat($('#actividad_in_horas').val().replace(',', '.')) + parseFloat($('#lbHorasTotales').text().replace(',', '.'));
+
+                elemento += '<tr>\
+                                    <td valoractual="' + $('#actividad_in_nombre').val() + '">'
+                                        + $('#actividad_in_nombre').val() + '</td>\
+                                    <td valoractual="' + $('#actividad_in_horas').val() + '">'
+                                        + $('#actividad_in_horas').val() + '</td>\
+                                    <td>';
+
+                actividades.push({
+                    idplantillasubservicio: '',
+                    subservicio: $('#actividad_in_nombre').val(),
+                    horas: $('#actividad_in_horas').val()}
+                                    );
+
+
+                if ('@User.IsInRole("OBSERVADOR")' == 'False')
+                {
+                    elemento += '<span class="glyphicon glyphicon-pencil"></span>\
+                                        <span class="glyphicon glyphicon-trash"></span>\
+                                        <span class="glyphicon glyphicon-ok" style="display: none;"></span>\
+                                        <span class="glyphicon glyphicon-remove" style="display: none;"></span>';
+                }
+
+                elemento += '</td>\
+                        </tr>';
+
+
+                $('#tb_actividades tbody').prepend(elemento);
+
+                $('#lbHorasTotales').text(horas);
+
+                $('#actividad_in_nombre').val('');
+                $('#actividad_in_horas').val('');
+
+            }
+
+
+
+            @*if(tiposervicio == '1') {
+
+                if(!$('#cmbServicio').val() == 0) {
+
+                    if(!Mensual) {
+
+                        alert('Debe ingresar  ' + $('#lbTipoUnidadMensual').text());
+
+                    } else {
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("vpAgregarServicioCotizacion", "Cotizacion")',
+                            data: {
+                                id: seleccion,
+                                idCotizacion : '@Model.idCotizacion',
+                                cantidadMensual: Mensual,
+                                descripcion: descripcion},
+                            async: false
+                        }).done(function(){
+                            alert('cambio guardado');
+                        }).fail(function(e){
+                            console.log(JSON.stringify(e));
+                        });
+
+                        location.reload();
+
+                    }
+
+                }
+                else {
+
+                    alert('Debe seleccionar un servicio.');
+
+                }
+            }
+            if(tiposervicio == '2') {
+
+                if(actividades != '') {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("vpAgregarServicioActividadesCotizacion", "Cotizacion")',
+                        data: JSON.stringify({
+                            actividadesJson: actividades,
+                            idcotizacion : '@Model.idCotizacion',
+                            idservicio: seleccion,
+                            cantidad: horas.toString()}),
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        async: false
+                    }).done(function(){
+                        alert('cambio guardado');
+                    }).fail(function(e){
+                        console.log(JSON.stringify(e));
+                    });
+
+                    location.reload();
+
+                } else {
+
+                    alert('Se debe ingresar alguna actividad para guardar un servicio de HH');
+
+                }
+
+            }*@
+
+
+        });
+
+        $(document).on('click', '#subservicio_icono_agregar', function () {
+
+            if ($('#subservicio_in_nombre').val().trim() != '' && $('#subservicio_in_horas').val().trim() != '') {
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GuardarSubservicio", "Cotizacion")',
+                    data: {
+                        idservicio: $('#modModificarServicio').attr('idservicio'),
+                        idversion : $("#cotVersion").val(),
+                        nombre: $('#subservicio_in_nombre').val(),
+                        horas: $('#subservicio_in_horas').val()
+                    },
+                    async: false
+                }).done(function (e) {
+
+
+                    mostrar_grilla_subservicios(e);
+
+                });
+
+            }
+
+        });
+
+        $(document).on('click', '#tb_plantillasubservicio .glyphicon-pencil', function () {
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').text();
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').text();
+
+            $(this).closest('td').find('.glyphicon-pencil').hide();
+            $(this).closest('td').find('.glyphicon-trash').hide();
+            $(this).closest('td').find('.glyphicon-ok').show();
+            $(this).closest('td').find('.glyphicon-remove').show();
+
+            elemento = '<input class="form-control input-sm" type="text" value="' + NombreSubservicio + '"/>';
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(elemento);
+
+
+            elemento = '<input class="form-control input-sm" type="text" value="' + HorasSubservicio + '"/>';
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(elemento);
+
+        });
+
+        $(document).on('click', '#modAgregServicio .glyphicon-pencil', function () {
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').text();
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').text();
+
+
+            $(this).closest('td').find('.glyphicon-pencil').hide();
+            $(this).closest('td').find('.glyphicon-trash').hide();
+            $(this).closest('td').find('.glyphicon-ok').show();
+            $(this).closest('td').find('.glyphicon-remove').show();
+
+            elemento = '<input class="form-control input-sm" type="text" value="' + NombreSubservicio + '"/>';
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(elemento);
+
+
+            elemento = '<input class="form-control input-sm" type="text" value="' + HorasSubservicio + '"/>';
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(elemento);
+
+        });
+
+
+        $(document).on('click', '#tb_plantillasubservicio .glyphicon-trash',function(e) {
+
+
+            idsubservicio = $(this).attr('idsubservicio');
+
+            var callback = function () {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminarSubservicio", "Cotizacion")',
+                    dataType: "html",
+                    data: {
+                        idservicio: $('#modModificarServicio').attr('idservicio'),
+                        idsubservicio: idsubservicio,
+                        idversion: $("#cotVersion").val()
+                    },
+                    async: false
+                }).done(function(e){
+
+                    mostrar_grilla_subservicios(e);
+
+
+                });
+
+            };
+
+            confirm('', '¿Esta seguro que desea borrar este actividad?', 'Cancelar', 'Eliminar', callback);
+
+        });
+
+        $(document).on('click', '#modAgregServicio .glyphicon-trash',function(e) {
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').text();
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').text();
+            horas = 0;
+
+            temp = $(this).closest('tr');
+
+            var callback = function () {
+
+                temp.remove();
+
+                actividades = _.reject(actividades, {
+                    subservicio: NombreSubservicio
+                });
+
+                _.each(actividades, function(i) {
+
+                    horas += parseFloat(i.horas);
+
+                });
+
+                $('#lbHorasTotales').text(horas);
+
+            };
+
+
+
+            confirm('', '¿Esta seguro que desea borrar este actividad?', 'Cancelar', 'Eliminar', callback);
+
+        });
+
+        $(document).on('click', '#tb_plantillasubservicio .glyphicon-ok', function(e) {
+
+            var totalhoras = 0;
+
+            idsubservicio = $(this).attr('idsubservicio');
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').find('input').val().trim();
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').find('input').val().trim();
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ModificarSubservicio", "Cotizacion")',
+                data: {
+                    idservicio: $('#modModificarServicio').attr('idservicio'),
+                    idsubservicio: idsubservicio,
+                    idversion: $("#cotVersion").val(),
+                    nombre: NombreSubservicio,
+                    horas: HorasSubservicio
+                },
+                dataType: "html",
+                async: false
+            });
+
+            $(this).closest('td').find('.glyphicon-pencil').show();
+            $(this).closest('td').find('.glyphicon-trash').show();
+            $(this).closest('td').find('.glyphicon-ok').hide();
+            $(this).closest('td').find('.glyphicon-remove').hide();
+
+
+            $(this).closest('td').siblings(':first-child').attr('valoractual', NombreSubservicio);
+            $(this).closest('td').siblings(':nth-child(2)').attr('valoractual', HorasSubservicio);
+
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(NombreSubservicio);
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(HorasSubservicio);
+
+            $('#tb_plantillasubservicio [valoractual]').siblings(':nth-child(2)').each(function(){
+
+                totalhoras += parseFloat($(this).attr('valoractual').replace(',', '.'));
+
+            });
+
+            $('#lbDesHorasServicio').text(totalhoras);
+
+
+            recargaGrilla();
+
+        });
+
+
+        $(document).on('click', '#modAgregServicio .glyphicon-ok',function(e) {
+
+
+            idsubservicio = $(this).attr('idsubservicio');
+            horasservicio = 0;
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').find('input').val().trim();
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').find('input').val().trim();
+
+            actividades = _.reject(actividades, {
+                subservicio: NombreSubservicio
+            });
+
+            actividades.push({
+                idplantillasubservicio: '',
+                subservicio: NombreSubservicio,
+                horas: HorasSubservicio
+            });
+
+
+            _.each(actividades, function(i) {
+
+                horasservicio += parseFloat(horasservicio) + parseFloat((i.horas).replace(',', '.'));
+
+            });
+
+
+            $('#lbHorasTotales').text(horasservicio);
+
+            $(this).closest('td').find('.glyphicon-pencil').show();
+            $(this).closest('td').find('.glyphicon-trash').show();
+            $(this).closest('td').find('.glyphicon-ok').hide();
+            $(this).closest('td').find('.glyphicon-remove').hide();
+
+
+            $(this).closest('td').siblings(':first-child').attr('valoractual', NombreSubservicio);
+            $(this).closest('td').siblings(':nth-child(2)').attr('valoractual', HorasSubservicio);
+
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(NombreSubservicio);
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(HorasSubservicio);
+
+
+
+        });
+
+
+        $(document).on('click', '#modAgregServicio .glyphicon-remove',function(e) {
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').attr('valoractual');
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').attr('valoractual');
+
+            $(this).closest('td').find('.glyphicon-pencil').show();
+            $(this).closest('td').find('.glyphicon-trash').show();
+            $(this).closest('td').find('.glyphicon-ok').hide();
+            $(this).closest('td').find('.glyphicon-remove').hide();
+
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(NombreSubservicio);
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(HorasSubservicio);
+
+
+        });
+
+        $(document).on('click', '#tb_plantillasubservicio .glyphicon-remove',function(e) {
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').attr('valoractual');
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').attr('valoractual');
+
+            $(this).closest('td').find('.glyphicon-pencil').show();
+            $(this).closest('td').find('.glyphicon-trash').show();
+            $(this).closest('td').find('.glyphicon-ok').hide();
+            $(this).closest('td').find('.glyphicon-remove').hide();
+
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(NombreSubservicio);
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(HorasSubservicio);
+
+
+        });
+
+
+        $(document).on('keypress', '#txt_pag_serv',function(e) {
+
+            var key = e.which;
+
+            carga_variables_paginacion();
+
+
+            if (key == 13) {
+
+
+                if ($(this).val() <= totalpaginassubservicios && $(this).val() != '0') {
+
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("CargaSubservicio", "Cotizacion")',
+                        dataType: "html",
+                        data: {
+                            pagina: $(this).val(),
+                            idservicio: $('#modModificarServicio').attr('idservicio'),
+                            idversion: $("#cotVersion").val()
+                        },
+                        async: false
+                    }).done(function(e) {
+
+                        mostrar_grilla_subservicios(e);
+
+
+                    });
+
+                }
+
+            }
+        });
+
+
+        $(document).on('click', '#subservicio_btn_pri_pag',function(e) {
+
+
+            carga_variables_paginacion();
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CargaSubservicio", "Cotizacion")',
+                dataType: "html",
+                data: {
+                    pagina: '1',
+                    idservicio: $('#modModificarServicio').attr('idservicio'),
+                    idversion: $("#cotVersion").val()
+                },
+                async: false
+            }).done(function(e) {
+
+                mostrar_grilla_subservicios(e);
+
+
+            });
+
+        });
+
+
+        $(document).on('click', '#subservicio_btn_pag_ant',function(e) {
+
+
+            carga_variables_paginacion();
+
+            if ((parseInt(paginasubservicios) - 1) <= totalpaginassubservicios && parseInt(paginasubservicios) - 1 != '0') {
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("CargaSubservicio", "Cotizacion")',
+                    dataType: "html",
+                    data: {
+                        pagina: parseInt(paginasubservicios) - 1,
+                        idservicio: $('#modModificarServicio').attr('idservicio'),
+                        idversion: $("#cotVersion").val()
+                    },
+                    async: false
+                }).done(function(e){
+
+                    mostrar_grilla_subservicios(e);
+
+
+                });
+
+            }
+        });
+
+
+        $(document).on('click', '#subservicio_btn_pag_sig',function(e) {
+
+
+            carga_variables_paginacion();
+
+            if ((parseInt(paginasubservicios) + 1) <= totalpaginassubservicios) {
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("CargaSubservicio", "Cotizacion")',
+                    dataType: "html",
+                    data: {
+                        pagina: parseInt(paginasubservicios) + 1,
+                        idservicio: $('#modModificarServicio').attr('idservicio'),
+                        idversion: $("#cotVersion").val()
+                    },
+                    async: false
+                }).done(function(e){
+
+                    mostrar_grilla_subservicios(e);
+
+
+                });
+
+            }
+        });
+
+
+        $(document).on('click', '#subservicio_btn_ult_pag',function(e) {
+
+
+            carga_variables_paginacion();
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CargaSubservicio", "Cotizacion")',
+                dataType: "html",
+                data: {
+                    pagina: parseInt(totalpaginassubservicios),
+                    idservicio: $('#modModificarServicio').attr('idservicio'),
+                    idversion: $("#cotVersion").val()
+                },
+                async: false
+            }).done(function(e){
+
+                mostrar_grilla_subservicios(e);
+
+
+            });
+
+        });
+
+
+
+    });
+</script>
+
+<style>
+    .icono{
+        cursor: pointer;
+        border:none;
+    }
+
+
+</style>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+    <div class="container-fluid">
+
+        <div class="row">        
+            <div class="col-md-3 col-sm-3">
+                <h3 id="ttl">Cotización</h3>
+            </div>    
+            <div class="col-md-9 col-sm-9 text-right">
+                <ol class="breadcrumb">
+                    <li><a href="@Url.Action("Listar","Proyecto")">Inicio</a></li>
+                    <li><a class="urlProy" href="@Url.Action("Detalle", "Proyecto", new { id = Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(10) })">Proyecto: @Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(0)</a></li>
+                    <li class="active">Cotizacion: @Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(6)</li>
+                </ol>
+            </div>
+        </div>
+        @*<h3 id="ttl" class="col-lg-4">Componente</h3>*@
+        
+
+        <div class="row">
+            <div id="est_cot" class="form-group col-md-1">
+                <label for="" class="">N°</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(17)</p>
+            </div>
+            <div id="est_cot" class="form-group col-md-2">
+                <label for="">Nombre del Proyecto</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(0)</p>
+            </div>
+            <div id="fech_impl" class="form-group col-md-2">
+                <label for="" class="">Monto Inicial UF</label>
+                <p id="pidMontoInicial" class="form-control-static"></p>
+            </div>
+            <div id="fech_impl" class="form-group col-md-2">
+                <label for="" class="">Monto Mensual UF</label>
+                <p id="pidMontoMensual" class="form-control-static"></p>
+            </div>
+            <div id="est_cot" class="form-group col-md-2">
+                <label for="">Estado Cotización</label>
+                @if (Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(13).Equals(0))
+                {
+                    <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(9)</p>
+                }
+                else
+                {
+                    <p class="form-control-static">En Implementaci&oacute;n</p>
+                }
+            </div>
+            <div id="est_cot" class="form-group col-md-3">
+                <label for="">Descripción</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(6)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div id="fech_apr_int" class="form-group col-md-2">
+                <label for="">Aprob. GTO</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(2)</p>
+            </div>
+            <div id="fech_apr_ext" class="form-group col-md-2">
+                <label for="">Aprob. Cliente</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(3)</p>
+            </div>
+            <div id="est_cot" class="form-group col-md-2">
+                <label for="">Implementador</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(11)</p>
+            </div>
+            <div id="fech_cr" class="form-group col-md-2">
+                <label for="">Fecha Creación</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(1)</p>
+            </div>
+            <div id="est_cot" class="form-group col-md-2">
+                <label for="">Fecha Inicio Facturación</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(14)</p>
+
+            </div>
+            <div id="vers_cot" class="form-group col-md-2">
+                <ul>
+                    <li>
+                        <label for="">Version de la Cotizacion</label>
+                    </li>
+
+                    <li>
+                        <fieldset>
+                            @using (Html.BeginForm("Detalle", "Cotizacion"))
+                            {
+                                @Html.HiddenFor(x => Model.idCotizacion)
+                                if (User.IsInRole("CLIENTE") || User.IsInRole("IMPLEMENT") || User.IsInRole("FACTURADOR") || User.IsInRole("CLIENTE+"))
+                                {
+                                    <select id="cotVersion" name="cotVersion" disabled>
+
+                                    @foreach (DataRow col in Model.dtVersionCotizacion.Rows)
+                                    {
+                                        if (Model.cotVersion != null)
+                                        {
+                                            if (Model.cotVersion.Equals(col.ItemArray.GetValue(0).ToString()))
+                                            {
+                                                <option selected value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                        }
+
+
+                                    }
+                                </select>
+                                }
+                                else
+                                {
+                                    <select id="cotVersion" name="cotVersion">
+                                        @foreach (DataRow col in Model.dtVersionCotizacion.Rows)
+                                        {
+                                            if (Model.cotVersion != null)
+                                            {
+                                                if (Model.cotVersion.Equals(col.ItemArray.GetValue(0).ToString()))
+                                                {
+                                                    <option selected value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                            }
+                                        }
+                                    </select>
+                                }
+                            }
+                        </fieldset>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div style="border-top:solid 2px #8FBE00;"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="tb_comp" class="grilla"></div>
+        </div>
+
+        @*<div id="nom_prct" class="form-group fila1 col1">
+                <label for="">Nombre del Proyecto</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(0)</p>
+            </div>*@
+
+
+
+
+
+
+
+
+
+        @*<div id="desc_cot" class="form-group fila3 col1">
+                <label for="">Descripción de la Versión</label>
+                <p class="form-control-static">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(6)</p>
+            </div>*@
+
+
+
+
+        @*if (Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(7).ToString() == "4" && Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(5).ToString() == Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(8).ToString())
+            {
+                <button id="gestion" type="button" class="btn btn-primary">Gestionar</button>
+            }
+            else
+            {
+                <button id="gestion" type="button" class="btn btn-primary" disabled>Gestionar</button>
+            }*@
+
+
+
+
+
+        <!-- /.btn-toolbar -->
+        <!-- /.btn-toolbar -->
+        <!-- /.modal agregar servicio -->
+        <div class="row">
+
+            <div class="modal fade" id="modAgregServicio" tiposervicio="">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header ttl_modal">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title">Agregar Servicio</h4>
+                        </div>
+
+                        <div id="nvo_servicio" class="modal-body " style="height: 100%;">
+
+                            <div class="container-fluid">
+
+                                <div class="row">
+
+                                    <div class="col-md-4 col-xs-4">
+                                        <label id="lbCmbServicio" class="control-label">Seleccione un Servicio</label>
+
+                                        <select id="cmbServicio" class="chosen-select">
+                                            <option selected disabled value="0">Seleccione un Servicio</option>
+                                        </select>
+                                        <script>
+                                            $(document).ready(function () {
+                                                $('.chosen-select').chosen({width: "100%", height: "100%"});
+                                            });
+                                        </script>
+
+                                    </div>
+
+                                    <div id="agregar_servicio_1"></div>
+
+                                    @*<div class="col-md-4 col-xs-4">
+
+                        <label id="lbDescripcion" class="control-label descripcionModal">Descripción:</label>
+                        <label id="lbDescripcionBot" class="control-label descripcionModal ">  </label>
+
+                    </div>*@
+
+                                    @*<div class="col-md-4 col-xs-4">
+
+                        <label id="lbHoras" class="control-label">Horas:</label>
+                        <label id="lbHorasTotales" class="control-label">0</label>
+
+                    </div>*@
+
+
+
+                                </div>
+
+                                <div class="row">
+
+                                    <div id="agregar_servicio_2"></div>
+
+                                    @*<div class="col-md-4 col-xs-4">
+
+                        <label hidden id="lbTipoUnidadMensual" class="control-label"></label>
+                        <input hidden id="tbCantidadMensual" type="text" size="9" maxlength="9" class=" es-requerido solo-numero-coma form-control input-sm" />
+
+                    </div>*@
+
+                                    @*<div id="descripcion" class="col-md-4 col-xs-4">
+                        <label hidden id="lbDescripcionn" class="control-label">Descripción servicio:</label>\
+                        <textarea id="tbDescripcionn" style="display: none" class="control-label descripcionModal "></textarea>
+                    </div>*@
+
+                                </div>
+
+                                <div id="tab_horas"></div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+
+                            @*<div id="agregar_servicio_enviar"></div>*@
+
+                            <button id="btn_enviar" type="submit" class="btn btn-primary">Agregar</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal agregar servicio -->
+        <!-- /.modal modificar servicio -->
+        <div class="row">
+
+            <div class="modal fade" id="modModificarServicio" idservicio="" tiposervicio="" totalregistros="" pagina="" totalpaginas="">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header ttl_modal">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 style="color: #000" class="modal-title"></h4>
+                        </div>
+                        <div id="upd_servicio" data-id="" class="modal-body ui-front">
+
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-sm-4 col-xs-4">
+                                        <label id="lbDescripcion" class="control-label descripcionModal">Descripción :</label>
+                                        <label id="lbDescripcionBot" class="control-label es-flotante descripcionModal ">  </label>
+                                    </div>
+
+                                </div>
+
+                                <div id="modificar_servicio" class="row"></div>
+
+
+                            </div>
+
+
+
+                            <div id="modServicioGrilla"></div>
+
+                        </div>
+
+                        <div class="modal-footer"> 
+
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+
+                            <button id="btn_modificar_servicio" type="button" class="btn btn-primary">Actualizar</button>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal modificar servicio -->
+        <!-- /.modal Reporte Cotizacion -->
+       
+
+            <div class="modal fade" id="modReporteCot">
+                <div class="modal-dialog" style="width:80%;">
+                    <div class="modal-content">
+
+                        <div class="modal-header ttl_modal">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h4 class="modal-title">Reporte</h4>
+                                </div>
+                                <div id="ico_carga" class="col-md-6"></div>
+                            </div>
+                        </div>
+
+                        <div id="upd_servicio" data-id="" class="modal-body ui-front alert alert-warning text-center">
+                            <div id="vpmRep"></div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button id="btn_excel" type="button" class="btn btn-primary">Excel</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        
+        <!-- /.modal Reporte Cotizacion -->
+        <!-- /.modal Versionar-->
+        <div class="modal fade" id="modVers">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Versionar Cotización</h4>
+                    </div>
+                    <div id="upd_servicio" data-id="" class="modal-body ui-front">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="control-label">Comentarios</label>
+                                <textarea id="tArComVersionar" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        <button id="btnGuardaVers" type="button" class="btn btn-success"><span class="glyphicon glyphicon-floppy-saved" aria-hidden="true"></span> Versionar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal Versionar-->
+        <!-- /.modal Reporte Cotizacion -->
+        <div class="modal fade" id="modMensajes">
+            <div class="modal-dialog" style="width:80%;">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Historial de Mensajes</h4>
+                    </div>
+                    <div id="upd_servicio" data-id="" class="modal-body ui-front">
+                        <div>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-1">#</th>
+                                        <th class="col-md-1">Fecha</th>
+                                        <th class="col-md-1">Versión</th>
+                                        <th class="col-md-2">Usuario</th>
+                                        <th class="col-md-2">Estado</th>
+                                        <th class="col-md-5">Mensaje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if(Model.dtMotivos.Rows !=  null) {
+
+                                    foreach (DataRow col in Model.dtMotivos.Rows)
+                                    {
+                                        <tr>
+                                            <td>@col.ItemArray.GetValue(0)</td>
+                                            <td>@col.ItemArray.GetValue(1)</td>
+                                            <td>@col.ItemArray.GetValue(2)</td>
+                                            <td>@col.ItemArray.GetValue(3)</td>
+                                            <td>@col.ItemArray.GetValue(4)</td>
+                                            <td>@col.ItemArray.GetValue(5)</td>
+                                        </tr>
+                                    }
+
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        <button id="btn_enviar" type="button" class="btn btn-primary">Exportar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal Reporte Cotizacion -->
+        <!-- /.modal Copiar Cotizacion -->
+        <div class="modal fade" id="modCopiarCot">
+            <div class="modal-dialog" style="width:30%;">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Copiar Cotización</h4>
+                    </div>
+                    <div id="copiaCoti" data-id="" class="modal-body ui-front">
+                        <div class="row"> 
+                            <div id="est_cot" class="form-group col-xs-12">
+                                @if (Model.dtProyectos.Rows.Count == 0)
+                                {
+                                    @: No tiene proyectos asignados
+                                }
+                                else
+                                {
+                                <label for="">Seleccione Proyecto</label>                                
+                                <select class="form-control input-sm">
+                                    @foreach (DataRow col in Model.dtProyectos.Rows)
+                                    {
+                                        <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(2)</option>
+                                    }
+                                </select>
+                                }                 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        @if (Model.dtProyectos.Rows.Count > 0)
+                        {
+                        <button id="btn_copiaCoti" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-duplicate"></span> Copiar</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal Copiar Cotizacion -->
+        <!-- /.modal Copiar Cotizacion Migrada -->
+        <div class="modal fade" id="modCopiarCotMig">
+            <div class="modal-dialog" style="width:30%;">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Copiar Cotización Migrada</h4>
+                    </div>
+                    <div id="copiaCotiMig" data-id="" class="modal-body ui-front">
+                        <div class="row">
+                            <div id="est_cot" class="form-group col-xs-12">
+                                @if (Model.dtProyectos.Rows.Count == 0)
+                                {
+                                    @: No tiene proyectos asignados
+                                }
+                                else
+                                {
+                                    <label for="">Seleccione Proyecto</label>
+                                    <select id="cmbProyectoMig" class="form-control input-sm">
+                                        @foreach (DataRow col in Model.dtProyectos.Rows)
+                                        {
+                                            <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(2)</option>
+                                        }
+                                    </select>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                @if (Model.dtPlantillas.Rows.Count == 0)
+                                {
+                                    @: No tiene proyectos asignados
+                                }
+                                else
+                                {
+                                    <label for="">Seleccione Plantilla</label>
+                                    <select id="cmbPlantillaMig" class="form-control input-sm">
+                                        @foreach (DataRow col in Model.dtPlantillas.Rows)
+                                        {
+                                            <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                        }
+                                    </select>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        @if (Model.dtProyectos.Rows.Count > 0)
+                        {
+                            <button id="btn_copiaCotiMig" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-duplicate"></span> Copiar</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal Copiar Cotizacion Migrada -->
+        <!-- /.modal dcto (gerente)-->
+        <div class="modal fade" id="modDcto">
+            <div class="modal-dialog" id="modDialog">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Descuento</h4>
+                    </div>
+                    <div id="dataEdit" class="modal-body ui-front">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Monto Mensual de Cotización (UF)</label>
+                                <p id="modptotCot">@Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(15)</p>
+                            </div>
+                            <div id="divDes" class="form-group col-sm-6">
+                                <label>Descuento en UF</label>
+                                <div class="input-group">                                    
+                                    <input id="txtUF" class="form-control input-sm solo-numero-coma" />
+                                    <span class="input-group-btn">
+                                        <button id="modbtnDescok" class="btn btn-default btn-sm" type="button"><span class="glyphicon glyphicon-ok"></span></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>  
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="control-label">Monto Mensual Final de Cotizacion (UF)</label>
+                                <p id="modptotal">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="control-label">% de Descuento</label>
+                                <p id="modpporcentaje">-</p>
+                            </div>   
+                        </div>                                 
+                        <div class="row">
+                            <div id="divCod" class="form-group col-sm-6">
+                                <label>Comentarios</label>
+                                <textarea id="txtDes" class="form-control input-sm"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        <button type="button" id="modbtnDcto" class="btn btn-primary" style="display:none;">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal end -->
+
+        <div id='loadingDiv'>
+            <img src="~/Content/img/loading2.gif" />
+        </div>
+
+    </div>
+
+}
+else
+{
+    <script>
+        error('@ViewBag.Error');
+    </script>
+}
+
+

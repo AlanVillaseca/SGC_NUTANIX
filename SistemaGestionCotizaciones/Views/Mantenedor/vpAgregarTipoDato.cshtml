@@ -1,0 +1,85 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+
+<script>
+    $(document).ready(function () {
+        var numCaracteres = "255";
+        //asigna el valor del iContrl segun el radio button selecccionado
+        $("input[name=contrl]").click(function () {
+
+
+            var contrl = $('input:radio[name=contrl]:checked').val();
+            if (contrl == "1") {
+                $('#tbLargo').val(numCaracteres);
+                $('#tbLargo').show();
+                $('#lbLargo').show();
+            }
+            if (contrl == "2") {
+                $('#tbLargo').val("1");
+                $('#tbLargo').hide();
+                $('#lbLargo').hide();
+            }
+            if (contrl == "3") {
+                $('#tbLargo').val("NULL");
+                $('#tbLargo').hide();
+                $('#lbLargo').hide();
+            }
+
+        });
+        $('#tbLargo').focusout(function () {
+            numCaracteres = $('#tbLargo').val();
+        });
+        $('#tbLargo').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+    });
+</script>
+
+
+
+<div id="msg_wrn" class="row"><span></span></div>
+
+
+<div id="contenedorModal" class="form-group container">
+    <div class="row">
+        <div id="nom_header" class=" col-sm-4 col-xs-12 ">
+            <label class="control-label" for="">Nombre</label>
+            <input required id="nombre" type="text" name="nombre" class="form-control input-sm caracter-250" placeholder="Nombre">
+        </div>
+    </div>
+    <div class="form-group row ">
+            <label class="control-label">Seleccione un control</label>
+            <div class=" col-sm-4 col-xs-12 radio-inline">
+                <label>
+                    <label class="control-label">Textbox </label>
+                    <input required id="rbTexto" type="radio" name="contrl" value="1" checked>
+                    <input id="iText" type="text" class="form-control input-sm " disabled />
+                </label>
+            </div>
+            <div class=" col-sm-4 col-xs-12 ">
+                <label>
+                    <label class="control-label">Checkbox </label>
+                    <input id="rbBool" type="radio" name="contrl" value="2">
+                    <input id="ibool" name="Booleano" type="checkbox" disabled />
+                </label>
+            </div>
+            <div class=" col-sm-4 col-xs-12 ">
+                <label>
+                    <label class="control-label">Dropdownlist </label>
+                    <input id="rbLista" type="radio" name="contrl" value="3">
+                    <select id="cbSelect" name="idTipoDato" disabled class="selectmenu form-control es-requerido">
+                        <option value="1" selected="selected">Lista</option>
+                    </select>
+                </label>
+            </div>
+    </div>
+    <div class=" row">
+        <div class=" col-sm-4 col-xs-12 form-group ">
+            <label class="control-label" id="lbLargo">Numero maximo de caracteres</label>
+            <input  id="tbLargo" name="largo" type="text" placeholder="255" class="form-control input-sm " />
+        </div>
+    </div>
+</div>

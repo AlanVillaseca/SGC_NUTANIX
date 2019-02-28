@@ -1,0 +1,364 @@
+﻿@{
+    ViewBag.Title = "nuevo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.ListarProyecto
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+<script type="text/javascript" src="~/Scripts/js/listarProyecto.js"></script>
+<script src="~/Scripts/js/paginacion.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/css/listarProyecto.css" />
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    #loadingDiv {
+        position: absolute;
+        top: 400px;
+        left: 50%;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+
+        var Idcotizaciones = @Html.Raw(jss.Serialize(Model.dtCotizacionesJson));
+        var servicio;
+        var servicioJson;
+
+
+        $('#loadingDiv').hide();
+        $(document).ajaxStart(function () {
+            $('#loadingDiv').show();  // show Loading Div
+        }).ajaxStop(function () {
+            $('#loadingDiv').hide(); // hide loading div
+        });
+
+        $('#tb_pytc').load('@Url.Action("vpGrillaListar", "Proyecto")', {
+            id: '-1',
+            paisNegocio: '-1',
+            negocio: '-1',
+            usrSolicitante: '-1',
+            srvNegocio: '-1',
+            fchIni: '-1',
+            fchFin: '-1',
+            usrAsignada: '-1',
+            pagina: 0,
+            idHead: 0, 
+            ascDesc: 0,
+            idMostrar: '1',
+            codCot: '-1',
+            usrCreador: '-1'
+        });
+
+
+
+        $("#btnGuardar").click(function () {
+
+            $('#hidePais').val($('#cmbNegocioPais option:selected').attr('groupId'));
+
+            /*----------------*/
+            var contFilas = 1;
+            var xmlProrrata;
+            var prSuma = 0;
+            if ($('#m_nuevoProy').validar()) {
+                return;
+            }
+            $('#gProrrateo #ccc').each(function () {
+
+                prSuma += parseFloat(($(this).val()).replace(',', '.'));
+
+                prSuma = parseFloat(prSuma.toFixed(2));
+
+            });
+            if (prSuma != 100) {
+                alert('La suma de porcentajes debe ser 100');
+                return;
+            }
+            xmlProrrata = '';
+            //alert($('#gProrrateo').length);
+            $('#gProrrateo .filaPR').each(function () {
+                xmlProrrata = xmlProrrata + '!**Fila**!';
+                xmlProrrata = xmlProrrata + '!**Tipo**!' + $('#aaa', this).val() + '!**/Tipo**!';
+                xmlProrrata = xmlProrrata + '!**Pais**!' + $('#bbb option:selected', this).attr('groupid') + '!**/Pais**!';
+                xmlProrrata = xmlProrrata + '!**Data**!' + $('#bbb', this).val() + '!**/Data**!';
+                xmlProrrata = xmlProrrata + '!**Porcentaje**!' + $('#ccc', this).val() + '!**/Porcentaje**!';
+                xmlProrrata = xmlProrrata + '!**/Fila**!';
+            });
+            /*----------------*/
+            $('#hddProrrateo').val(xmlProrrata);
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("vpIngresar")',
+                data: $("#form0").serialize(),
+                async: false,
+                success: function (result) {
+                    /* if (result.length > 0) {
+                         alert(result);
+                     }
+                     else {*/
+                    $('.modal').modal('toggle');
+                    //}
+                }
+            });
+            $('#tb_pytc').load(url);
+        });
+
+        $('#email').click(function () {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Contact", "Proyecto")',
+                async: false
+            });
+
+        });
+
+        $('#cmb_pais_negocio').change(function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CargaServicio", "Proyecto")',
+                data: {
+                    idnegocio: $(this).val(),
+                    idpais: $(this).find(':selected').attr('groupid')
+                },
+                async: false,
+            }).done(function (servicio) {
+                servicioJson = jQuery.parseJSON(servicio);
+            });
+            $('#cmb_negocio').empty();
+            $('#cmb_negocio').append('<option value="-1" selected>Todos</option>');
+            _.each(servicioJson, function (i) {
+                $('#cmb_negocio').append('<option value="' + i.idservicionegocio + '">' + i.nombre + '</option>');
+            });
+        });
+
+
+        $('#btn_cotizacion').click(function () {
+
+
+            if(JSON.stringify(_.where(Idcotizaciones, {Idcotizacion : $('#txt_cotizacion').val()})) == '[]') {
+                
+                c_alert('','No existe el idcotizacion ' + $(txt_cotizacion).val() + '.', 'Aceptar');
+
+
+
+            } else {  
+
+                if($('#txt_cotizacion').val() == ''){
+
+                    c_alert('','No se ha ingresado un idcotizacion.', 'Aceptar');
+                    
+                } else {
+
+                    window.location.href = '/Cotizacion/Detalle/' + $('#txt_cotizacion').val();
+                }
+
+            }
+            
+
+        });
+
+    });
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            <h3 id="ttl">Proyectos</h3>
+        </div>
+        <div class="col-md-9 col-sm-9 text-right">
+            <ol class="breadcrumb">
+                <li class="active">Inicio</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            <h5 style="padding-top:2%;">Filtros de Búsqueda</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div style="border-top:solid 1px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;padding-bottom:2%;"></div>
+    </div>
+
+    <form role="form">
+        <div class="row">
+            <div id="nom_prct" class="form-group col-md-3">
+                <label for="">Nombre del Proyecto</label>
+                <input type="text" class="form-control input-sm" id="txt_proyecto" placeholder="Nombre Proyecto">
+            </div>
+            <div id="nom_prct" class="form-group col-md-2">
+                <label>Cód. Cotización</label>
+                <div style="display:inline-flex">
+                    <input type="text" class="form-control input-sm solo-numero" id="txt_cotizacion" placeholder="Cód. Cotización">
+                    <button id="btn_cotizacion" title="Ir a cotizacion" type="button" class="btn btn-primary fa fa-chevron-right"></button>
+                </div>
+
+            </div>
+
+            <div id="fech_sol" class="form-group col-md-2">
+                <label for="">Fecha Solicitud Desde</label>
+                <input id="fech_sol_min" name="fech_sol_min" type="text" size="10" class="datepicker input-sm" placeholder="Desde">
+            </div>
+            <div id="fech_sol1" class="form-group col-md-2">
+                <label for="">Fecha Solicitud Hasta</label>
+                <input id="fech_sol_max" name="fech_sol_max" type="text" size="10" class="datepicker input-sm" placeholder="Hasta">
+            </div>
+
+            <div id="jef_pro" class="form-group col-md-3">
+                <ul>
+                    <li>
+                        <label for="">Jefe Proyecto</label>
+                    </li>
+
+                    <li>
+                        <fieldset>
+                            <select id="cmb_jefe_pryct" class="input-sm form-control">
+                                <option value="-1" selected>Todos</option>
+                                <option value="-2">No Asignado</option>
+
+                                @foreach (DataRow col in Model.dtJPAsignado.Rows)
+                                {
+                                    <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                }
+                            </select>
+                        </fieldset>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div id="usu_sol" class="form-group col-md-3 hide">
+                <ul>
+                    <li>
+                        <label for="">Cliente</label>
+                    </li>
+
+                    <li>
+                        <fieldset>
+                            <select id="cmb_solicitante" class="input-sm form-control">
+                                <option value="-1" selected>Todos</option>
+
+                                @foreach (DataRow col in Model.dtUsuariosolicitante.Rows)
+                                {
+                                    <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(0)</option>
+                                }
+                            </select>
+                        </fieldset>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="jef_pro" class="form-group col-md-3">
+                <ul>
+                    <li>
+                        <label for="">Creador</label>
+                    </li>
+
+                    <li>
+                        <fieldset>
+                            <select id="cmb_creador" class="input-sm form-control">
+                                <option value="-1" selected>Todos</option>
+
+                                @foreach (DataRow col in Model.dtCreadores.Rows)
+                                {
+                                    <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                                }
+                            </select>
+                        </fieldset>
+                    </li>
+                </ul>
+            </div>
+
+
+            <div id="neg_sol" class="form-group col-md-3">
+                <ul>
+                    <li>
+                        <label for="">Negocio Solicitante</label>
+                    </li>
+                    <li>
+                        <fieldset>
+                            <select id="cmb_pais_negocio" class="input-sm form-control">
+                                <option value="-1" groupid="-1" selected>Todos</option>
+                                @foreach (DataRow col in Model.dtNegocio.Rows)
+                                {
+                                    <option groupid="@col.ItemArray.GetValue(0)" value="@col.ItemArray.GetValue(2)">@col.ItemArray.GetValue(1) - @col.ItemArray.GetValue(3)</option>
+                                }
+                            </select>
+                        </fieldset>
+                    </li>
+                </ul>
+            </div>
+            <div id="serv_neg" class="form-group col-md-3">
+                <ul>
+                    <li>
+                        <label for="">Servicio de Negocio</label>
+                    </li>
+
+                    <li>
+                        <fieldset>
+                            <select id="cmb_negocio" class="input-sm form-control">
+                                <option value="-1" selected>Todos</option>
+
+
+                            </select>
+                        </fieldset>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <label class="control-label">Estado Proyecto</label>
+                <select id="cmbMostrar" class="form-control input-sm">
+                    <option value="1" selected>Activos</option>
+                    <option value="6">Facturando</option>
+                    <option value="4">Stand by</option>
+                    <option value="5">Cerrados</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto"></div>
+        </div>
+        <div class="row">
+            <div id="tb_pytc"></div>
+        </div>
+
+    </form>
+    <div id='loadingDiv'>
+        <img src="~/Content/img/loading2.gif" />
+    </div>
+</div>
+
+<!-- /.modal -->
+<div class="modal fade" id="modCustom">
+    <div class="modal-dialog" id="modDialog" style="width:700px;">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Nuevo Proyecto</h4>
+            </div>
+            <div id="nvo_pryct" class="modal-body ui-front" style="height:540px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button id="btnGuardar" type="button" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal -->

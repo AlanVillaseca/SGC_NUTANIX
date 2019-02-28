@@ -1,0 +1,250 @@
+﻿@{
+    ViewBag.Title = "create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.Security.UsuarioEditViewModel
+@using SistemaGestionCotizaciones.Models.Security;
+
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    function isEmail(email) {
+        var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regex.test(email);
+    }
+    $(document).ready(function () {
+
+        var userloaded = false;
+
+        $('#btnCrear').attr('disabled', 'disabled');
+        $('input[type="checkbox"]').attr('disabled', 'disabled');
+        $("#Usuario_Username").attr('placeholder', 'Email');
+        $("#SelectedNegocioPais").addClass('form-control');
+        $('#divCentroCosto').hide();
+        $("#Usuario_Username").keyup(function () {
+            if (userloaded) {
+                $('#btnCrear').attr('disabled', 'disabled');
+                $('input[type="checkbox"]').attr('disabled', 'disabled');
+                $('#SelectedNegocioPais').attr('disabled', 'disabled');
+                $('#SelectedCentroCosto').attr('disabled', 'disabled');
+                $('#divCentroCosto').hide();
+                $('#Usuario_Displayname').val('');
+                $('#Usuario_Email').val('');
+                userloaded = false;
+            }
+        });
+
+        $("#btnGetUserFromAD").click(function () {
+            var url = '@Html.Raw(Url.Action("GetUsuarioFromAD", "Usuario", new { username = "param-username" }))'
+            url = url.replace('param-username', $("#Usuario_Username").val());
+            if (!isEmail($('#Usuario_Username').val())) {
+                $('span[data-valmsg-for="Usuario.Username"]').text('Correo inválido.');
+            } else {
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                async: false,
+                success: function (result) {
+                    if (result.length <= 0) {
+                        $('span[data-valmsg-for="Usuario.Username"]').text('Error inesperado.');
+                    }
+                    else {
+                        var res = result.split('|');
+                        if (res.length == 1) {
+                            $('span[data-valmsg-for="Usuario.Username"]').text(res);
+                        }
+                        else {
+                            $('#Usuario_Displayname').val(res[0]);
+                            $('#Usuario_Email').val(res[1]);
+
+                            $('input[type="checkbox"]').removeAttr('disabled');
+                            $('#SelectedNegocioPais').removeAttr('disabled');
+                            $('#SelectedCentroCosto').removeAttr('disabled');
+                            userloaded = true;
+                        }
+                    }
+                }
+            });
+            }
+        });
+
+
+        $('#checkFacturador').click(function () {
+            var checkFactura = $('#checkFacturador');
+            if (checkFactura.is(':checked')) {
+                $('#divCentroCosto').show();
+                $('#btnCrear').attr('disabled', 'disabled');
+            } else {
+                $('#divCentroCosto').hide();
+                $('#btnCrear').removeAttr('disabled');
+            }
+        });
+
+        $('#SelectedNegocioPais').change(function () {
+            if ($(this).val() != '') {
+                $('#btnCrear').removeAttr('disabled');
+            } else {
+                $('#btnCrear').attr('disabled', 'disabled');
+            }
+        });
+
+        $('#SelectedCentroCosto').change(function () {
+
+            if ($(this).val() != '') {
+                $('#btnCrear').removeAttr('disabled');
+            } else {
+                $('#btnCrear').attr('disabled', 'disabled');
+            }
+        });
+
+        $('#btnCrear').click(function () {
+
+            var roles = '';
+            
+
+            $('.rol:checkbox:checked').each(function () {
+                roles +=  $(this).val() + '-';
+            });
+
+            roles = roles.slice(0, -1);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Create", "Usuario")',
+                dataType: "html",
+                data: {
+                    displayname: $('#Usuario_Displayname').val(),
+                    email: $('#Usuario_Email').val(),
+                    username: $('#Usuario_Username').val(),
+                    negociopais: $('#SelectedNegocioPais').val(),
+                    roles: roles,
+                    activo: $('#Usuario_Activo').is(':checked'),
+                    centrocosto: $('#SelectedCentroCosto').val()
+                },
+                async: false
+            });
+
+            window.location.href = 'index';
+
+
+        });
+
+
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        <h3 id="ttl">Crear Usuario</h3>
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+        <br />
+
+        
+
+        <div class="form-horizontal">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Usuario.Username, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Usuario.Username, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Usuario.Username, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-3">
+                    <button type="button" id="btnGetUserFromAD" class="btn btn-success" title="Valida y trae datos del usuario antes de agregarlo.">
+                        <span class="glyphicon glyphicon-download"></span> Validar en Active Directory
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Usuario.Displayname, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.Usuario.Displayname, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(model => model.Usuario.Displayname, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Usuario.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.Usuario.Email, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(model => model.Usuario.Email, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2" for="Usuario_Displayname">Pais - Negocio</label>
+                <div class="col-md-6">
+                    @Html.DropDownListFor(model => model.SelectedNegocioPais, new SelectList(Model.NegocioPaises, "id", "nombre"), "Seleccione un Pais - Negocio", new { @disabled = "disabled" })
+                    @Html.ValidationMessageFor(model => model.SelectedNegocioPais, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Usuario.Activo, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-6">
+                    <div class="checkbox">
+                        @Html.EditorFor(model => model.Usuario.Activo)
+                        @Html.ValidationMessageFor(model => model.Usuario.Activo, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <!--  Inicio campo centro de costo dinamico  -->
+
+            <div class="form-group" id="divCentroCosto">
+                <label class="control-label col-md-2" for="usuario_centrocosto">Centro de Costo</label>
+                <div class="col-md-6">
+                    @Html.DropDownListFor(model => model.SelectedCentroCosto, new SelectList(Model.CentroCosto, "idcentrocosto", "gerencia"), "Seleccione un Centro de Costo", new { @disabled = "disabled", @class="form-control" })
+                    @Html.ValidationMessageFor(model => model.SelectedCentroCosto, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <!--  Fin    campo centro de costo dinamico  -->
+
+            <hr />
+            <div class="form-group">
+                <label class="control-label col-md-2" for="Usuario_Email">Asignar Roles</label>
+                <div class="col-md-10">
+                    <ul>
+                        @{int i = 0;}
+                        @foreach (var rol in Model.Roles)
+                        {
+                            <li>
+                                @if (rol.Id.Equals(6))
+                                {
+                                    <input type="checkbox" class="rol" name="Roles[@i].id" value="@rol.Id" id="checkFacturador" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" class="rol" name="Roles[@i].id" value="@rol.Id" />
+                                }
+                                
+                                @Html.HiddenFor(model => model.Roles[i].Codigo)
+                                @rol.Nombre
+                                @{i++;}
+                            </li>
+                        }
+                        @Html.ValidationMessageFor(model => Model.Roles)
+                    </ul>
+                </div>
+                
+            </div>
+
+            <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+            <br />
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="button" class="btn btn-danger" title="Cancelar" onclick="@("window.location.href='" + @Url.Action("Index", "Usuario") + "'");">
+                        <span class="glyphicon glyphicon-floppy-save"></span> Cancelar
+                    </button>
+                    <button type="submit" id="btnCrear" class="btn btn-primary" title="Crear Usuario"><span class="glyphicon glyphicon-floppy-save"></span> Crear</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

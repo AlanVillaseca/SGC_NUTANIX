@@ -1,0 +1,105 @@
+﻿
+@{
+    ViewBag.Title = "Arbol";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+.level-1{
+     background-color:#FFFFFF;
+}
+
+.level-2{
+    background-color:#FFFFFF;
+}
+.level-3{
+    background-color:#FFFFFF;
+}
+.level-4{
+    background-color:#FFFFFF;
+}
+
+
+
+.level-1 > .gls {
+    padding-left: 2em;   
+}
+.level-2 > .gls {
+    padding-left: 4em;    
+}
+.level-3 > .gls {
+    padding-left: 6em;    
+}
+.level-4 > .gls {
+    padding-left: 8em;    
+}
+</style>
+
+<h1>asdasdsda</h1>
+
+
+
+<table border="1">
+    <thead>
+        <tr>
+            <th width="300px">Glosa</th>
+            <th>Valor</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr id="100">
+            <td class="gls"><input type="checkbox" /> Base de Datos</td><td>10 UF</td>
+        </tr>
+        <tr id="200" data-parent="100" class="level-1">
+            <td class="gls"><input name="group1" type="radio" /> Oracle</td><td>10 UF</td>
+        </tr>
+        <tr class="level-2">
+            <td class="gls"><input type="checkbox" /> Licencia</td><td>5 UF</td>
+        </tr>
+        <tr class="level-3">
+            <td class="gls"><input name="group3" type="radio" /> xUsuario</td><td>5 UF</td>
+        </tr>
+        <tr class="level-3">
+            <td class="gls"><input type="radio" /> xCPU</td><td>3 UF</td>
+        </tr>
+        <tr class="level-2">
+            <td class="gls"><input type="checkbox" /> Administracion</td><td>7 UF</td>
+        </tr>
+        <tr class="level-2">
+            <td class="gls"><input type="checkbox" /> Mantencion</td>
+            <td>3 UF</td>
+        </tr>
+        <tr id="200" data-parent="100" class="level-1">
+            <td class="gls"><input name="group1" type="radio" /> MSSQL Server</td>
+            <td>10 UF</td>
+        </tr>
+        <tr class="level-2">
+            <td class="gls"><input type="checkbox" /> Licencia</td>
+            <td>5 UF</td>
+        </tr>
+        <tr class="level-3">
+            <td class="gls"><input type="radio" /> xUsuario</td>
+            <td>5 UF</td>
+        </tr>
+        <tr class="level-3">
+            <td class="gls"><input type="radio" /> xCPU</td>
+            <td>3 UF</td>
+        </tr>
+        <tr class="level-2">
+            <td class="gls"><input type="checkbox" /> Administracion</td>
+            <td>7 UF</td>
+        </tr>
+        <tr class="level-2">
+            <td class="gls"><input type="checkbox" /> Mantencion</td>
+            <td>3 UF</td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+    var as = "hola a todos";
+    as = as.split(' ').join('%20');
+    //alert(as);
+</script>
+
+

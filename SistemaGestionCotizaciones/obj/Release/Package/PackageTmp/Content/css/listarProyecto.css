@@ -1,0 +1,76 @@
+﻿
+*body{
+    margin-top: 950px;
+}
+
+div{
+    list-style: none;
+}
+
+
+
+#fech_sol_min{
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    vertical-align: middle;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+#fech_sol_max{
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    vertical-align: middle;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+
+
+.acc_ico{
+    width: 200px;
+}
+
+#selec_jefe span{
+    cursor: pointer;
+}
+
+#selec_jefe ul{
+    list-style-type: none;
+    padding: 0px;
+}
+
+#selec_jefe ul li{
+    text-align: left;
+    padding-left: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+#selec_jefe ul li:hover{
+    background-color: #8FBE00;
+}
+
+
+.col-sm-2{
+    position:fixed;
+    top:100px;
+    right:-20px;
+}
+
+ .col-sm-2 .text-style
+{
+  text-align: justify;
+  line-height: 23px;
+  margin: 0 13px 0 0;
+  font-size: 19px;
+}
+

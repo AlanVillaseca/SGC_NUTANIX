@@ -1,0 +1,298 @@
+﻿@{
+    ViewBag.Title = "CrearSolicitud";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        var htmlalerta = '<div id="mensaje" class="alert alert-success  alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                        '</div>';
+
+        var JsonCanasta = JSON.parse(localStorage.getItem("JsonCanasta"));
+        if (JsonCanasta == null) {
+            JsonCanasta = [];
+        }
+        else {
+            var Contador = JsonCanasta.length;
+            $('#resultado').html(Contador);
+        }
+
+        $("#alerta").hide();
+
+        $(document).on('click', '#enviarCanasta', function () {
+            var idComponente = parseInt($(this).closest('tr').children('#tdidComponente').html());
+            var Alias = $(this).closest('tr').children('#tdAlias').html();
+            var idCotizacion = $(this).closest('tr').children('#tdidCotizacion').html();
+            var Ambiente = $(this).closest('tr').children('#tdAmbiente').html();
+            var Valor = $(this).closest('tr').children('#tdValor').html();
+
+            var jsonObj = { 'idComponente': idComponente, 'Alias': Alias, 'idCotizacion': idCotizacion, 'Ambiente': Ambiente, 'Valor': Valor };
+
+
+            var cont = _.where(JsonCanasta, jsonObj).length;
+
+            if (cont > 0) {
+                console.log('Repetido');
+                return;
+            }
+
+            JsonCanasta.push(jsonObj);
+            localStorage.setItem("JsonCanasta", JSON.stringify(JsonCanasta));
+            console.log(JsonCanasta);
+
+            var Contador = JsonCanasta.length;
+            $('#resultado').html(Contador);
+        });
+
+
+        $("#imgCanasto").click(function () {
+            $('#tb_Canasta tbody').html('');
+            _.each(JsonCanasta, function (index) {
+                $('#tb_Canasta tbody').append(
+                                                    '<tr id="mod' + index.idComponente + '">\
+                                                        <td id="btnEliminar"><i class="fa fa-trash"></i></td>\
+                                                        <td id="tdmodalidcomponente">' + index.idComponente + '</td>\
+                                                        <td id="tdmodalalias">' + index.Alias + '</td>\
+                                                        <td id="tdmodalidcotizacion">' + index.idCotizacion + '</td>\
+                                                        <td id="tdmodalambiente">' + index.Ambiente + '</td>\
+                                                        <td id="tdmodalvalor">' + index.Valor + '</td>\
+                                                    </tr>');
+            }); //fin each
+
+            if (JsonCanasta.length > 0)
+                $('#btnEnviarRetiro').removeAttr('disabled');
+            $("#carrito").modal();
+
+        });//fin grilla canasta
+
+
+        $(document).on('click', '#btnEliminar', function () {
+            var modalidcomponente = parseInt($(this).closest('tr').children('#tdmodalidcomponente').html());
+            JsonCanasta = _.reject(JsonCanasta, { 'idComponente': modalidcomponente });
+            localStorage.setItem("JsonCanasta", JSON.stringify(JsonCanasta));
+            $('#tb_Canasta tbody #mod' + modalidcomponente).empty();
+
+            var Contador = JsonCanasta.length;
+            $('#resultado').html(Contador);
+            if (Contador > 0)
+                $('#btnEnviarRetiro').removeAttr('disabled');
+            else
+                $('#btnEnviarRetiro').attr('disabled', 'disabled');
+        });//fin boton borrar
+
+
+
+        $("#btnBuscar").click(function () {
+            $('#tb_retiro_componente tbody').html('');
+            var v_alias = $("#valor_alias").val();
+            var v_checkalias = $('.valor_checkalias:checked').val();
+
+            $.ajax({
+                method: "POST",
+                url: '@Url.Action("BuscarComponente", "Retiro")',
+                data: { cadena: v_alias, flag: v_checkalias },
+                async: false
+
+            })
+
+            .done(function (msg) {
+                $('#alerta').html('');
+                $("#alerta").hide();
+                $("#alerta").append(htmlalerta);
+                console.log(msg); 
+
+                if (msg.codigo != 0) {
+                    $("#mensaje").removeClass('alert-success');
+                    $("#mensaje").addClass('alert-danger');
+                    $("#mensaje").append(msg.mensaje);
+                    $("#alerta").show();
+                    return;
+                }
+
+
+
+
+                var jsonGrilla = JSON.parse(msg.jsondatos);
+                _.each(jsonGrilla, function (index) {
+                    var v_fila = '';
+
+                    if (index.Estado == 4)
+                        v_fila = '<td> Ya retirado</td>';
+                    else
+                        v_fila = '<td id="enviarCanasta"><i class="fa fa-shopping-basket"></i></td>';
+
+                    $('#tb_retiro_componente tbody').append(
+                                                        '<tr id="' + index.idComponente + '">'
+                                                            + v_fila +
+                                                        '<td id="tdestado" class="hidden">' + index.Estado + '</td>\
+                                                        <td id="tdidComponente">' + index.idComponente + '</td>\
+                                                        <td id="tdAlias">' + index.Alias + '</td>\
+                                                        <td id="tdidCotizacion">' + index.idCotizacion + '</td>\
+                                                        <td id="tdAmbiente">' + index.Ambiente + '</td>\
+                                                        <td id="tdValor">' + index.Valor + '</td>\
+                                                    </tr>');
+                }); //fin each
+            });  //fin done
+
+        });//fin boton buscar
+
+
+        $("#btnEnviarRetiro").click(function () {
+            $('#tb_retiro_componente tbody').html('');
+            var coma = ',';
+            var componentes = '';
+
+            $('#tb_Canasta tbody tr').each(function () {
+
+                var idcomponentes = $('#tdmodalidcomponente', this).html();
+                componentes += idcomponentes + coma;
+                console.log(componentes);
+            });
+
+            $.ajax({
+                method: "POST",
+                url: '@Url.Action("GuardarDatos", "Retiro")',
+                data: { idcomponentes: componentes },
+                async: false
+
+            })
+
+            .done(function (msg) {
+                localStorage.removeItem("JsonCanasta");
+                JsonCanasta = [];
+                $('#tb_Canasta tbody').html('');
+                $('#resultado').html('');
+                $('#alerta').html('');
+
+                if ($("#mensaje").length == 0) {
+                    $("#alerta").append(htmlalerta);
+                }
+
+                if (msg.codigo == "0") {
+                    $("#mensaje").removeClass('alert-danger');
+                    $("#mensaje").addClass('alert-success');
+                    $("#mensaje").append('Solicitud de retiro guarda exitosamente!');
+                    location.href = '@Url.Action("ListaEstadoSolicitudes", "Retiro")';
+                }
+                else {
+                    $("#mensaje").removeClass('alert-success');
+                    $("#mensaje").addClass('alert-danger');
+                    $("#mensaje").append(msg.mensaje);
+                    }
+                $("#alerta").show();
+
+            }); //fin done
+        });//fin boton enviar retiro
+        $("#btnVaciar").click(function () {
+            localStorage.removeItem("JsonCanasta");
+            JsonCanasta = [];
+            $('#tb_Canasta tbody').html('');
+            $('#resultado').html('');
+        });//fin boton vaciar
+    });
+
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div id="alerta" class="col-lg-12">
+            <div id="mensaje" class="alert alert-success  alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-9 col-sm-9">
+            <h3 id="ttl">Crear Solicitud</h3>
+        </div>
+        <div class="col-md-3 col-sm-3 text-right">
+            <ol class="breadcrumb">
+                <li><a href="@Url.Action("ListaEstadoSolicitudes", "Retiro")">Inicio</a></li>
+                <li class="active">Detalle Solicitud</li>
+            </ol>
+        </div>
+    </div>
+    <div class="row">
+        <div style="border-top:solid 1px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;padding-bottom:2%;"></div>
+    </div>
+
+    <div class="row">
+        <div id="nom_prct" class="form-group col-md-3">
+            <label for="">Busqueda</label>
+            <input id="valor_alias" type="text" class="form-control input-sm" placeholder="Busqueda">
+        </div>
+        <p><br /></p>
+        <div id="nom_prct" class="form-group col-md-2">
+            <input type="radio" name="bus" class="valor_checkalias" value="1" checked> Alias
+            <input type="radio" name="bus" class="valor_checkalias" value="2"> ID Cotización
+        </div>
+        <div class="form-group col-md-2">            
+            <button id="btnBuscar" class="btn btn-primary btn-sm" title="Buscar" style="cursor: pointer"><i class="fa fa-search"></i> Buscar</button>            
+        </div>
+        <div class="col-md-4 text-right form-group" id="nom_prct">
+            <i class="fa fa-shopping-basket fa-4x" id="imgCanasto" style="cursor: pointer"></i>
+            <span id="resultado" class="badge" style="cursor: pointer"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto"></div>
+    </div>
+
+    <div class="row">
+        <table id="tb_retiro_componente" class="table table-hover table-responsive table-striped">
+            <caption class="">Lista de Componentes</caption>
+            <thead>
+                <tr>
+                    <th>Retirar</th>
+                    <th>idComponente</th>
+                    <th>Alias</th>
+                    <th>idCotizacion</th>
+                    <th>Ambiente</th>
+                    <th>Valor UF</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="crearSolicitud"></div>
+
+<!-- Modal -->
+<div class="modal fade" id="carrito" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Solicitud de Retiro</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tb_Canasta" class="table table-responsive table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Eliminar</th>
+                            <th>Id Componente</th>
+                            <th>Alias</th>
+                            <th>Id Cotizacion</th>
+                            <th>Ambiente</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button id="btnVaciar" type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-battery-empty"></i> Vaciar</button>
+                <button id="btnEnviarRetiro" type="button" class="btn btn-success" data-dismiss="modal" disabled><i class="fa fa-save"></i> Guardar Solicitud</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

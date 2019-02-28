@@ -1,0 +1,129 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    $(document).ready(function () {
+
+        function aparecer() {
+            var divs = document.getElementById("1");
+
+        }
+ 
+    })
+
+</script>
+
+<style>
+    .ca-menu li{
+    width: 200px;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    float: left;
+    border: 5px solid #fff;
+    background: #e2f0ff;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    margin-right: 4px;
+    transition: all 300ms linear;
+}
+.ca-menu li:last-child{
+    margin-right: 0px;
+}
+
+.ca-content{
+    position: absolute;
+    left: 0px;
+    width: 100%;
+    height: 50%;
+    top: 50%;
+}
+
+    .ca-icon {
+        font-family: 'WebSymbolsRegular', cursive;
+        color: #c5e4f4;
+        font-size: 90px;
+        text-shadow: 1px 0px 1px rgba(255,255,255,0.7);
+        line-height: 150px;
+        position: absolute;
+        width: 100%;
+        height: 50%;
+        left: 0px;
+        top: 0px;
+        text-align: center;
+        transition: all 200ms linear;
+    }
+    .ca-main{
+    font-size: 30px;
+    color: #005382;
+    opacity: 0.8;
+    text-align: center;
+    transition: all 200ms linear;
+}
+.ca-sub{
+    text-align:center;
+    font-size: 14px;
+    color: #666;
+    line-height: 40px;
+    opacity: 0.8;
+    transition: all 200ms linear;
+}
+.ca-menu li:hover{
+    background-color: #fff;
+}
+.ca-menu li:hover .ca-icon{
+    text-shadow: 0px 0px 20px #c5e4f4;
+    color: transparent;
+    animation: moveFromTop 400ms ease;
+}
+.ca-menu li:hover .ca-main{
+    color: #000;
+    animation: moveFromTop 300ms ease;
+}
+.ca-menu li:hover .ca-sub{
+    color: #000;
+    animation: moveFromBottom 500ms ease;
+}
+
+</style>
+
+
+
+   <div class="row">
+    <div class="content">
+
+        <ul class="ca-menu ">
+            <li>
+                <a href="#">
+                    <span class="ca-icon"><i class="fa fa-linux fa-4x"></i></span>
+                    <div class="ca-content">
+                        <h2 class="ca-main">VM etc...</h2>
+                        <h3 class="ca-sub">Oracle</h3>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="ca-icon">Redhat</span>
+                    <div class="ca-content">
+                        <h2 class="ca-main">VM etc...</h2>
+                        <h3 class="ca-sub">redhat</h3>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="ca-icon">Centos</span>
+                    <div class="ca-content">
+                        <h2 class="ca-main">VM etc...</h2>
+                        <h3 class="ca-sub">centos</h3>
+                    </div>
+                </a>
+            </li>
+
+        </ul>
+    </div><!-- content -->
+</div>

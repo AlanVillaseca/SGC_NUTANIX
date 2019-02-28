@@ -1,0 +1,74 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+
+<script>
+    var URLjs = ' @Html.Raw(Url.Action("jsonListaPais", "Mantenedor"))';
+    var Json = [];
+
+    var existe = false;
+   
+   
+    $('#btn_enviar').click(function () {
+        //console.log(' alo'+JSON.stringify(Json));
+        existe = false
+        if ($('#nvo_header').validar()) {
+            return;
+        }
+
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: URLjs,
+            async: false,
+        }).done(function (varJson) {
+            //mi codigo
+            //console.log(JSON.stringify(varJson));
+            Json = varJson;
+            
+        });
+        _.each(Json, function (i) {
+
+            var nombre = i.Nombre;
+            //console.log(nombre.toLowerCase() + '  ' + $("#nombre").val().toLowerCase());
+            if (nombre.toLowerCase() == $("#nombre").val().toLowerCase()) {
+                existe = true;
+            }
+        });
+         console.log(existe);
+        if (existe) {
+            alert('El nombre que intenta ingresar, no esta disponible, intente con otro nombre.');
+            return;
+        }
+        if ($('#nombre').val().trim().length > 0 && !existe) {
+            alert('if1');
+            var nombre = $("#nombre").val();
+           // console.log(nombre);   //("vpAgregarPais", "Mantenedor")
+            var URL = ' @Html.Raw(Url.Action("vpAgregarPais", "Mantenedor", new { id = "param-descripcion" }))';
+            URL = URL.replace("param-descripcion", nombre);
+            //alert(URL);
+            console.log(URL);
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: URL,
+                async: false,
+            }).done(function (e) {
+                //mi codigo
+                alert('Guardado');
+
+            });
+            $(".modal").modal("toggle");
+            location.reload();
+        }
+    });
+</script>   
+<div id="msg_wrn" class=""><span></span></div>
+<div class="row">
+    <div id="contenedorModal" class="form-group col-sm-4 col-xs-12">
+        <div id="nom_header" class="form-group">
+            <label class="control-label" for="">Nombre</label>
+            <input id="nombre" type="text" name="nombre" class="form-control input-sm es-requerido caracter-250" placeholder="País">
+        </div>
+    </div>
+</div>

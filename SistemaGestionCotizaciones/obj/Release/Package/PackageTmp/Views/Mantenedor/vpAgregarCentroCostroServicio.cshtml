@@ -1,0 +1,166 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/js/validador.js"></script>
+
+
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+
+<script>
+    $(document).ready(function(){
+        var centrocosto = @Html.Raw(jss.Serialize(Model.dtCentroCostoJson));
+        var detallecentrocosto =  @Html.Raw(jss.Serialize(Model.dtDetalleCentroCostoServicioJson));
+        var Json = [];
+        var valores = '';
+        var elemento = '';
+        var concatcentrocosto = '';
+
+        var centrocostohtml = '';
+
+        $.ajax({
+            dataType: "json",
+            url: '@Url.Action("jsonListaCatalagoDeServicio", "Mantenedor")',
+            async: false,
+        }).done(function (varJson) {
+
+            Json = varJson;
+
+        });
+
+        _.each(detallecentrocosto, function(index) {
+
+            centrocostohtml += '<li class="row" id="centrocosto_'+ index.idcentrocosto +'">\
+                        <label class="control-label col-md-8" style="text-align:left">' + index.gerencia + ' </label>\
+                        <label class="control-label col-md-4"><span class="glyphicon glyphicon-trash centrocosto" idcentrocosto="' + index.idcentrocosto + '" ></span></label>\
+                    </li>';
+
+            concatcentrocosto = concatcentrocosto + index.idcentrocosto + ";";
+
+        });
+
+        $('#ltcentrocosto').append(centrocostohtml);
+
+
+        _.each(centrocosto, function(i){
+            $('#centrocosto').append('<option value="' + i.id + '" glosa="' + i.gerencia + '">' + i.gerencia + '</option>');
+        });
+
+        $('#btn_enviar').click(function(){
+            var idservicio = @Request.Params["idservicio"];
+            
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("vpAgregarCentroCostoServicioGuardar", "Mantenedor")',
+                dataType: "html",
+                data: {
+                    idservicio:  idservicio,
+                    dtcentrocosto:     concatcentrocosto
+                },
+                async: false
+            });
+
+            location.reload();
+        });
+
+
+        $('.glyphicon-trash.centrocosto').click(function(){
+            var idcentrocosto = $(this).attr("idcentrocosto");
+            var aux = concatcentrocosto;
+            aux = aux.replace(idcentrocosto + ";", '');
+            if(aux == ""){
+                alert("Los servicios no deben quedar sin centro de costo.");
+            }else{
+                $('#centrocosto_' + idcentrocosto).hide();
+                concatcentrocosto = concatcentrocosto.replace(idcentrocosto + ";", '');
+            }
+
+        });
+
+        $('#btnAgregarCentroCosto').click(function() {
+            var glosaCentroCosto = $('#centrocosto option:selected').attr('glosa');
+            var valueCentroCosto = $('#centrocosto').val();
+            var validar = 0;
+            var arr = concatcentrocosto.split(";");
+
+            arr.forEach(function(index){
+                if(index == valueCentroCosto){
+                    validar = 1;
+                }
+            });
+
+
+            if(validar > 0){
+                alert("Ya se ingreso el centro de costo");
+            }else{
+                var insertCC = '<li class="row" id="centrocosto_'+ valueCentroCosto +'"><label  class="control-label col-md-8" style="text-align:left">' + glosaCentroCosto + ' </label>\
+                        <label class="control-label col-md-4"><span class="glyphicon glyphicon-trash centrocosto"  idcentrocosto="' + valueCentroCosto + '" </label>\'</li>';
+                $('#ltcentrocosto').append(insertCC);
+                concatcentrocosto = concatcentrocosto + valueCentroCosto +  ";";
+            }
+        });
+    });
+
+</script>
+<script src="~/Scripts/js/soloNumeroComa.js"></script>
+<style>
+    div.ui-selectmenu-open {
+        max-height: 80px;
+        overflow-x: hidden;
+        z-index: 65535 !important;
+        overflow-y: auto;
+    }
+
+    #Dominionegocio .ui-selectmenu-open {
+        max-height: 80px;
+    }
+
+    #btnAgregarCentroCosto{
+        cursor: pointer;
+    }
+
+
+</style>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+
+<div class="row">
+    <div class="form-group col-sm-8 col-xs-12">
+        <label class="control-label" for="">Centro de Costo</label>
+        <select id="centrocosto" class="chosen-select">
+            <option value="0" selected>Sin Selección</option>
+        </select>
+        
+    </div>
+    <div class="col-sm-2">
+        <label class="control-label" for="">&nbsp;</label>
+        <span class="glyphicon glyphicon-plus" id="btnAgregarCentroCosto"></span>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="form-group col-lg-12 col-xs-12">
+        <label class="control-label" for="">Centro Costo Asociado</label>
+        <div id="ltcentrocosto">
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('.chosen-select').chosen({width: "100%"});
+    });
+    
+
+</script>
+
+
+
+
+
+
+

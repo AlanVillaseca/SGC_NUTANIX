@@ -1,0 +1,79 @@
+﻿
+@{
+    ViewBag.Title = "Reporte Costos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.ReportCostos
+@using System.Data
+@using System.Web.Script.Serialization;
+<script>
+    $(document).ready(function () {
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        $("#btn_rpt_excel").click(function () {
+            $('#btn_rpt_excel').prop('disabled', true);
+            $('#btn_rpt_excel').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(@Url.Action("getReportCostosDesglosados", "reportes"))';
+
+           
+            $.ajax({
+                type: "POST",
+                url: URL,
+                success: function (data) {
+            //        alert(data);
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "componentes.csv");
+
+                }
+            }).done(function (err) {
+                $('#btn_rpt_excel').prop('disabled', false);
+                $('#btn_rpt_excel').html('<i class="fa fa-file-excel-o"></i> Generar Excel');
+            });
+
+
+           
+
+        });
+     
+    });
+</script>
+
+<div class="row">
+    <div class="col-md-5 col-sm-5">
+        <h3 id="ttl">Reporte Costos Desglosados</h3>
+    </div>
+</div>
+
+<div id="formdiv" class="container-fluid">
+    
+    <div class="row">
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #c4c4c4;margin-top:10px;margin-bottom:10px;"></div>
+    </div>
+    <div class="row">
+        
+        <div class="col-md-2 col-sm-2">
+            <button id="btn_rpt_excel" class="btn btn-primary btn-block"><i class="fa fa-file-excel-o"></i> Generar Excel</button>
+        </div>
+    </div>
+</div>
+<div id="vpReporte">
+</div>

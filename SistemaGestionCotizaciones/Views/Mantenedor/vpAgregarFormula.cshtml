@@ -1,0 +1,146 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+
+<script src="~/Scripts/js/validador.js"></script>
+<script src="~/Scripts/js/soloNumeroComa.js"></script>
+<script>
+    var URLjs = ' @Html.Raw(Url.Action("jsonListafunciones", "Mantenedor"))';
+    var Json = [];
+    $(document).ready(function () {
+        $('#modDialog .modal-body select').selectmenu({
+            overlayTheme: "a",
+            width: 150,
+            maxHeight: 150
+        });
+
+        
+
+        $('#btn_enviar').click(function () {
+            if ($('#nvo_header').validar()) {
+                if ($("#nombre").val().trim().length == 0) {
+                    alert('Debe ingresar un nombre');
+                    $("#nombre").focus();
+                }
+                if ($("#descripcion").val().trim().length == 0) {
+                    alert('Debe ingresar una descripción');
+                    $("#descripcion").focus();
+                }
+                if ($("#funcion").val() == 0) {
+                    alert('Debe selecionar un funcion');
+                    $("#funcion").focus();
+                }
+                if ($("#nVariables").val().trim().length == 0) {
+                    alert('Debe ingresar el numero de variables');
+                    $("#nVariables").focus();
+                }
+                return;
+            }
+            $.ajax({
+                dataType: "json",
+                url: URLjs,
+                async: false,
+            }).done(function (varJson) {
+                //mi codigo
+                // console.log(JSON.stringify(varJson));
+                Json = varJson;
+            });
+            var existe = false;
+            //console.log(' alo'+JSON.stringify(Json));
+
+            _.each(Json, function (i) {
+                
+                var nombre = i.Nombreformula;
+                //console.log(nombre.toLowerCase() + '  ' + $("#nombre").val().toLowerCase());
+                if (nombre.toLowerCase() == $("#nombre").val().toLowerCase()) {
+                    existe = true;
+                }
+            });
+           // console.log(existe);
+            if (existe) {
+                alert('El nombre que intenta ingresar, no esta disponible, intente con otro nombre.');
+                return;
+            }
+            // ////console.log("Enviar");
+            // ////console.log($("#select").val() + ' ' + $("#descripcion").val() + ' ' + $("#nombre").val())
+            if ($("#nombre").val().trim().length > 0 && $("#descripcion").val().trim().length > 0 && $("#nVariables").val().trim().length > 0 && $('#funcion').val() != 0) {
+                var nombre = $("#nombre").val();
+                var descripcion = $("#descripcion").val();
+                var nVariables = $("#nVariables").val();
+                var funcion = $('#funcion').val();
+                var url;
+                // //console.log('categoria '+categoria);
+                // ////console.log("ifdatos" + "tipodato: " +tipoDato);
+                // //console.log('select: ' + $('#tipoDato').val());
+                // //console.log(i + ' ' + valores); Nombreformula, Descripcion, Funcion, NumVariables, Habilitado
+
+                url = '@Html.Raw(Url.Action("vpAgregarFormula", "Mantenedor", new { id = "param-id", descripcion = "param-descripcion", Funcion = "param-Funcion", NumVariables = "param-NumVariables" }))'
+                url = url.replace("param-id", nombre)
+                         .replace("param-descripcion", descripcion)
+                         .replace("param-Funcion", funcion)
+                         .replace("param-NumVariables", nVariables);
+                //console.log(nombre + ' des ' + descripcion + ' Funcion ' + funcion + ' NumVariables ' + nVariables);
+                // ////console.log("replace");
+                //console.log(url);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    async:false
+                });
+                //console.log("ajax");
+                $(".modal").modal("toggle");
+                location.reload();
+
+            }
+            else {
+                // ////console.log('elseenviar');
+                if ($("#nombre").val().trim().length == 0) {
+                    alert('Debe ingresar un nombre');
+                    $("#nombre").focus();
+                }
+                if ($("#descripcion").val().trim().length == 0) {
+                    alert('Debe ingresar una descripción');
+                    $("#descripcion").focus();
+                }
+                if ($("#funcion").val() == 0) {
+                    alert('Debe selecionar un funcion');
+                    $("#funcion").focus();
+                }
+                if ($("#nVariables").val().trim().length == 0) {
+                    alert('Debe ingresar el numero de variables');
+                    $("#nVariables").focus();
+                }
+
+            }
+        });
+    });
+</script>
+<div id="msg_wrn" class="row"><span></span></div>
+<div class="row">
+    <div id="nom_header" class="form-group col-sm-4">
+        <label for="">Nombre de la fórmula</label>
+        <input id="nombre" type="text" required name="nombreAtributo" class="form-control input-sm es-texto es-requerido caracter-250" placeholder="Nombre de la fórmula">
+    </div>
+    <div id="des_header" class="form-group col-sm-6 ">
+        <label for="">Descripciónde la fórmula</label>
+        <input id="descripcion" type="text" required name="descripcion" class="form-control input-sm es-texto es-requerido caracter-250" placeholder="Descripción">
+    </div>
+</div>
+<div class="row">
+    <div id="serv_neg" class="form-group col-sm-4">
+        <label class="control-label">Selecione una función</label>
+        <select id="funcion" class="selectmenu combobox ui form-control es-requerido">
+            <option selected value="0">Seleccione una función</option>
+            @if (Model.dtFunciones != null)
+            {
+                foreach (DataRow col in Model.dtFunciones.Rows)
+                {
+                    <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                }
+            }
+        </select>
+    </div>
+    <div id="divCategoria" class="form-group col-sm-3">
+        <label class="control-label">Numero de variables</label>
+        <input id="nVariables" type="text" placeholder="Nº de variables" pattern="\d*" size="9" maxlength="9" required class="form-control solo-numero-coma es-requerido" title="Debe contener como minimo minimo un díjito  y maximo nueve dígitos" />
+    </div>
+</div>

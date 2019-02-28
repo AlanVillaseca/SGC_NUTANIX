@@ -1,0 +1,16 @@
+﻿    fieldset {
+      border: 0;
+    }
+    label {
+      display: block;
+    }
+    .selectmenu {
+      width: 150px;
+      height: 50px;
+    }
+    .overflow {
+      height: 200px;
+    }
+    .ui-widget{
+      font-size:11px;
+    }

@@ -1,0 +1,486 @@
+﻿@{
+    ViewBag.Title = "Detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Web.Script.Serialization;
+@using System.Data;
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="~/Content/css/mantenedorDetalle.css" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var Simulacion = @Html.Raw(jss.Serialize(Model.dtListaValoresJson));
+        var paginaActual = '@ViewBag.PaginaActual';
+        var totalRegistros = '@ViewBag.TotalRegistros';
+        var totalPaginas = '@ViewBag.TotalPaginas';
+        var ordenarPor = '@ViewBag.OrdenarPor';
+        var orden = '@ViewBag.Orden';
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        function cargaPagina(pagina, ordenarPor, orden){
+
+            var temp = '';
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("vpGrillaDetalleListaValores", "Mantenedor")',
+                dataType: "json",
+                data: {pagina: pagina, ordenarPor: ordenarPor, orden: orden},
+                async: false,
+            }).done(function (resutlJson) {
+
+                paginaActual = _.pluck(resutlJson, 'paginaActual')[0];
+                totalRegistros = _.pluck(resutlJson, 'totalRegistros')[0];
+
+                $('#txt_pag').val(paginaActual);
+                $('#total_reg').text('Total de Registros' + totalRegistros);
+
+                $('#tb_body').empty();
+
+                _.each(resutlJson, function (i) {
+
+                    temp += '<tr>\
+                                <td>' + i.Idlista + '</td>\
+                                <td>' + i.Elemento + '</td>\
+                                <td class="nombre" original="' + i.Nombre + '">' + i.Nombre + '</td>\
+                                <td class="descripcion" original="' + i.Descripcion + '">' + i.Descripcion + '</td>\
+                                <td>';
+
+                    if ('@User.IsInRole("OBSERVADOR")' == 'False')
+                    {
+                        temp += '<span class="glyphicon glyphicon-pencil btnEditar"></span> \
+                                <span class="glyphicon glyphicon-ok btnGuardar"></span> \
+                                <span class="glyphicon glyphicon-remove btnCancelar"></span> ';
+
+                        if(i.Asociado == 'False'){
+
+                            temp += '<span class="glyphicon glyphicon-trash btnEliminar"></span>';
+
+                        } else {
+
+                            temp += '<span class="glyphicon glyphicon-trash" title="En Uso" style="color:red"></span>';
+
+                        }
+                    }
+
+                    temp += '</td>\
+                            </tr>';
+
+                });
+
+                $('#tb_body').append(temp);
+
+                $('.glyphicon-ok').hide();
+                $('.glyphicon-remove').hide();
+
+            });
+
+        }
+
+        $('#filaid').css('background-color', '#f9f9f9');
+
+        cargaPagina(null,null,null);
+
+        $(document).on('click', '.btnEditar', function () {
+
+            var nombre = $(this).parents('tr').find('.nombre').text().trim();
+            var descripcion = $(this).parents('tr').find('.descripcion').text().trim();
+
+            $(this).parents('tr').find('.nombre').empty();
+            $(this).parents('tr').find('.descripcion').empty()
+
+            $(this).parents('tr').find('.nombre').append('<input class="form-control input-sm" type="text" value="' + nombre + '"/>');
+            $(this).parents('tr').find('.descripcion').append('<input class="form-control input-sm" type="text" value="' + descripcion + '"/>');
+
+            $(this).parent().find('.glyphicon-pencil').hide();
+            $(this).parent().find('.glyphicon-ok').show();
+            $(this).parent().find('.glyphicon-remove').show();
+
+        });
+
+        $(document).on('click', '.btnCancelar', function () {
+
+            $(this).parents('tr').find('.nombre').empty();
+            $(this).parents('tr').find('.descripcion').empty()
+
+            $(this).parents('tr').find('.nombre').append($(this).parents('tr').find('.nombre').attr('original'));
+            $(this).parents('tr').find('.descripcion').append($(this).parents('tr').find('.descripcion').attr('original'));
+
+            $(this).parent().find('.glyphicon-pencil').show();
+            $(this).parent().find('.glyphicon-ok').hide();
+            $(this).parent().find('.glyphicon-remove').hide();
+
+        });
+
+        $(document).on('click', '.btnGuardar', function () {
+
+            var nombre = $(this).parents('tr').find('.nombre input').val();
+            var descripcion = $(this).parents('tr').find('.descripcion input').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("actualizarListaValor", "Mantenedor")',
+                data: {id: $(this).parents('tr').find(':first').text().trim(),
+                    valor: $(this).parents('tr').find('.nombre input').val(),
+                    descripcion: $(this).parents('tr').find('.descripcion input').val()},
+                dataType: "json",
+                async: false,
+            });
+
+            $(this).parents('tr').find('.nombre').empty();
+            $(this).parents('tr').find('.descripcion').empty()
+
+            $(this).parents('tr').find('.nombre').attr('original', nombre);
+            $(this).parents('tr').find('.descripcion').attr('original', descripcion);
+
+            $(this).parents('tr').find('.nombre').append(nombre);
+            $(this).parents('tr').find('.descripcion').append(descripcion);
+
+            $(this).parent().find('.glyphicon-pencil').show();
+            $(this).parent().find('.glyphicon-ok').hide();
+            $(this).parent().find('.glyphicon-remove').hide();
+
+        });
+
+        $(document).on('click', '.btnEliminar', function () {
+
+            var idlista = $(this).parents('tr').find(':first').text().trim();
+
+            var callback = function () {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("eliminarListaValor", "Mantenedor")',
+                    dataType: "json",
+                    data: {idlista: idlista},
+                    async: false,
+                });
+
+                cargaPagina(paginaActual, ordenarPor, orden);
+
+            };
+
+            confirm('', '¿Esta seguro que desea borrar esta lista de valores?', 'Cancelar', 'Eliminar', callback);
+
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            if(parseInt(paginaActual) < parseInt(totalPaginas))
+            {
+
+                cargaPagina(parseInt(paginaActual) + 1 , ordenarPor, orden)
+            }
+
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            cargaPagina(totalPaginas , ordenarPor, orden)
+
+        });
+
+        $('#btn_pri_pag').click(function () {
+
+            cargaPagina(1 , ordenarPor, orden)
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if(parseInt(paginaActual - 1) > 0)
+            {
+
+                cargaPagina(parseInt(paginaActual) - 1 , ordenarPor, orden)
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+
+                var valor = parseInt($(this).val());
+
+                if (valor > 0 && valor <= parseInt(totalPaginas)) {
+
+                    cargaPagina(valor , ordenarPor, orden);
+                }
+            }
+        });
+
+        $('#btn_nvo_cElmt').click(function () {
+
+            $('#modCustom')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+            $('#modCustom').modal('show');
+
+            $(':input, a').attr('tabindex', '-1');
+
+            $('#nvo_header').load('vpAgregarListaValores');
+
+        });
+
+        $('#filaid').click(function(){
+
+            if(ordenarPor == 'idlistavalores') {
+
+                if(orden == 1){
+
+                    cargaPagina(1 , 'idlistavalores', 0);
+
+                    $('#filaid span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+                    orden = 0;
+
+                } else {
+
+                    cargaPagina(1 , 'idlistavalores', 1);
+
+                    $('#filaid span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                    orden = 1;
+                }
+
+            } else {
+
+                $('#filaid').css('background-color', '#f9f9f9');
+                $('#filaelemento').css('background-color', '#fff');
+                $('#filanombre').css('background-color', '#fff');
+
+                ordenarPor = 'idlistavalores';
+                orden = 1;
+
+                cargaPagina(1 , 'idlistavalores', 1); orden = 1;
+
+                $('#filaelemento span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+                $('#filanombre span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+            }
+
+        });
+
+        $('#filaelemento').click(function(){
+
+            if(ordenarPor == 'Elemento') {
+
+                if(orden == 1){
+
+                    cargaPagina(1 , 'Elemento', 0);
+
+                    $('#filaelemento span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+                    orden = 0;
+
+                } else {
+
+                    cargaPagina(1 , 'Elemento', 1);
+
+                    $('#filaelemento span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                    orden = 1;
+                }
+
+            } else {
+
+                $('#filaelemento').css('background-color', '#f9f9f9');
+                $('#filaid').css('background-color', '#fff');
+                $('#filanombre').css('background-color', '#fff');
+
+                ordenarPor = 'Elemento';
+                orden = 1;
+
+                cargaPagina(1 , 'Elemento', 1); orden = 1;
+
+                $('#filaid span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+                $('#filanombre span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+            }
+
+        });
+
+        $('#filanombre').click(function(){
+
+            if(ordenarPor == 'Valor') {
+
+                if(orden == 1){
+
+                    cargaPagina(1 , 'Valor', 0);
+
+                    $('#filanombre span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+                    orden = 0;
+
+                } else {
+
+                    cargaPagina(1 , 'Valor', 1);
+
+                    $('#filanombre span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                    orden = 1;
+                }
+
+            } else {
+
+                $('#filanombre').css('background-color', '#f9f9f9');
+                $('#filaid').css('background-color', '#fff');
+                $('#filaelemento').css('background-color', '#fff');
+
+                ordenarPor = 'Valor';
+                orden = 1;
+
+                cargaPagina(1 , 'Valor', 1); orden = 1;
+
+                $('#filaid span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+                $('#filaelemento span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+            }
+
+        });
+
+        $('#btn_descargar').click(function () {
+
+            $.ajax({
+                url: '@Url.Action("ListaValoresFileXls", "Mantenedor")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoListaValores.csv");
+
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<style>
+    .orden {
+        cursor: pointer;
+    }
+</style>
+
+
+
+    <div class="row col-md-10 col-sm-10">
+        <h3 id="ttl">Mantenedor Lista de Valores</h3>
+    </div>
+
+
+<div class="row">
+    <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+</div>
+<div class="row">
+    <div  class="grilla ">
+
+        <table id="tblListaValores" class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th hidden>ID</th>
+                    <th id="filaid" class="col-md-1 orden">Idelemento <span class="fa fa-sort-asc"></span></th>
+                    <th id="filaelemento" class="col-md-2 orden">Elemento <span class="fa fa-sort-asc"></span></th>
+                    <th id="filanombre" class="col-md-3 orden">Nombre <span class="fa fa-sort-asc"></span></th>
+                    <th class="col-md-5">Descripción</th>
+                    <th class="col-md-1">Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tb_body"></tbody>
+        </table>
+        
+
+    </div>
+</div>
+
+<div class="row pagination col-md-12 col-sm-12" style=" background-color:#f9f9f9;height:28px;">
+    <div class=" form-inline " role=" form">
+        <div class="col-md-2 col-sm-2 col-md-offset-1 col-sm-offset-1">
+            <p id="total_reg" class="control-label">Total de Registros @ViewBag.TotalRegistros</p>
+        </div>
+        <div class="col-md-2 col-sm-3 col-md-offset-2 col-sm-offset-2 form-inline">
+            <p class="control-label ">
+                Ir a
+                <input id="txt_pag" type="text" class="form-control solo-numero input-xs" style="width:13%" value="@ViewBag.PaginaActual" />
+                de @ViewBag.TotalPaginas Pág.
+            </p>
+        </div>
+        <!-- /.btn-toolbar -->
+        <div class="col-md-offset-9 col-sm-offset-9">
+            <div id="btn_Func_Tools" class="" role="toolbar">
+                @if (!User.IsInRole("OBSERVADOR"))
+                {
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+                        <button id="btn_nvo_cElmt" type="button" class="btn btn-default" title="Nueva Lista de Valores" style="border:none;background-color:transparent;"><span class="glyphicon glyphicon-plus"></span></button>
+                    </div>
+                }
+                <div class="btn-group btn-group-sm" role="group">
+                    <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                </div>
+            </div>
+        </div>
+        <!-- /.btn-toolbar -->
+    </div>
+</div>
+
+
+
+
+<div class="row">
+    <!-- /.modal -->
+    <div class="modal fade" id="modCustom">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Agregar valores a la lista</h4>
+                </div>
+                <div id="nvo_header" class="modal-body ui-front" style="height:500px"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btnEnviar" type="button" class="btn btn-primary" data-dismiss>Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+</div>

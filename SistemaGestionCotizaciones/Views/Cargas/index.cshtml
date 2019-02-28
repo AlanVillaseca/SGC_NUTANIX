@@ -1,0 +1,461 @@
+﻿@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<link rel="stylesheet" type="text/css" href="~/Content/css/listarProyecto.css" />
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+
+<script>
+    function detalle(a) {
+        c_alert("Carga archivo", "No se encontro el elemento " + a + ".", "Aceptar");
+    }
+
+
+    $(document).ready(function () {
+
+
+        $('#btnGuardar').click(function () {
+
+            var val = 0;
+            confirm("Cargar archivo", "¿Seguro que desea modificar los elementos?", "Cancelar", "Aceptar", function () {
+                var cadena = $('#cadena').val();
+
+                var url = '@Url.Action("EnviarCarga", "Cargas")';
+
+                //$.ajax({
+                //    type: "POST",
+                //    url: url,
+                //    data: { id: cadena },
+                //    async: false
+                //}).done(function (err) {
+                //    if (err != "") {
+                //        c_alert("Carga archivo", "No se encontraron el id componente para la modificaciòn.", "Aceptar");
+                //    }
+                //    else {
+
+
+                //        val = 1;
+                //        if (val == 1) {
+                //            window.location.href = "../Cargas?mensaje=1";
+                //        }
+                //    }
+                //});
+
+                var arr = cadena.split('|');
+
+                _.each(arr, function (value, index) {
+
+                    if (index > 0)
+                    {
+
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: { id: arr[0] + '|' + value },
+                            async: false
+                        }).done(function (err) {
+                            if (err != "") {
+                                c_alert("Carga archivo", "No se encontraron el id componente para la modificaciòn.", "Aceptar");
+                            }
+                            else {
+
+
+                                val = 1;
+                                if (val == 1) {
+                                    window.location.href = "../Cargas?mensaje=1";
+                                }
+                            }
+                        });
+
+                    }
+
+                });
+
+
+            });
+
+        });
+
+        //$('#file_archivo').change(function () {
+
+        //    var temp = document.getElementById("file_archivo");
+        //    var file = temp.value.split("\\");
+
+        //    console.log(file);
+        //});
+
+
+        $('#btnDescargar').click(function () {
+
+
+            $(this).prop('disabled', true);
+            $(this).html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DescargaArchivo", "Cargas")',
+                data: { elementoCostoJson: $('#file_archivo').val() },
+                dataType: "html",
+                async: false,
+                success: function (data) {
+
+                    //var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    //saveAs(blob, "Simulacion.csv");
+
+                    //$('#btnDescargar').prop('disabled', false);
+                    //$('btnDescargar').html('Descargar');
+
+                }
+            });
+
+
+        });
+
+    });
+
+</script>
+
+
+@using (Html.BeginForm("CargarArchivo", "Cargas", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                <h5 style="padding-top:2%;">Cargar archivo</h5>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="nom_prct" class="form-group col-md-4">
+                <label for="">Examinar archivo:</label>
+                <input type="file" id="file_archivo" name="file_archivo" required />
+            </div>
+        </div>
+
+
+        <div class="modal-footer">
+
+
+            <button id="btnEnviar" type="submit" class="btn btn-primary" name="DescargaArchivo">Descargar</button>
+
+            <button id="btnEnviar" type="submit" class="btn btn-primary" name="CargarArchivo">Cargar</button>
+        </div>
+    </div>
+
+
+}
+
+
+
+
+
+        @if (ViewBag.Message != null)
+        {
+
+            if (ViewBag.Message.Equals("0"))
+            {
+                <script>
+                    c_alert("Carga archivo", "El numero de campos ingresados en el archivo, no son iguales. Revise el archivo.", "Aceptar");
+                </script>
+            }
+            else if (ViewBag.Message.Equals("1"))
+            {
+                <script>
+                    c_alert("Carga archivo", "Elementos modificado exitosamente.", "Aceptar");
+                </script>
+            }
+            else
+            {
+                <div class="row">
+                    <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;"></div>
+                </div>
+
+
+                string[] dato = ViewBag.Message.Split('|');
+                
+                <br />
+    <center><table >
+        
+       
+                @{int validar = 0;}
+        @for (int i = 1; i < dato.Length - 1; i++)
+        {
+
+            <tr>
+                <td>
+                    <div id="tb_pyct" class="grilla">
+                        <p id="alias_@i" style="color:red;">&nbsp;</p>
+                        <table id="tblListarProyectos" class="table table-striped">
+                            <tbody>
+                                @{string[] head = dato[0].Split(';');}
+                                @{string serror = "";}
+                                @{int contador = 0;}
+
+                                @foreach (var tit in head)
+                                {
+                                    bool encontrado = new SistemaGestionCotizaciones.Models.Carga().BuscarElementoCarga(tit, out serror);
+                                    <tr>
+                                        @if (contador != 0)
+                                        {
+                                            if (serror.Equals(""))
+                                            {
+                                                <th>@tit:</th>
+                                            }
+                                            else
+                                            {
+                                                validar = 1;
+                                                <th>@tit: <span onclick="detalle('@tit');" title="No se encontro el elemento." class="glyphicon glyphicon-remove" style="color: red;"></span></th>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <th>@tit:</th>
+                                        }
+                                        @{contador++;}
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <hr />
+                    </div>
+                </td>
+                <td>
+                    <div id="tb_pyct" class="grilla">
+                        <p style="text-align:center;">Nuevo</p>
+                        <table id="tblListarProyectos" class="table table-striped">
+                            <tbody>
+                                @{string[] detalle = dato[i].Split(';');}
+                                @{int contadorHeadd = 0;}
+                                @foreach (var de in detalle)
+                                {
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        @if (de.Equals(""))
+                                        {
+                                            <td style="width:400px;">+</td> 
+                                        }
+                                        else
+                                        {
+                                            string serrores = "";
+
+                                            System.Data.DataTable tabla = new SistemaGestionCotizaciones.Models.Carga().BuscarValorElemento(detalle[0], head[contadorHeadd], serrores);
+                                           
+                                            if (tabla.Rows.Count > 0)
+                                            {
+                                                
+                                                    <td style="width:400px;">@de</td>
+
+                                                
+
+                                            }
+                                            else
+                                            {
+                                                <td style="width:400px;">No encontrado</td>
+                                                if (head[contadorHeadd] == "Alias")
+                                                {
+                                                    validar = 2;
+                                                    <script>
+                                                        $('#alias_@i').html("<b>Alias no encontrado</b>");
+                                                    </script>
+                                                }
+                                            }
+                                            
+                                        }
+                                        @{contadorHeadd++;}
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <hr />
+                    </div>
+                </td>
+
+                <td>
+                    <div id="tb_pyct" class="grilla">
+                        <p style="text-align:center;">Actual</p>
+                        <table id="tblListarProyectos" class="table t table-striped">
+                            <tbody>
+                                @{int contadorHead = 0;}
+                                @foreach (var tit in detalle)
+                                {
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        @if (tit.Equals(""))
+                                        {
+                                            <td style="width:400px;">No modifica</td>
+                                        }
+                                        else
+                                        {
+                                            string serrores = "";
+                                            
+                                            System.Data.DataTable tabla = new SistemaGestionCotizaciones.Models.Carga().BuscarValorElemento(detalle[0], head[contadorHead], serrores);
+                                            
+                                            if (tabla.Rows.Count > 0)
+                                            {
+                                                foreach (System.Data.DataRow fila in tabla.Rows)
+                                                {
+                                                    <td style="width:400px;">@fila[0]</td>
+                                                    
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                <td style="width:400px;">No encontrado</td>
+                                                if(head[contadorHead] == "Alias")
+                                                { 
+                                                    validar = 2;
+                                                }
+                                            }
+                                            
+                                        }
+                                        @{contadorHead++;}
+                                        
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <hr />
+                    </div>
+                </td>
+
+
+            </tr>
+
+        }
+    </table></center>
+
+    <input type="text" hidden name="cadena" id="cadena" value="@ViewBag.Message" />
+    if (validar == 1)
+    {
+        <div class="modal-footer">
+            <p style="color:red;">Existen elementos no encontrados. Por lo tanto no se pueden modificar los registros.</p>
+        </div>
+    }
+    else if (validar == 2)
+    {
+        <script>
+            c_alert("Cargar archivo", "Existen alias no encontrados. Favor revisar los datos.", "Aceptar");
+        </script>
+        <div class="modal-footer">
+            <p style="color:red;">Existen alias no encontrados. Favor revisar los datos.</p>
+        </div>
+    }
+    else
+    {
+        <div class="modal-footer">
+            <button id="btnGuardar" type="button" class="btn btn-primary">Confirmar</button>
+        </div>
+    }
+
+
+                /*
+                <div id="tb_pyct" class="grilla">
+                    <table id="tblListarProyectos" class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                @{string[] head = dato[0].Split(';');}
+                                @{string serror = "";}
+                                @{int contador = 0;}
+                                @{int validar = 0;}
+                                @foreach (var db in head)
+                                {
+                                    bool encontrado = new SistemaGestionCotizaciones.Models.Carga().BuscarElementoCarga(db, out serror);
+                                    if (contador != 0)
+                                    {
+                                        if (serror.Equals(""))
+                                        {
+                                            <th>@db</th>
+                                            <th>Actual</th>
+
+                                        }
+                                        else
+                                        {
+                                            validar = 1;
+                                            <th>@db <span onclick="detalle('@db');" title="No se encontro el elemento." class="glyphicon glyphicon-remove" style="color: red;"></span></th>
+                                            <th>Actual</th>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <th>@db</th>
+                                    }
+                                    contador++;
+                                }
+                            </tr>
+
+                        </thead>
+                        <tbody>
+                            @{var contadores = 0;}
+                            @for (int i = 1; i < dato.Length; i++)
+                            {
+                                <tr>
+                                    @{string[] divide = dato[i].Split(';');}
+
+                                        @if (divide[0] != "")
+                                        {
+                                            foreach (var em in divide)
+                                            {
+                                                if(contadores != 0)
+                                                {
+                                                    if (em.Equals(""))
+                                                    {
+                                                        <td>
+                                                            -
+                                                        </td>
+                                                        <td>-</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>
+                                                            @em
+                                                        </td>
+                                                        <td>0</td>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <td>@em</td>
+                                                }
+                                                contadores++;
+                                            }
+                                        }
+
+                                </tr>
+
+
+                            }
+                        </tbody>
+                    </table>
+
+                    <input type="text" hidden name="cadena" id="cadena" value="@ViewBag.Message" />
+                    @if (validar == 1)
+                    {
+                        <div class="modal-footer">
+                            <p style="color:red;">Existen elementos no encontrados. Por lo tanto no se pueden modificar los registros.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="modal-footer">
+                            <button id="btnGuardar" type="button" class="btn btn-primary">Confirmar</button>
+                        </div>
+                    }
+
+
+                </div>
+                 * */
+            }
+
+        }

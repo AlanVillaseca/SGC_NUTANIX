@@ -1,0 +1,121 @@
+﻿
+@{
+    ViewBag.Title = "Reporte Costos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.ReportCostos
+@using System.Data
+@using System.Web.Script.Serialization;
+<script>
+    $(document).ready(function () {
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var elementos = @Html.Raw(jss.Serialize(Model.dtElementosJson));
+        var cont=0;
+        _.each(elementos, function(i){
+            $("#combo_elemento1").append('<option id="'+cont+'"  value="' + i.Idparametrocosto + '">' + i.Nombre + '</option>');
+            //alert(i.Idparametrocosto);
+            cont++;
+        });
+
+        $("#btn_rpt_pdf").click(function () {       
+            $('#btn_rpt_pdf').prop('disabled', true);
+            $('#btn_rpt_pdf').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(@Url.Action("getReportCostos", "reportes", new
+                  { 
+                                                                                        id = "idR", 
+                                                                                        elemento1 = "velemento1",
+                                                                                        flg_docto = "PDF"
+                                                                                        }))';
+
+            
+
+            URL = URL.replace('velemento1', $("#combo_elemento1  option:selected").val());
+            $.ajax({
+                type: "POST",
+                url: URL                
+            }).done(function (err) {
+                $('#btn_rpt_pdf').prop('disabled',false);
+                $('#btn_rpt_pdf').html('<i class="fa fa-file-pdf-o"></i> Generar PDF');
+                var blob = b64toBlob(err, "data:application/pdf;");               
+                saveAs(blob, 'Parametros Costos.pdf');
+            });
+
+        });
+
+        $("#btn_rpt_excel").click(function () {
+            $('#btn_rpt_excel').prop('disabled', true);
+            $('#btn_rpt_excel').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(@Url.Action("getReportCostos", "reportes", new
+                  { 
+                    id = "idR", 
+                    elemento1 = "velemento1",
+                    flg_docto = "EXCEL"
+                }))';
+
+            URL = URL.replace('velemento1', $("#combo_elemento1").val());
+            URL = URL.replace('idR','COSTOS_'+'@DateTime.Now.Year'+'@DateTime.Now.Month'+'@DateTime.Now.Day');
+        
+            $.ajax({
+                type: "POST",
+                url: URL                
+            }).done(function (err) {
+                $('#btn_rpt_excel').prop('disabled',false);
+                $('#btn_rpt_excel').html('<i class="fa fa-file-excel-o"></i> Generar Excel');
+                var blob = b64toBlob(err, "application/vnd.ms-excel;");               
+                saveAs(blob, 'Parametros Costos.xls');
+            });
+
+        });
+               
+    });
+</script>
+
+<div class="row">
+    <div class="col-md-5 col-sm-5">
+        <h3 id="ttl">Costos</h3>
+    </div>
+</div>
+
+<div id="formdiv" class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-3">
+            <label id="lb_valor1" class="control-label">Elemento</label>
+            <select id="combo_elemento1" name="combo_elemento1" class="form-control input-sm">
+                <option id="-1" value="-1">Todos...</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #c4c4c4;margin-top:10px;margin-bottom:10px;"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-sm-2">
+            <button id="btn_rpt_pdf" class="btn btn-primary btn-block"><i class="fa fa-file-pdf-o"></i> Generar PDF</button>
+        </div>
+        <div class="col-md-2 col-sm-2">
+            <button id="btn_rpt_excel" class="btn btn-primary btn-block"><i class="fa fa-file-excel-o"></i> Generar Excel</button>
+        </div>
+    </div>
+</div>
+<div id="vpReporte">
+</div>

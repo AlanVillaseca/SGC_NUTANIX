@@ -1,0 +1,34 @@
+﻿#agr_cot{
+    position: absolute;
+    top: 90px;
+    left: 65%;
+    cursor: pointer;
+}
+
+#agr_cot:hover{
+    color: #8FBE00;
+}
+
+#tb_cot{
+    top: 260px;
+}
+
+.datepicker{
+    padding: 6px 12px;
+    line-height: 1.42857;
+    color: #555;
+    vertical-align: middle;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+}
+
+
+#agr_cot_popup{
+    text-align: left;
+    width: 300px;
+    height: 300px;
+}
+
+#agr_cot_popup h4{
+    color: #8FBE00;
+}

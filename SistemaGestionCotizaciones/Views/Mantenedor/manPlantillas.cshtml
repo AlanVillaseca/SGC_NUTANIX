@@ -1,0 +1,522 @@
+﻿@{
+    ViewBag.Title = "manPlantillas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@model SistemaGestionCotizaciones.Models.ManPlantillas
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+<script src="~/Scripts/underscore-min.js"></script>
+<script src="~/Scripts/js/selectMenu.js"></script>
+
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    button {
+        background-color: transparent;
+    }
+
+    .TextBoxAsLabel {
+        border: none;
+        background-color: #fff;
+        background: transparent;
+    }
+
+    .glyp-verde {
+        color: #87D409;
+    }
+
+    .glyp-rojo {
+        color: #E95009;
+    }
+
+    .glyp-amarillo {
+        color: #EDCF57;
+    }
+</style>
+
+<script>
+    /* Modal Confirm INI*/
+    function confirm(heading, question, cancelButtonTxt, okButtonTxt, callback) {
+
+        var confirmModal =
+          $('<div class="modal fade">' +
+              '<div class="modal-dialog">' +
+              '<div class="modal-content">' +
+              '<div class="modal-header">' +
+                '<h4 class="modal-title">' + heading +'</h4>' +
+              '</div>' +
+
+              '<div class="modal-body">' +
+                '<p>' + question + '</p>' +
+              '</div>' +
+
+              '<div class="modal-footer">' +
+                '<a href="#!" class="btn" data-dismiss="modal">' +
+                  cancelButtonTxt +
+                '</a>' +
+                '<a href="#!" id="okButton" class="btn btn-primary">' +
+                  okButtonTxt +
+                '</a>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+            '</div>');
+
+        confirmModal.find('#okButton').click(function(event) {
+            callback();
+            confirmModal.modal('hide');
+        });
+
+        confirmModal.modal('show');
+
+    };
+    /*Modal Confirm END*/
+    /* Modal alert INI*/
+    function c_alert(heading, text, cancelButtonTxt) {
+
+        var confirmModal =
+          $('<div class="modal fade">' +
+              '<div class="modal-dialog">' +
+              '<div class="modal-content">' +
+              '<div class="modal-header">' +
+                  '<h4 class="modal-title">' + heading +'</h4>' +
+              '</div>' +
+
+              '<div class="modal-body">' +
+                '<p>' + text + '</p>' +
+              '</div>' +
+
+              '<div class="modal-footer">' +
+                '<a href="#!" class="btn" data-dismiss="modal">' +
+                  cancelButtonTxt +
+                '</a>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+            '</div>');
+
+        /*confirmModal.find('#okButton').click(function(event) {
+            callback();
+            confirmModal.modal('hide');
+        });*/
+
+        confirmModal.modal('show');
+    };
+    /*Modal alert END*/
+
+    function btnPaginas(plantillas, pagActual, totalPag){
+
+        var regPag = _.pluck(plantillas, "totalFilas")
+
+        var indice = 1;
+        var pag = parseInt(pagActual);
+
+        $('#tablaPlantillas tbody').html('');
+
+        _.each(plantillas, function(i){
+            
+            if(indice > (regPag[0]*pag - regPag[0]) && indice <= (regPag[0]*pag)){
+                if('@User.IsInRole("OBSERVADOR")' == 'False'){
+
+                    $('#tablaPlantillas tbody').append('<tr id="'+ i.Idplantilla +'">\
+                        <td><input id="nombre_' + i.Idplantilla + '" value="' + i.Nombre + '" class="form-control input-sm es-requerido" readonly style="display:none;"/>\
+                        <span id="span_' + i.Idplantilla + '">' + i.Nombre + '</span></td>\
+                        <td>' + i.Familia + '</td>\
+                        <td>' + i.Subfamilia + '</td>\
+                        <td><input id="habilitado_' + i.Idplantilla + '" type="checkbox" disabled="" readonly /></td>\
+                     <td>\
+                        <div class="btn-group btn-group-xs" role="group" style="display:inline-block; width:80px">\
+                            <button id="" class="btn-guardar"  hidden title="Guardar" style="border:none"><span class="glyphicon glyphicon-ok"></span></button>\
+                            <button id="" class="btn-cancelar" hidden title="Cancelar" style="border:none"><span class="glyphicon glyphicon-remove"></span></button>\
+                            <button id="" class="btn-editar" title="Editar" style="border:none"><span class="glyphicon glyphicon-pencil"></span></button>\
+                        </div>\
+                        </td></tr>');
+
+                } else {
+
+                    $('#tablaPlantillas tbody').append('<tr id="'+ i.Idplantilla +'">\
+                        <td><input id="nombre_' + i.Idplantilla + '" value="' + i.Nombre + '" class="form-control input-sm es-requerido" readonly style="display:none;"/>\
+                        <span id="span_' + i.Idplantilla + '">' + i.Nombre + '</span></td>\
+                        <td>' + i.Familia + '</td>\
+                        <td>' + i.Subfamilia + '</td>\
+                        <td><input id="habilitado_' + i.Idplantilla + '" type="checkbox" disabled="" readonly /></td>\
+                     <td>\
+                        </td></tr>');
+                }
+
+                if(i.Habilitada == 'True'){
+                    $('#habilitado_' + i.Idplantilla ).prop('checked', true);
+                }
+
+            }
+            indice++;
+        });
+
+    }
+
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var plantillas = @Html.Raw(jss.Serialize(@Model.plantillas));
+
+        var regPag = _.pluck(plantillas, "totalFilas");
+        var totalPag = parseInt(plantillas.length/regPag[0]) + 1;
+
+        var indice = 1;
+
+        _.each(plantillas, function(i){
+            //if(indice <= totalPag){
+            @*<td><input id="descripcion_' + i.Idplantilla + '" value="' + i.Descripcion + '" class="TextBoxAsLabel " readonly /></td>\*@
+            if(indice <= regPag[0]){
+                if('@User.IsInRole("OBSERVADOR")' == 'False'){
+                    $('#tablaPlantillas tbody').append('<tr id="'+ i.Idplantilla +'">\
+                    <td><input id="nombre_' + i.Idplantilla + '" value="' + i.Nombre + '" class="form-control input-sm es-requerido" readonly style="display:none;"/>\
+                        <span id="span_' + i.Idplantilla + '">' + i.Nombre + '</span>\
+                    </td>\
+                    <td>' + i.Familia + '</td>\
+                    <td>' + i.Subfamilia + '</td>\
+                    <td><input id="habilitado_' + i.Idplantilla + '" type="checkbox" disabled="" readonly /></td>' +
+                    '<td>\
+                    <div class="btn-group btn-group-xs" role="group" style="display:inline-block; width:80px">\
+                            <button id="" class="btn-guardar"  hidden title="Guardar" style="border:none"><span class="glyphicon glyphicon-ok"></span></button>\
+                            <button id="" class="btn-cancelar" hidden title="Cancelar" style="border:none"><span class="glyphicon glyphicon-remove"></span></button>\
+                            <button id="" class="btn-editar" title="Editar" style="border:none"><span class="glyphicon glyphicon-pencil"></span></button>\
+                    </div>\
+                </td></tr>');
+                }else{
+                    $('#tablaPlantillas tbody').append('<tr id="'+ i.Idplantilla +'">\
+                    <td><input id="nombre_' + i.Idplantilla + '" value="' + i.Nombre + '" class="form-control input-sm es-requerido" readonly style="display:none;"/>\
+                        <span id="span_' + i.Idplantilla + '">' + i.Nombre + '</span>\
+                    </td>\
+                    <td>' + i.Familia + '</td>\
+                    <td>' + i.Subfamilia + '</td>\
+                    <td><input id="habilitado_' + i.Idplantilla + '" type="checkbox" disabled="" readonly /></td>' +
+                '<td></td></tr>');
+                }
+                //$('#tablaPlantillas tbody').append('</td></tr>');
+                /*if(i.SoftAdicional == 'True'){
+                    $('#softadicional_' + i.Idplantilla ).prop('checked', true);
+                }*/
+
+                if(i.Habilitada == 'True'){
+                    $('#habilitado_' + i.Idplantilla ).prop('checked', true);
+                }
+            }
+            indice++;
+
+        });
+
+        $('input').click(function(e){
+            e.stopPropagation();
+        });
+
+        $('#regPag').append('  <p id="txt_ttl" class="col-sm-2 col-md-2">Total de Registros ' + plantillas.length + '</p>\
+                    <p id="txt_leyend" class="col-sm-3 col-md-3 col-sm-offset-3 col-md-offset-3">\
+                        Ir a\
+                        <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:20%;display:inline;" value="1" />\
+                        de ' + totalPag + '  Pág.\
+                    </p>');
+
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+            if (key == 13) {
+
+                if (parseInt($(this).val()) > 0 && parseInt($(this).val()) <= totalPag) {
+                    btnPaginas(plantillas, $(this).val(), totalPag);
+                }
+            }
+        });
+
+        $('#txt_pag').focus(function () {
+            pagActual = $.trim($(this).val());
+            $(this).val($.trim($(this).val()));
+        });
+
+        $('#txt_pag').focusout(function () {
+            $(this).val(pagActual);
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            if (parseInt($('#txt_pag').val()) < parseInt(totalPag)) {
+                btnPaginas(plantillas, parseInt($('#txt_pag').val()) + 1, totalPag);
+                $('#txt_pag').val(parseInt($('#txt_pag').val()) + 1);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+            btnPaginas(plantillas, totalPag, totalPag);
+            $('#txt_pag').val(totalPag);
+        });
+
+        $('#btn_pri_pag').click(function () {
+            btnPaginas(plantillas, 1, totalPag);
+            $('#txt_pag').val(1);
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if (parseInt($('#txt_pag').val()) <= 1) {
+
+                btnPaginas(plantillas, 1, totalPag);
+                $('#txt_pag').val(1);
+            } else {
+                if (parseInt($('#txt_pag').val()) > parseInt(totalPag)) {
+
+                    btnPaginas(plantillas, totalPag, totalPag);
+                    $('#txt_pag').val(totalPag);
+                } else {
+
+                    btnPaginas(plantillas, parseInt($('#txt_pag').val()) - 1, totalPag);
+                    $('#txt_pag').val(parseInt($('#txt_pag').val()) - 1);
+                }
+            }
+
+        });
+
+        $('#btn_nvo').click(function(){
+            var ncdir = '@Html.Raw(Url.Action("nvaPlantillasElementos", "Mantenedor"))';
+
+            window.location.href = ncdir;
+        });
+
+        $(document).on('click','.btn-pcosto',function(){
+            //$('.btn-pcosto').click(function(){
+
+            var idRegistro = $(this).closest('tr').prop('id');
+
+            var URL = '@Html.Raw(@Url.Action("nvaPlantillasCostos", "Mantenedor", new { id = "idR" }))';
+
+            URL = URL.replace('idR', idRegistro);
+
+            window.location.href = URL;
+
+        });
+
+        $(document).on('click','.btn-editar',function(e){
+            //$('.btn-editar').click(function(){
+            e.stopPropagation();
+            var idRegistro = $(this).closest('tr').prop('id'); //saco la fila
+
+            $('.btn-editar').prop('disabled', true); //deshabilito los botones de las otras filas
+            $('.btn-pcosto').prop('disabled', true); //deshabilito los botones de las otras filas
+
+            $(this).closest('tr').addClass("warning"); //coloreo la fila que voy a editar
+
+            $(this).hide(); //oculta btn edit
+            $(this).parent().children('button.btn-pcosto').hide(); //oculta btn eliminar
+            $(this).parent().children('button.btn-guardar').show().css("background", "transparent");    //muestra boton guadar
+            $(this).parent().children('button.btn-cancelar').show().css("background", "transparent");   //muestra boton cancelar
+            $('#nombre_' + idRegistro).attr("readonly", false).prop("disabled", false).show(); 
+            $('#span_' + idRegistro).hide();
+            $('#habilitado_' + idRegistro).prop("disabled", false);
+
+        });
+
+        $(document).on('click','.btn-guardar',function(e){
+            //$('.btn-guardar').click(function(){
+            e.stopPropagation();
+            var idRegistro = $(this).closest('tr').prop('id'); //saco la fila
+            var trRegistro = $(this).closest('tr');
+            var btnRegistro = $(this);
+
+            if ($("#nombre_" + idRegistro).val().trim().length > 0) {
+
+                // lo envio por post a el controlador
+                var URL = '@Html.Raw(@Url.Action("actualizarListaPlantilla", "Mantenedor", new { id = "idR", nombre = "nombreJs", descripcion = "descripcionJs", adicional = "adicionalJs", habilitado = "habilitadoJs" }))';
+
+                URL = URL.replace('idR', idRegistro);
+                URL = URL.replace('nombreJs', $("#nombre_" + idRegistro).val());
+                URL = URL.replace('habilitadoJs', $("#habilitado_" + idRegistro).is(":checked").toString());
+
+                var heading = 'Advertencia';
+                var question = 'Se actualizarán los datos, ¿Desea continuar?';
+                var cancelButtonTxt = 'Cancelar';
+                var okButtonTxt = 'Aceptar';
+                var callback = function() {
+                    $.ajax({
+                        type: 'POST',
+                        url: URL,
+                    }).done(function(sError){
+                        if(sError.length == 0){
+                            trRegistro.removeClass("warning");
+                            $('#span_' + idRegistro).show();
+                            $('#span_' + idRegistro).text($('#nombre_' + idRegistro).val());
+                            $('#nombre_' + idRegistro).hide();
+                            $('#habilitado_' + idRegistro).prop("disabled", true);
+                            btnRegistro.parent().children('button.btn-guardar').hide(); //oculta boton guadar
+                            btnRegistro.parent().children('button.btn-cancelar').hide(); //oculta boton cancelar
+                            btnRegistro.parent().children('button.btn-editar').show(); //muestra boton editar
+                            btnRegistro.parent().children('button.btn-pcosto').show(); //muestra boton eliminar
+                            $('button.btn-editar').prop("disabled", false); //habilita btn edit
+                            $('button.btn-pcosto').prop("disabled", false); //habilita btn eliminar
+                        }else{
+                            c_alert('Error', '<span class="glyphicon glyphicon-warning-sign glyp-amarillo btn-lg"></span>Ya existe plantilla con ese nombre.', 'Cerrar');
+                        }
+                        
+                    });
+
+
+                };
+
+                confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+            }
+            else {
+
+                c_alert('Error', '<span class="glyphicon glyphicon-warning-sign glyp-amarillo btn-lg"></span>Existen Campos obligatorios sin poblar.', 'Cerrar');                     
+
+            }
+
+        });
+
+        $(document).on('click','.btn-cancelar',function(e){
+            
+            e.stopPropagation();
+            $('.btn-editar').show();
+            $('.btn-pcosto').show();
+
+            var idRegistro = $(this).closest('tr').prop('id'); //saco la fila
+
+            _.filter(plantillas, function(i){
+                if (i.Idplantilla == idRegistro){
+                    $('#nombre_' + i.Idplantilla).val(i.Nombre);
+                    $('#descripcion_' + i.Idplantilla).val(i.Descripcion);
+
+                    if(i.Habilitada == 'True'){
+                        $('#habilitado_' + i.Idplantilla ).prop('checked', true);
+                    }else{
+                        $('#habilitado_' + i.Idplantilla ).prop('checked', false);
+                    }
+                }
+            });
+            $(this).closest('tr').removeClass("warning");
+            $('#span_' + idRegistro).show();
+            $('#nombre_' + idRegistro).val($('#span_' + idRegistro).text());
+            $('#nombre_' + idRegistro).hide();
+            $('#habilitado_' + idRegistro).prop("disabled", true);
+            $(this).parent().children('button.btn-guardar').hide(); //oculta boton guadar
+            $(this).parent().children('button.btn-cancelar').hide(); //oculta boton cancelar
+            $('button.btn-editar').prop("disabled", false); //muestra btn edit
+            $('button.btn-pcosto').prop("disabled", false); //muesta btn eliminar
+            $("#nombre_" + idRegistro).blur();
+
+        });
+
+        /************************************************************************/
+        /*                         VER PLANTILLA CREADA                         */
+        /************************************************************************/
+
+        if('@User.IsInRole("OBSERVADOR")' == 'False') {
+            $(document).on('click','#contenedorJson tbody tr',function(){
+                var enEdicion = 0;
+
+                $('#contenedorJson tbody tr').each(function(){
+                    if($(this).hasClass('warning')){
+                        enEdicion = 1;
+                    }
+                });
+                if(enEdicion == 0){
+                    var idPlantilla = $(this).prop('id');
+                    var dir = '@Url.Action("nvaPlantillasElementosVerMod", "Mantenedor", new { id = "reemplazo" })';
+                    dir = dir.replace("reemplazo", idPlantilla);
+
+                    window.location.href = dir;
+                }
+            });
+        }
+    });
+</script>
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+    <div class="container fluid">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                <h3 id="ttl">Mantenedor Plantillas</h3>
+            </div>
+            <div class="col-md-9 col-sm-9 text-right">
+                <ol class="breadcrumb">
+                    <li class="active">Plantillas</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 col-md-12" style="border-top:solid 2px #8FBE00;"></div>
+        </div>
+
+        <div class="row">
+            <div id="contenedorJson">
+                <table id="tablaPlantillas" class="table table-responsive table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-5 col-sm-5">Nombre</th>
+                            <th class="col-md-2 col-sm-2">Familia</th>
+                            <th class="col-md-2 col-sm-2">Subfamilia</th>
+                            <th class="col-md-1 col-sm-1">Habilitada</th>
+                            <th class="col-md-2 col-sm-2">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- /.toolbar -->
+        <div id="paginacion" class="row" style="background-color: #F9F9F9;">
+            <div id="regPag"></div>
+            <div class="col-sm-2 col-md-2 col-sm-offset-2 col-md-offset-2">
+                <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                    <div class="btn-group btn-group-sm" role="group">
+                        @if(!User.IsInRole("OBSERVADOR")) {
+                        <button id="btn_nvo" type="button" class="btn btn-default" title="Nuevo Plantilla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-plus"></span></button>
+                        }
+                        <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                        <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                        <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                        <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.toolbar -->
+        <!-- /.modal -->
+        <div class="modal fade" id="modCustom">
+            <div class="modal-dialog" id="modDialog">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title"></h4>
+                    </div>
+                    <div id="editHojas" class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        <button type="button" id="guardar" class="btn btn-primary">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal -->
+    </div>
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+}
+
+

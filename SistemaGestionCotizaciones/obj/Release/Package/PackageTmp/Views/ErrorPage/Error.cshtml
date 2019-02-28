@@ -1,0 +1,16 @@
+﻿@*{
+    ViewBag.Title = "Error en la aplicacion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}*@
+
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="alert">
+    <h3 class="text-danger">Error inesperado, contactese con su administrador. </h3>
+    <img class="img-responsive" style="position:absolute;right:0;top:0;" src="~/Content/img/SGCLogo.png" />
+</div>
+@Html.ActionLink("Volver a la pagina anterior", null, null, null, new { href = Request.UrlReferrer })
+
+

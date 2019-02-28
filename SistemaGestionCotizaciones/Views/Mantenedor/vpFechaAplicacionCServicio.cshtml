@@ -1,0 +1,324 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+
+<script>
+    // variables Globales
+    //$('#tpoUni_catServ').show();
+    //  ////console.log(" aca");
+    $('#loadingDiv').hide();
+    $(document).ajaxStart(function () {
+        $('#loadingDiv').show(); // show Loading Div
+    }).ajaxStop(function () {
+        $('#loadingDiv').hide(); // hide loading div
+    });
+    var chk = $("#aplicacion");
+    var chkValor;
+    var cadena = $('#Fecha').data('id');
+    var pagina = 0;
+
+    //Array [ "4", "5", "2", "0,5", "1" ]
+        //Actual 	Nuevo 	Actual 	Nuevo
+    //0,5 	 5 	     5 	       0.5
+    //  id + ';' + CMa + ';' + CMn + ';' + CIa + ';' + CIn
+    //  ////console.log('cadena:'+cadena);
+    var elemento = cadena.split(";");
+    var id,fecha;
+    var CMA, CMN, CIA, CIN;
+    id = elemento[0];
+    CMA = elemento[1];
+    CMN = elemento[2];
+    CIA = elemento[3];
+    CIN = elemento[4];
+    // ////console.log(elemento);
+    //$("#dialog-form").dialog({
+    //    modal: true
+    //});
+    $('#btn_Finalizar').show();
+    $('#btn_Siguiente').hide();
+    $('#fecha').datepicker({
+        numberOfMonths: 1,
+        dateFormat: 'dd/mm/yy',
+        minDate: +1,
+        onClose: function (selectedDate) {
+            $("#fecha").datepicker("option", "minDate", selectedDate);
+        }
+    });
+    $("#fecha").datepicker().datepicker("setDate", "1");
+    $('.modal-body select').selectmenu({
+        overlayTheme: "a",
+        width: 150,
+        maxHeight: 150
+    });
+    fecha = $(".datepicker[name=datepicker1]").val()
+    // ////console.log( $(".datepicker[name=datepicker1]").val());
+    // ////console.log('fecha:' + fecha)
+    var URLs = ' @Html.Raw(Url.Action("jsonSimulacionCambioCostoServicio", "Mantenedor", new { id = "param-id", CMensual = "param-CMensual"
+                                                                                                 , CInicial = "param-CInicial" }))';
+    URLs = URLs.replace("param-id", id)
+               .replace("param-CMensual", CMN)
+               .replace("param-CInicial", CIN);
+    // ////console.log(URLs);
+
+
+    $.ajax({
+        dataType: "json",
+        url: URLs,
+        async: false
+    }).done(function (varJson) {
+        //mi codigo
+
+        if (varJson.length > 0) {
+
+
+            _.each(varJson, function (i) {
+                $('.simulacion').append("<tr>   <td>" + i.ID + "</td> <td colspan='3'>" + i.CostosMensualCotizacion + "</td>  <td colspan='3'>" + i.CostoMensualSimulado +
+                    "</td>  <td>" + i.diferenciaEnUF + "</td>     </tr> ");
+
+            });
+            $('.texto').append("<p>El cambio de costos afectara a las cotizaciones listadas en la tabla simulacion, estos cambios en los costos seran validos desde el día " + fecha + ", para las cotizaciones facturadas y desde hoy para las nuevas cotizaciones</p>");
+            //$('#simulacion').show();
+        } else {
+            $('#aplicacion').hide();
+            $('.texto').append("<p>El cambio de costo no afectara cotizaciones, estos cambios en los costos seran validos para las nuevas cotizaciones</p>");
+            
+        }
+    });
+   
+   
+    //$("#simulacion").hide();
+
+    $('#aplicacion').on('change', function () {
+       //  ////console.log($('input:radio[id=aplicacion]:checked').val());
+        if ($('input:radio[id=aplicacion]:checked').val()) {
+            //$("#simulacion").show();
+            chkValor = 1;
+            //alert($("#fecha").datepicker("getDate"));
+            $("#divFecha").show();
+            $('#btn_Finalizar').hide();
+            $('#btn_Siguiente').show();
+        }
+    });
+    $('#nuevas').on('change', function () {
+        // ////console.log($('input:radio[id=nuevas]:checked').val());
+        if ($('input:radio[id=nuevas]:checked').val()) {
+            //$("#simulacion").hide();
+            chkValor = 0;
+            $("#divFecha").hide();
+            $('#btn_Finalizar').show();
+            $('#btn_Siguiente').hide();
+
+        }
+    });
+    var tmpInicial = CIN;
+    var tmpMensual = CMN;
+
+    if (CIN == 'NULL') {
+        tmpInicial = 0;
+
+    } 
+    if (CMN == 'NULL') {
+        tmpMensual = 0;
+    } 
+
+    console.log(CMA + ' ' + CMN + ' ' + CIA + ' ' + CIN);
+    console.log("<tr>   <td>" + CIA + "</td> <td>" + tmpInicial + "</td>  <td>" + CMA + "</td>  <td>" + tmpMensual + "</td>     </tr> ");
+    $('.costos').append("<tr>   <td>" + CIA + "</td> <td>" + tmpInicial + "</td>  <td>" + CMA + "</td>  <td>" + tmpMensual + "</td>     </tr> ");
+    $('#btn_Finalizar').hide();
+    $('#btn_Siguiente').show();
+    $('#btn_Siguiente').click(function () {
+         ////console.log('if siguiente:' + pagina);
+
+        if (pagina == 0) {
+             ////console.log('if siguiente:' + pagina);
+            $('#primerPaso').hide();
+             ////console.log('if PRIMER PASO:');
+            $('#segundoPaso').show();
+             ////console.log('if SEGUNDO PASO:');
+            $('#btn_Finalizar').show();
+             ////console.log('if FIN PASO:');
+            $('#btn_Siguiente').hide();
+             ////console.log('if SIGUIENTE PASO:');
+            ++pagina;
+        }
+        // ////console.log('if :' + pagina);
+    });
+
+    $('#btn_Atras').click(function () {
+        // ////console.log('if ATRAS:' + pagina);
+        if (pagina == 1) {
+            $('#primerPaso').show();
+            $('#segundoPaso').hide();
+            $('#btn_Finalizar').hide();
+            $('#btn_Siguiente').show();
+            pagina--;
+        }
+      //   ////console.log(pagina);
+        else{
+
+            //$('#modFechaAplicacion').modal('toggle');
+            location.reload();
+        }
+    });
+    $('#btn_Finalizar').click(function () {
+        fecha = $(".datepicker[name=datepicker1]").val()
+        if (chk.is(":checked")) {
+            chkValor = "1";
+            //mostrar spsimulacion
+
+            //enviar mail
+        } else { chkValor = "0"; }
+        // id, fecha, CUInicial,CUMensual,aplicacion, out sError
+        var URL = '@Html.Raw(Url.Action("vpFechaAplicacionCServicio", "Mantenedor", new { id = "param-id", fecha = "param-fecha", CUInicial = "param-CUInicial", CUMensual = "param-CUMensual", aplicacion = "param-aplicacion" }))';
+        //alert("if3");
+        
+        URL = URL.replace('param-id', id)
+                 .replace('param-fecha', fecha)
+                 .replace('param-CUInicial', CIN)
+                 .replace('param-CUMensual', CMN)
+                 .replace('param-aplicacion', chkValor);
+
+        $.ajax({
+             type: "POST",
+             url: URL,
+            async:false
+         }).done(function (resp) {
+             resultado = resp;
+         });
+        $('#modFechaAplicacion').modal('toggle');
+        location.reload();
+
+    });
+
+</script>
+<style>
+    div.ui-selectmenu-open {
+        max-height: 200px;
+        overflow-x: hidden;
+        z-index: 65535 !important;
+        overflow-y: auto;
+    }
+
+    .ui-datepicker{ z-index: 9998 !important;}
+    .ui-datepicker-month{ z-index: 9999 !important;}
+    .ui-datepicker-year{ z-index: 9999 !important;}
+    /*.ui-dialog-content::-webkit-scrollbar {
+      -webkit-appearance: listbox;
+      width: 11px;
+      height: 11px;
+    }
+
+    .ui-dialog-content::-webkit-scrollbar-thumb {
+      border-radius: 8px;
+      border: 2px solid white;*/ /* should match background, can't be transparent
+      background-color: rgba(0, 0, 0, .5);
+    }*/
+</style>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+
+<div id="primerPaso" class="container">
+
+    <div class="row">
+        <div id="tabla"  class="col-sm-6">
+            <table class="table grilla table-bordered">
+                <thead>
+                    <tr>
+                        <td align="center" colspan="4">Costo Unidad</td>
+                    </tr>
+                    <tr>
+                        <td align="center" colspan="2">inicial</td>
+                        <td align="center" colspan="2">Mensual</td>
+                    </tr>
+                    <tr>
+                        <th>Actual</th>
+                        <th>Nuevo</th>
+                        <th>Actual</th>
+                        <th>Nuevo</th>
+                    </tr>
+                </thead>
+                <tbody class="costos">
+                    @*<tr>
+                            <td>1</td>
+                            <td>5</td>
+                            <td>3</td>
+                            <td>6</td>
+                        </tr>*@
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-sm-3 col-xs-12">
+            <label id="idServicio">Los cambios de costo son para:</label>
+            <input id="aplicacion" type="radio" name="aplicacion" value="1">Aplicar a costos vigentes y nuevas cotizaciones<br>
+            <input id="nuevas" type="radio" name="aplicacion" checked value="0">Aplicar solo a nuevas cotizaciones
+            @*si selecciona todas debe hacer la simulacion*@
+        </div>
+        <div id="divFecha" hidden class="form-group col-sm-3 col-xs-12">
+            <label class="control-label" for="">Seleccione una fecha para hacer efectivo el cambio en lo costos</label>
+            <input id="fecha" type="text" size="10" name="datepicker1"class ="form-control datepicker input-sm" placeholder="Desde" required value="" />
+            @*calendario*@
+        </div>
+    </div>
+    <div id='loadingDiv'>
+        <img src="~/Content/img/loading2.gif" />
+    </div>
+    @*<div class="row">
+            <div class="col-sm-offset-3 col-xs-offset-12">
+                <button id="btn_Atras" type="button" class="btn btn-default btn_Atras">Atras</button>
+                <button id="btn_Siguiente" type="button" class="btn btn-primary btn_Siguiente">Siguiente</button>
+            </div>
+
+        </div>*@
+</div>
+<div id="segundoPaso" hidden class="container">
+    <div class="row">
+        <div id="simulacion" hidden class="col-sm-6">
+            <table class="table grilla table-bordered table-condensed">
+                <thead>
+                    @*  [{"indice":"1","ID":"2","CostoComponentes":"189","CostoServicios":"1913130,2","CostosMensualCotizacion":"1913319,2"
+                    ,"CostoServicoSimulado":"1928607,2","CostoMensualSimulado":"1928796,2","diferenciaEnUF":"15477"}] *@
+                    <tr>
+                        <td align="center" colspan="8">Tabla de simulación</td>
+                    </tr>
+                    <tr>
+                        <td align="center" class="col-md-1" rowspan="2" >Cotización</td>
+                        <td align="center" colspan="6">Costo Mensual</td>
+                      @*<td align="center" colspan="2">Costo MensualSimulado</td>*@
+                        <td align="center" class="col-md-1" rowspan="2">Diferencia(UF)</td>
+                    </tr>
+                    <tr>
+                        
+                        <th align="center"  colspan="3">Actual (UF)</th>
+                        <th align="center"  colspan="3">Nuevo (UF)</th>
+
+                    </tr>
+                </thead>
+                <tbody class="simulacion">
+                    @*<tr>
+                        <td >1</td>
+                <td colspan="3">1</td>
+                <td colspan="3">5</td>
+                <td >5</td>
+                    </tr>*@
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+    <div class="row">
+        <div class="col-sm-6 texto">
+
+
+        </div>
+
+    </div>
+    @*<div class="row">
+            <div class="col-sm-offset-3 col-xs-offset-12">
+                <button id="btn_Atras" type="button" class="btn btn-default btn_Atras">Atras</button>
+                <button id="btn_Siguiente" type="button" class="btn btn-primary btn_Siguiente">Siguiente</button>
+            </div>
+
+        </div>*@
+</div>

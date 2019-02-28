@@ -1,0 +1,315 @@
+﻿@model SistemaGestionCotizaciones.Models.ListarProyecto
+@using System.Data;
+@using Microsoft.AspNet.Identity
+@using ExtensionMethods;
+
+<script src="~/Scripts/js/paginacion.js"></script>
+<link href="~/Content/css/paginacion.css" rel="stylesheet" />
+
+<style>
+</style>
+
+<script>
+
+    $(document).ready(function () {
+        var pagActual = 1;
+
+        @if (ViewBag.ascDescAct == "a")
+        {
+            @:$('<span class="glyphicon glyphicon-arrow-up" style="cursor: default;" aria-hidden="true"></span>').appendTo($('#tblListarProyectos thead tr [ide = @ViewBag.idHeadAct]'));
+                        }
+
+        @if (ViewBag.ascDescAct == "d")
+        {
+            @:$('<span class="glyphicon glyphicon-arrow-down" style="cursor: default;" aria-hidden="true"></span>').appendTo($('#tblListarProyectos thead tr [ide = @ViewBag.idHeadAct]'));
+                        }
+
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+            var key = e.which;
+            if (key == 13) {
+                if (parseInt($(this).val()) > 0 && parseInt($(this).val()) <= parseInt($('#total_pag').text())) {
+                    var valElemento = $(this).val();
+                    if ($('#tblListarProyectos thead tr th span').length) {
+                        $('#tblListarProyectos thead tr th span').each(function () {
+                            var idHead = $(this).parent().attr("ide");
+                            var ascDe;
+                            if ($(this).hasClass('glyphicon-arrow-up')) {
+                                ascDe = 'a';
+                            } else {
+                                ascDe = 'd';
+                            }
+                            filtrado(valElemento, idHead, ascDe);
+                        });
+                    } else {
+                        filtrado(valElemento, 0, 0);
+                    }
+                }
+            }
+        });
+
+        $('#txt_pag').focus(function () {
+            pagActual = $.trim($(this).val());
+            $(this).val($.trim($(this).val()));
+        });
+
+        $('#txt_pag').focusout(function () {
+            $(this).val(pagActual);
+        });
+
+        $("#tblListarProyectos tbody tr").click(function () {
+            var idProyecto = $(this).attr("ide");
+            var dir = '@Url.Action("Detalle", "Proyecto", new { id =  "reemplazo" })';
+            dir = dir.replace("reemplazo", idProyecto);
+
+            window.location.href = dir;
+        });
+
+        $("#tblListarProyectos thead tr th").click(function () {
+
+            var idHead = $(this).attr("ide");
+            var ascDesc = 'a';
+            var ascDescAct = '@ViewBag.ascDescAct';
+
+            if (ascDesc == 'a' && ascDescAct == 'a') {
+                filtrado(parseInt($('#txt_pag').val()), idHead, 'd');
+
+            } else {
+                if (ascDescAct == 'd') {
+                    filtrado(parseInt($('#txt_pag').val()), idHead, 'a');
+                } else {
+                    filtrado(parseInt($('#txt_pag').val()), idHead, 'a');
+                }
+            }
+
+        });
+
+        $('#btn_enviar_msj').click(function () {
+            var url = '@Url.Action("enviarMensaje", "Proyecto", new { id = "reemplazo" })'
+            $.ajax({
+                type: "POST",
+                url: url,
+                async: false
+            });
+        });
+        $('#btn_pag_sig').click(function () {
+            if (parseInt($('#txt_pag').val()) < parseInt($('#total_pag').text())) {
+
+                if ($('#tblListarProyectos thead tr th span').length) {
+                    $('#tblListarProyectos thead tr th span').each(function () {
+                        var idHead = $(this).parent().attr("ide");
+                        var ascDe;
+                        if ($(this).hasClass('glyphicon-arrow-up')) {
+                            ascDe = 'a';
+                        } else {
+                            ascDe = 'd';
+                        }
+                        filtrado(parseInt($('#txt_pag').val()) + 1, idHead, ascDe);
+                    });
+                } else {
+                    filtrado(parseInt($('#txt_pag').val()) + 1, 0, 0);
+                }
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+            if ($('#tblListarProyectos thead tr th span').length) {
+                $('#tblListarProyectos thead tr th span').each(function () {
+                    var idHead = $(this).parent().attr("ide");
+                    var ascDe;
+                    if ($(this).hasClass('glyphicon-arrow-up')) {
+                        ascDe = 'a';
+                    } else {
+                        ascDe = 'd';
+                    }
+                    filtrado(parseInt($('#total_pag').text()), idHead, ascDe);
+                });
+            } else {
+                filtrado(parseInt($('#total_pag').text()), 0, 0);
+            }
+        });
+
+        $('#btn_pri_pag').click(function () {
+            if ($('#tblListarProyectos thead tr th span').length) {
+                $('#tblListarProyectos thead tr th span').each(function () {
+                    var idHead = $(this).parent().attr("ide");
+                    var ascDe;
+                    if ($(this).hasClass('glyphicon-arrow-up')) {
+                        ascDe = 'a';
+                    } else {
+                        ascDe = 'd';
+                    }
+                    filtrado(0, idHead, ascDe);
+                });
+            } else {
+                filtrado(0, 0, 0);
+            }
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if (parseInt($('#txt_pag').val()) == 0) {
+                if ($('#tblListarProyectos thead tr th span').length) {
+                    $('#tblListarProyectos thead tr th span').each(function () {
+                        var idHead = $(this).parent().attr("ide");
+                        var ascDe;
+                        if ($(this).hasClass('glyphicon-arrow-up')) {
+                            ascDe = 'a';
+                        } else {
+                            ascDe = 'd';
+                        }
+                        filtrado(0, idHead, ascDe);
+                    });
+                } else {
+                    filtrado(0, 0, 0);
+                }
+            } else {
+                if (parseInt($('#txt_pag').val()) > parseInt($('#total_pag').text())) {
+                    if ($('#tblListarProyectos thead tr th span').length) {
+                        $('#tblListarProyectos thead tr th span').each(function () {
+                            var idHead = $(this).parent().attr("ide");
+                            var ascDe;
+                            if ($(this).hasClass('glyphicon-arrow-up')) {
+                                ascDe = 'a';
+                            } else {
+                                ascDe = 'd';
+                            }
+                            filtrado(parseInt($('#total_pag').text()), idHead, ascDe);
+                        });
+                    } else {
+                        filtrado(parseInt($('#total_pag').text()), 0, 0);
+                    }
+                } else {
+                    if ($('#tblListarProyectos thead tr th span').length) {
+                        $('#tblListarProyectos thead tr th span').each(function () {
+                            var idHead = $(this).parent().attr("ide");
+                            var ascDe;
+                            if ($(this).hasClass('glyphicon-arrow-up')) {
+                                ascDe = 'a';
+                            } else {
+                                ascDe = 'd';
+                            }
+                            filtrado(parseInt($('#txt_pag').val()) - 1, idHead, ascDe);
+                        });
+                    } else {
+                        filtrado(parseInt($('#txt_pag').val()) - 1, 0, 0);
+                    }
+                }
+            }
+
+        });
+
+        $('#btn_lmp_frt').click(function () {
+            $('#txt_proyecto').val('');
+            $('#fech_sol_min').val('');
+            $('#fech_sol_max').val('');
+            $('#cmb_jefe_pryct').val('-1');
+            //$('#cmb_jefe_pryct').selectmenu('refresh');
+            $('#cmb_pais_negocio').val('-1');
+            //$('#cmb_pais_negocio').selectmenu('refresh');
+            $('#cmb_solicitante').val('-1');
+            //$('#cmb_solicitante').selectmenu('refresh');
+            $('#cmb_negocio').val('-1');
+            //$('#cmb_negocio').selectmenu('refresh');
+
+            filtrado(0, 0, 0);
+        });
+
+        $('#btn_nvo_pry').click(function () {
+            $('.modal')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('.modal').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+            $('#nvo_pryct').load('vpIngresar');
+        });
+
+    });
+</script>
+
+<div id="tb_pyct" class="grilla">
+    @if (Model.dtProyectos.Rows.Count > 0)
+    {
+        <table id="tblListarProyectos" class="table table-hover table-striped">
+            <thead>
+                <tr>
+
+                    <th class="col-md-1" ide="1">Creado</th>
+                    <th class="col-md-3" ide="2">Proyecto</th>
+                    <th class="col-md-2" ide="3">Negocio</th>
+                    <th class="col-md-2" ide="4">Cliente</th>
+                    <th class="col-md-3" ide="5">Servicio</th>
+                    @*<th ide="6">Estado</th>*@
+                    <th class="col-md-1" ide="7" style="text-align:center">Facturados/Totales</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow col in Model.dtProyectos.Rows)
+                {
+                    <tr ide="@col.ItemArray.GetValue(0)">
+
+                        <td>@col.ItemArray.GetValue(1)</td>
+                        <td>@col.ItemArray.GetValue(2)</td>
+                        <td>@col.ItemArray.GetValue(3)</td>
+                        <td>@col.ItemArray.GetValue(4)</td>
+                        <td>@col.ItemArray.GetValue(6)</td>
+                        @*<td>@col.ItemArray.GetValue(7)</td>*@
+                        <td title="Facturadas / Totales" style="text-align:center">@col.ItemArray.GetValue(11)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="row" style="background-color:#F9F9F9;height:28px;">
+            <div class="col-md-4 form-inline">
+                <span class="btn-group btn-group-xs">
+                    <a id="btn_pri_pag" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-left fa-lg"></i></a>
+                    <a id="btn_pag_ant" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-left fa-lg"></i></a>
+                </span>
+                <span>Pág. <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:8%; display:initial;" value="@if (Model.dtProyectos.Rows[0][8].ToString() == "0") {@Html.Raw("1")}else{@Model.dtProyectos.Rows[0][8]}" /> de <font id="total_pag">@Model.dtProyectos.Rows[0][9]</font></span>
+                <span class="btn-group btn-group-xs">
+                    <a id="btn_pag_sig" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-right fa-lg"></i></a>
+                    <a id="btn_ult_pag" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-right fa-lg"></i></a>
+                </span>
+                (@Model.dtProyectos.Rows[0][10] items)
+            </div>
+            <div class="col-md-8">                
+                <div class="btn-group pull-right" role="group">
+                    <button id="btn_lmp_frt" type="button" class="btn btn-default" title="Reiniciar Filtros" style="border:none;background-color:#F9F9F9;"><i class="fa fa-eraser"></i></button>
+                        @if (User.HasWriteAccess("PROYECTO"))
+                        {
+                        <button id="btn_nvo_pry" type="button" class="btn btn-default" title="Nuevo Proyecto" style="border:none;background-color:#F9F9F9;"><i class="fa fa-plus"></i></button>
+                        }
+                </div>
+            </div>
+        </div>
+
+
+
+
+    }
+    else
+    {
+
+        <div class="row alert alert-warning text-center">
+            No se encontraron Proyectos. Tiene disponibles las siguientes acciones
+            <div class="btn-group btn-group-xs" role="group">
+                @if (User.HasWriteAccess("PROYECTO") && ViewBag.Estado != "4")
+                {
+                    <button id="btn_nvo_pry" type="button" class="btn btn-default alert-warning" title="Nuevo Proyecto" style="border:none;"><i class="fa fa-plus"></i></button>
+                }
+            </div>
+        </div>
+
+    }
+</div>

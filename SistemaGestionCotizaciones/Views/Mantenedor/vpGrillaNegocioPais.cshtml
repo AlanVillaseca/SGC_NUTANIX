@@ -1,0 +1,372 @@
+﻿
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/underscore-min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var paises = @Html.Raw(jss.Serialize(Model.dtPaisJson));
+        var negocios = @Html.Raw(jss.Serialize(Model.dtNegocioJson));
+        var negociopais = @Html.Raw(jss.Serialize(Model.dtNegocioPaisJson));
+        var elemento = '';
+        var agregar;
+        var url;
+        var totalregistros = 0;
+        var pagina = 0;
+        var totalpaginas = 0;
+        var idpais;
+        var idnegocio;
+        
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        if(negociopais != '') {
+
+            totalregistros = _.pluck(negociopais, 'totalRegistros')[0];
+            pagina = _.pluck(negociopais, 'paginaActual')[0];
+            totalpaginas = _.pluck(negociopais, 'totalPaginas')[0];
+        }
+
+        $('#tot_reg').append('<p>Total de Registros ' + totalregistros + '</p>');
+        $('#txt_pag').val(pagina);
+        $('#ttl_pag').append(totalpaginas);
+
+        _.each(paises, function(i) {
+
+            elemento += '<option id="' + i.Idpais + '">' + i.Nombre + '</option>';
+
+        });
+
+        $('#combo_pais').append(elemento);
+
+        elemento = '';
+
+        _.each(negocios, function(i) {
+
+            elemento += '<option id="' + i.Idnegocio + '">' + i.Descripcion + '</option>';
+
+        });
+
+        $('#combo_negocio').append(elemento);
+
+        elemento = '';
+
+        _.each(negociopais, function(i) {
+
+            elemento += '<tr>\
+                            <td>' + i.Idpais + '</td>\
+                            <td>' + i.Idnegocio + '</td>\
+                            <td>' + i.Nombre + '</td>\
+                            <td>' + i.Descripcion + '</td>\
+                            <td codigo="' + i.Idpais + i.Idnegocio + '">' + i.Codigo + '</td>';
+
+
+            if(i.Facturable == 'True') {
+
+                elemento += '<td facturable="' + i.Idpais + i.Idnegocio + '"><input type="checkbox" checked disabled/></td>';
+
+            } else {
+
+                elemento += '<td facturable="' + i.Idpais + i.Idnegocio + '"><input type="checkbox" disabled/></td>';
+
+            }
+
+
+            elemento += '   <td id="' + i.Idpais + i.Idnegocio + '">';
+
+            if ('@User.IsInRole("OBSERVADOR")' == 'False')
+            {
+                elemento += '<span class="glyphicon glyphicon-pencil" idpais="' + i.Idpais + '" idnegocio="' + i.Idnegocio + '"" codigo="' + i.Codigo + '"></span>\
+                            <span class="glyphicon glyphicon-ok" idpais="' + i.Idpais + '" idnegocio="' + i.Idnegocio + '"" codigo="' + i.Codigo + '"></span>\
+                            <span class="glyphicon glyphicon-remove" idpais="' + i.Idpais + '" idnegocio="' + i.Idnegocio + '"" codigo="' + i.Codigo + '" facturable="' + i.Facturable + '"></span>\
+                            <span class="glyphicon glyphicon-trash" idpais="' + i.Idpais + '" idnegocio="' + i.Idnegocio + '""></span>';
+            }
+
+            elemento += '</td>\
+                        </tr>';
+
+        });
+
+        $('#tb_negociopais tbody').append(elemento);
+
+        $('.glyphicon-ok').hide();
+        $('.glyphicon-remove').hide();
+
+        $('#icono_agregar').click(function() {
+
+            if($('#combo_pais').val() != '-1' && $('#combo_negocio').val() != '-1') {
+
+                if ($('#cabecera').validar()) {
+
+                    if ($("#input_facturable").val().trim().length == 0) {
+                        alert('El codigo de facturacion debe ser ingresado');
+                        $("#input_facturable").focus();
+                    }
+
+                    return;
+                }
+
+                url = '@Html.Raw(Url.Action("guardarNegocioPais", "Mantenedor", new { id = "reemplazo", idnegocio = "reemplazo2", facturable = "reemplazo3", codigo = "reemplazo4" }))'
+
+                url = url.replace("reemplazo", $('#combo_pais option:selected').attr('id'));
+                url = url.replace("reemplazo2", $('#combo_negocio option:selected').attr('id'));
+                url = url.replace("reemplazo3", $('#check_facturable').is(':checked'));
+                url = url.replace("reemplazo4", $('#input_facturable').val());
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    dataType: "html",
+                    async: false
+                }).done(function(){
+                    alert('cambio guardado');
+                });
+
+                location.reload();
+
+            } else {
+
+                alert('Los campos País y Negocio deben tener algo seleccionado');
+
+            }
+
+        });
+
+        $('.glyphicon-pencil').click(function(){
+
+            idpais = $(this).attr('idpais');
+            idnegocio = $(this).attr('idnegocio');
+
+            $('#' + idpais + idnegocio + ' .glyphicon-pencil').hide();
+            $('#' + idpais + idnegocio + ' .glyphicon-trash').hide();
+            $('#' + idpais + idnegocio + ' .glyphicon-ok').show();
+            $('#' + idpais + idnegocio + ' .glyphicon-remove').show();
+
+            elemento = '<input class="form-control input-sm" type="text" value="' + $(this).attr('codigo') + '"/>';
+
+            $('[codigo=' + idpais + idnegocio + ']').text('');
+            $('[codigo=' + idpais + idnegocio + ']').append(elemento);
+            $('[facturable=' + idpais + idnegocio + '] input').attr('disabled', false);
+
+        });
+
+        $('.glyphicon-trash').click(function() {
+
+            url = '@Html.Raw(Url.Action("eliminarNegocioPais", "Mantenedor", new { id = "reemplazo", idnegocio = "reemplazo2" }))'
+
+            url = url.replace("reemplazo", $(this).attr('idpais'));
+            url = url.replace("reemplazo2", $(this).attr('idnegocio'));
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: "html",
+                async: false
+            }).done(function(){
+                alert('cambio guardado');
+            });
+
+            location.reload();
+
+        });
+
+        $('.glyphicon-ok').click(function(){
+
+            idpais = $(this).attr('idpais');
+            idnegocio = $(this).attr('idnegocio');
+
+            codigo = $('[codigo=' + idpais + idnegocio + '] input').val().trim();
+
+            url = '@Html.Raw(Url.Action("modificaNegocioPais", "Mantenedor", new { id = "reemplazo", idnegocio = "reemplazo2", codigo = "reemplazo3", facturable = "reemplazo4" }))'
+
+            url = url.replace("reemplazo", idpais);
+            url = url.replace("reemplazo2", idnegocio);
+            url = url.replace("reemplazo3", codigo);
+            url = url.replace("reemplazo4", $('[facturable=' + idpais + idnegocio + '] input').is(':checked'));
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: "html",
+                async: false
+            }).done(function(){
+                alert('cambio guardado');
+            });
+
+            $('#' + idpais + idnegocio + ' .glyphicon-pencil').show();
+            $('#' + idpais + idnegocio + ' .glyphicon-trash').show();
+            $('#' + idpais + idnegocio + ' .glyphicon-ok').hide();
+            $('#' + idpais + idnegocio + ' .glyphicon-remove').hide();
+
+            $('[codigo=' + idpais + idnegocio + ']').text($(this).attr('codigo'));
+
+            $('[facturable=' + idpais + idnegocio + '] input').attr('disabled', 'true');
+
+        });
+
+        $('.glyphicon-remove').click(function(){
+
+            idpais = $(this).attr('idpais');
+            idnegocio = $(this).attr('idnegocio');
+
+            $('#' + idpais + idnegocio + ' .glyphicon-pencil').show();
+            $('#' + idpais + idnegocio + ' .glyphicon-trash').show();
+            $('#' + idpais + idnegocio + ' .glyphicon-ok').hide();
+            $('#' + idpais + idnegocio + ' .glyphicon-remove').hide();
+
+            $('[codigo=' + idpais + idnegocio + ']').text($(this).attr('codigo'));
+
+            if($(this).attr('facturable') == 'True') {
+
+                $('[facturable=' + idpais + idnegocio + '] input').prop('checked', true);
+
+            } else {
+
+                $('[facturable=' + idpais + idnegocio + '] input').prop('checked', false);
+
+            }
+
+            $('[facturable=' + idpais + idnegocio + '] input').attr('disabled', 'true');
+
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if ($(this).val() <= totalpaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaNegocioPais", "Mantenedor", new { id = "reemplazo" }))';
+
+                    dir = dir.replace("reemplazo", $(this).val());
+
+                    $('#tb_negociopais').load(dir);
+                }
+
+            }
+        });
+
+        $('#btn_pri_pag').on('click', function () {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaNegocioPais", "Mantenedor", new { id = "1" }))';
+
+            $('#tb_negociopais').load(dir);
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaNegocioPais", "Mantenedor", new { id = "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) - 1);
+
+                $('#tb_negociopais').load(dir);
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaNegocioPais", "Mantenedor", new { id = "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) + 1);
+
+                $('#tb_negociopais').load(dir);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaNegocioPais", "Mantenedor", new { id = "reemplazo" }))';
+
+            dir = dir.replace("reemplazo", parseInt(totalpaginas));
+
+            $('#tb_negociopais').load(dir);
+
+        });
+
+        $('#btn_descargar').click(function () {
+
+            $.ajax({
+                url: '@Url.Action("NegocioPaisFileXls", "Mantenedor")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoNegocioPais.csv");
+
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<div>
+
+    <table id="tb_negociopais" class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-1">Idpais</th>
+                <th class="col-md-1">Idnegocio</th>
+                <th class="col-md-2">Pais</th>
+                <th class="col-md-2">Negocio</th>
+                <th class="col-md-3">Codigo</th>
+                <th class="col-md-2">Facturado</th>
+                <th class="col-md-1">Acción</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-2">
+            <div id="tot_reg" style="display:inline-block;"></div>
+        </div>
+        <div class="col-md-2 col-md-offset-3 form-inline">
+            <p class="control-label ">
+                Ir a
+                <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:13%; display:initial;" value="" />
+                de <font id="ttl_pag"></font> Pág.
+            </p>
+        </div>
+        <div class="col-md-3  col-md-offset-2">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button id="btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+                    <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>

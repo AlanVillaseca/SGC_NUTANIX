@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.RetiroComponentes
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+<script>
+
+    $(document).ready(function () {
+
+        var SolicitudRetiro = @Html.Raw(jss.Serialize(Model.solicitudesjefeproyectoJson));
+
+
+
+        _.each(SolicitudRetiro, function(index){
+
+            $('#tb_componentes_retiro tbody').append('<tr>\
+                                                        <td id="' + index.Idcomponente + '">' + index.Componente + '</td>\
+                                                        <td>' + index.Cuotas + '</td>\
+                                                        <td>' + index.Monto + '</td>\
+                                                    </tr>');
+
+        });
+
+
+
+
+
+
+
+        $('.accion').click(function() {
+
+
+            if($(this).attr('id') == 'btn_aprobar_solicitud') {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ApruebarRechazarSolicitud", "Retiro")',
+                    data: {accion: 1,
+                        idsolictudretiro: '@ViewBag.IdsolicitudRetiro'},
+                    async: false
+                });
+
+
+            }
+
+
+
+            var callback = function () {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("RetiroSolicitud", "Retiro")',
+                    data: {idsolictudretiro: '@ViewBag.IdsolicitudRetiro'},
+                    async: false
+                });
+
+
+                var dir = '@Html.Raw(Url.Action("SolicitudRetiroInfra", "Retiro", new
+                {
+                    id = "1"
+                }))';
+
+                window.location.href = dir;
+
+            };
+
+            confirm('', '¿Esta seguro que desea retirar la solicitud?', 'Cancelar', 'Modificar', callback);
+
+
+
+            
+
+
+        });
+
+    });
+
+</script>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-md-5 col-sm-5">
+            <h3 id="ttl">Detalle Solicitud de Retiro</h3>
+        </div>
+    </div>
+
+    <div class="row grilla">
+
+
+        <table id="tb_componentes_retiro" class="table table-responsive table-striped table-condensed grilla">
+            <thead>
+                <tr>
+                    <th>Componente</th>
+                    <th>Cuotas</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+    <div class="row">
+
+        <button id="btn_retiro" class="col-lg-offset-7 col-md-2 btn btn-primary accion">Retiro Físico</button>
+
+    </div>
+
+
+
+</div>
+

@@ -1,0 +1,431 @@
+﻿
+@{
+    ViewBag.Title = "ComponentesNutanix";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.NutanixFunciones
+@using System.Data
+@using System.Web.Script.Serialization;
+
+<style>
+.modal {
+text-align: center;
+padding: 0!important;
+}
+
+.modal:before {
+content: '';
+display: inline-block;
+height: 100%;
+vertical-align: middle;
+margin-right: -4px;
+}
+
+.modal-dialog {
+display: inline-block;
+text-align: left;
+vertical-align: middle;
+}
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        var jsonOpciones = [];
+        var jsonComponentes=[];
+        variable = @ViewBag.Message;
+        let tablaCom=$('#tablaCom tbody');
+
+        //Llena tabla Componentes
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("getComponentesNutanix","Nutanix")',
+            async: false,
+            data: { id: variable},
+            success: function (result) {
+                var componentes=JSON.parse(result);
+                _.each(componentes, function(pib){
+                    tablaCom.append($('<tr id="'+pib.idcomponente+'"><td class="check"> <input type="checkbox" class="form-check-input" id="chk-'+pib.idcomponente+'" disabled="disabled"></td><td>'+pib.idcomponente+'</td><td>'+pib.estado+'</td><td>'+pib.descripcion+'</td><td class="Ambiente" ide="'+pib.idambiente+'">'+pib.ambiente+'</td><td>'+pib.negocio+'</td><td class="APP" ide="'+pib.aplicacion+'">'+pib.aplicacion+'</td><td class="VCPU">'+pib.vcores+'</td><td class="RAM">'+pib.ram+'</td><td><a id="aAgregar" style=" background-color:#8fbe00" class="btn btn-primary btn-click-modal" data-toggle="modal" data-target="#basicExampleModal">+</td></tr>'))
+                })
+            }
+        });
+
+
+        //Seleccionar todos los Checkbox Activos
+        $('#select_all').click(function() {
+                var c = this.checked;
+                $(':checkbox:enabled').prop('checked',c);
+        });
+
+
+        //activamos boton solo en el caso que se seleccione un Componente
+        $('#btnCrearVM').attr("disabled", true);
+
+        $(function(){
+            $('input:checkbox').change(function(){
+                if ($('input:checkbox:checked').length > 0) {
+                    if ($('input:checkbox:checked').length == 1 && $('#select_all').is(':checked')){
+                        $('#btnCrearVM').attr("disabled", true);
+                    }else{
+                        $('#btnCrearVM').attr("disabled", false);
+                    }
+                } else {
+                    $('#btnCrearVM').attr("disabled", true);
+                }
+            });
+        });
+
+        function vistaBase(selRol){
+            switch (selRol) {
+                case "MOTOR_FULL":
+                    $('#db_data').show();
+                    $('#db_name').show();
+                    break;
+                case "SOLO_ASM":
+                    $('#db_data').hide();
+                    $('#db_name').hide();
+                    $("#cmbCharacterSet").val("");
+                    $('#txtBaseDatos').val("")
+                    break;
+            }
+        }
+
+        //Accion al cambiar el Rol
+        $('#cmbRol').change(function() {
+            vistaBase($(this).val());
+        });
+
+        //Accion al Cambiar SO
+        $('#cmbSistemaOperativo').change(function() {
+            $('#cmbRol').empty();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("getComboRol", "Nutanix")',
+                async: false,
+                data: { id_tipo: $('#hdTipo').val(), 
+                    id_so: $(this).val()
+                },
+                success: function (result) {
+                    var listaRol = JSON.parse(result);
+                    _.each(listaRol, function(pib){
+                        $('#cmbRol').append($('<option></option>').attr('value', pib.rol).text(pib.rol));
+                    })
+                }
+            });
+        });
+
+        //Boton Agregar Detalles y trapaso de variables a un arreglo javascript
+        $(document).on("click", "#aAgregar", function(){
+
+            $fila = $(this).closest('tr');
+            var _idFila = $fila.prop('id');
+            var _defTipo = $('.APP', $fila).attr('ide');
+
+            if(_defTipo == "NO"){
+                var _idTipo = '105';
+                $('#db_data').hide();
+                $('#db_name').hide();
+            }else{
+                var _idTipo = '104';
+                $('#db_data').hide();
+                $('#db_name').hide();
+                $("#cmbCharacterSet").val("");
+                $('#txtBaseDatos').val("")
+            }
+
+            //Llenado Combo SO
+            $('#cmbSistemaOperativo').empty();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("getComboSO", "Nutanix")',
+                async: false,
+                data: { id: _idTipo},
+                success: function (result) {
+                    var listaSO = JSON.parse(result);
+                    _.each(listaSO, function(pib){
+                        $('#cmbSistemaOperativo').append($('<option></option>').attr('value', pib.id_so).text(pib.descripcion))
+                    })
+                }
+            });
+
+            //Llenado Combo Rol
+            $("#cmbSistemaOperativo option:first").attr('selected','selected');
+            var  primerRegistro = $("#cmbSistemaOperativo").val();
+            $('#cmbRol').empty();
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("getComboRol", "Nutanix")',
+                async: false,
+                data: { id_tipo: _idTipo, 
+                    id_so: primerRegistro
+                },
+                success: function (result) {
+                    var listaRol = JSON.parse(result);
+                    _.each(listaRol, function(pib){
+                        $('#cmbRol').append($('<option></option>').attr('value', pib.rol).text(pib.rol));
+                    })
+                }
+            });
+
+            //Primera Vista Rol
+            $('#cmbRol option:first').attr('selected','selected');
+            var  valRol = $('#cmbRol').val();
+            vistaBase(valRol);
+
+            //Variables Universales
+            $('#hdComponente').val(_idFila);
+            $('#hdTipo').val(_idTipo);
+
+            var jsonCom = _.where(jsonOpciones, {"idcomponente" : _idFila});
+                    _.each(jsonCom, function(item){
+                        $("#cmbSistemaOperativo").val(item.sistemaoperativo);
+                        $("#cmbSite").val(item.siteSec);
+                        $("#cmbVLAN").val(item.vlan);
+                        $("#cmbRol").val(item.roles);
+                        $("#cmbCharacterSet").val(item.characterset);
+                        $('#txtBaseDatos').val(item.basedatos)
+                    });
+        });//fin boton
+
+        //Boton Guardar Detalles
+        $(document).on("click", "#guardarDetalles", function(e){
+
+            var cmbSO=$("#cmbSistemaOperativo").val();
+            var cmbSite=$("#cmbSite").val();
+            var cmbVlan=$("#cmbVLAN").val();
+            var cmbRol=$("#cmbRol").val();
+            var cmbChSet=$("#cmbCharacterSet").val();
+            var textNombreBD = $('#txtBaseDatos').val();
+            var idComponente = $('#hdComponente').val();
+
+            //Quitamos Opciones en el Arreglo
+            jsonOpciones = _.reject(jsonOpciones, {"idcomponente" : idComponente});
+
+             //Guardamos Opciones en el Arreglo
+             jsonOpciones.push({
+             "idComponente" : idComponente,
+             "sistemaOperativo" : cmbSO,
+             "siteSec" : cmbSite,
+             "vlanSec" : cmbVlan,
+             "rolSet" : cmbRol,
+             "charSet" : cmbChSet,
+             "dbName" : textNombreBD
+             });
+
+             $("#chk-" + idComponente).removeAttr('disabled');
+             $('#hdComponente').prop('value','');
+        });//fin boton
+
+      //Crear Maquina Virtual
+        $('#btnCrearVM').click(function(){
+
+          var jsonRoot = JSON.stringify(jsonOpciones);
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("creaMaquinaNutanix", "Nutanix")',
+                    async: true,
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: { componenteJson: jsonRoot},
+                    beforeSend: function() {  $('#modalEspera').modal('show'); },
+                    complete: function() { $('#modalEspera').modal('hide');  },
+                    success: function (result) {
+
+                        _.each(result,function(item,value){
+                            var estructurado = JSON.parse(item);
+                            var datos = JSON.parse(estructurado);
+                            $('#tablaResultado').append('<tr><td>' + datos.spec.name + '</td><td>' + datos.status.execution_context.task_uuid + '</td><td>' + datos.status.state + ' <img src="@Href("~/Content/img/clock.gif")" height="30" width="30" /></td>');
+                        })
+
+                        $('#modalResultado').modal('toggle');
+                    }
+                }); //fin ajax
+
+            return;
+
+      }); //fin boton
+
+    }); //fin ready
+
+</script>
+
+<div id="resultado" class="container-fluid">
+    <div class="row">
+        <div class="col-md-4 col-sm-4">
+            <h3 id="ttl">Componentes Nutanix</h3>
+        </div>
+    </div>
+
+
+    <div id="borde" class="row">
+        <div style="border-top:solid 1px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;padding-bottom:2%;"></div>
+    </div>
+
+    <div id="tablaComponentes" class="row">
+
+        <table id="tablaCom" class="table table-hover table-striped">
+
+            <thead>
+
+                <tr>
+                    <th class="col-md-1">Todos<br /><input type="checkbox" id="select_all" /></th>
+                    <th class="col-md-1">Id componente</th>
+                    <th class="col-md-1">Estado</th>
+                    <th class="col-md-3">Detalle</th>
+                    <th class="col-md-1">Ambiente</th>
+                    <th class="col-md-3">Negocio</th>
+                    <th class="col-md-1">APP</th>
+                    <th class="col-md-1">VCPU</th>
+                    <th class="col-md-1">Ram</th>
+                    <th class="col-md-1"></th>
+
+                </tr>
+
+            </thead>
+
+            <tbody></tbody>
+
+        </table>
+        <div style="float:right">
+            <button id="btnCrearVM" style="background-color:#8FBE00" class="btn btn-primary ">Crear VMs Seleccionadas</button>
+        </div>
+
+    </div>
+
+    <!-- Modal Datos-->
+    <div class="modal fade" id="basicExampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">VM</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-3 col-sm-3">
+                                <h3 id="ttl">Especificaciones adicionales</h3>
+                            </div>
+                        </div>
+                        <div style="border-top:solid 2px #8FBE00;"></div>
+
+                        <div class="row">
+                            <div class="col-md-3 col-sm-3">
+                                <h5 style="padding-top:2%;">Especificaciones técnicas</h5>
+                            </div>
+                        </div>
+
+                        <div class="row" id="basic_data">
+
+                            <div id="divSO" class="form-group col-md-4">
+                                <label for="inputState">Sistema Operativo</label>
+                                <select id="cmbSistemaOperativo" class="form-control"></select>
+
+                            </div>
+
+                            <div id="divSite" class="form-group col-md-4">
+                                <label for="inputState">SITE</label>
+                                <select id="cmbSite" class="form-control">
+                                    <option value="CDLV">CDLV</option>
+                                    <option value="DCC">DCC</option>
+                                </select>
+                            </div>
+
+                            <div id="divVLA" class="form-group col-md-4">
+                                <label for="inputState">VLAN</label>
+                                <select id="cmbVLAN" class="form-control">
+                                    <option value="d4275cd8-a65c-406c-a72c-868f155d2a12">Desarrollo_QA_Squad_Infraestructura</option>
+                                </select>
+                            </div>
+                            <div id="divRoles" class="form-group col-md-4">
+                                <label for="inputState">Rol</label>
+                                <select id="cmbRol" class="form-control">
+                                    >
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" id="db_data">
+                            <div class="form-group col-md-4">
+                                <label for="inputState">Nombre Base de Datos</label>
+                                <input class="form-control" id="txtBaseDatos" name="txtBaseDatos" type="text" />
+                            </div>
+                            <div id="divSO" class="form-group col-md-8">
+                                <label for="inputState">CHARACTER SET > NATIONAL CHARACTER SET > BLOCK_SIZE</label>
+                                <select id="cmbCharacterSet" class="form-control">
+                                    <option selected="true" disabled="">Seleccione</option>
+                                    <option value="AL32UTF8-UTF8-8192">AL32UTF8 - UTF8 - 8192</option>
+                                    <option value="AL32UTF8-AL16UTF16-8192">AL32UTF8 - AL16UTF16 - 8192</option>
+                                    <option value="WE8ISO8859P1-AL16UTF16-16384">WE8ISO8859P1 - AL16UTF16 - 16384</option>
+                                    <option value="WE8ISO8859P9-AL16UTF16-16384">WE8ISO8859P9 - AL16UTF16 - 16384</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" id="guardarDetalles" style="background-color:#8FBE00" class="btn btn-primary" data-dismiss="modal">Agregar</button>
+                    </div>
+                    @*VARIABLES OCULTAS*@
+                    @Html.Hidden("hdComponente")
+                    @Html.Hidden("hdTipo")
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Fin Modal Datos -->
+    <!-- Inicio Modal Espera-->
+    <div class="modal fade" id="modalEspera" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        <span class="glyphicon glyphicon-time">
+                        </span> Creando Maquinas Virtuales...
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-info
+                    progress-bar-striped active"
+                             style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Fin Modal Espera -->
+    <!-- Inicio Modal Resultado -->
+    <div class="modal fade" id="modalResultado" tabindex="-1" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Resultado</h5>
+                </div>
+                <div class="modal-body">
+                    <table id="tablaResultado" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="col-md-2">Nombre Máquina</th>
+                                <th class="col-md-5">Task UUID</th>
+                                <th class="col-md-2">Estado</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="@("window.location.href='" + @Url.Action("ProyectosNutanix", "Nutanix") + "'");" >Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="@("window.location.href='" + @Url.Action("PanelControlNutanix", "Nutanix") + "'");">Ir a Panel de Control</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Fin Modal Resultado -->
+</div>
+<!--Fin Container -->

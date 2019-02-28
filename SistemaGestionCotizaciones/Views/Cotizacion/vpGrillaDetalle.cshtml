@@ -1,0 +1,1887 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleCotizacion
+
+@using System.Data;
+@using Microsoft.AspNet.Identity;
+@using ExtensionMethods;
+@using System.Web.Script.Serialization;
+
+
+@{float totalinicial = 0;}
+@{float totalmensual = 0;}
+
+
+<script src="~/Scripts/js/cotizacionDetalle.js"></script>
+<script src="~/Scripts/js/soloNumero.js"></script>
+
+<style>
+    .ui-datepicker { position: relative; z-index: 10000 !important; } 
+    #paginacion {
+        position: absolute;
+        top: 390px;
+        width: 100px;
+        text-align: initial;
+        right: 400px;
+    }
+
+    #paginacion p {
+        position: absolute;
+        top: 4px;
+        left: 40px;
+        *vertical-align: middle;
+    }
+
+    #tblReporte div{
+        padding: 0px;
+        margin: 0px ;
+    }
+
+    #tblReporte .marco-full{
+        border: solid 1px;
+    }
+
+    #tblReporte .marco-der{
+        border-right: solid 1px;
+    }
+
+    #tblReporte .marco-izq{
+        border-left: solid 1px;
+    }
+
+    #tblReporte .marco-arb{
+        border-top: solid 1px;
+    }
+
+    #tblReporte .marco-abj{
+        border-bottom: solid 1px;
+    }
+    .centrado{
+        text-align: center;
+    }
+
+    #modcabecera {
+        padding-bottom: 20px;
+    }
+
+    #modcabecera div{
+        padding: 5px;
+    }
+
+    #modcabecera table{
+        border: 1px solid;
+        padding: 1px;
+    }
+    #txt_leyend {
+        font-size: 10px;
+        position: absolute;
+        left: -20px;
+    }
+</style>
+
+<script>
+
+    @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+    $(document).ready(function () {
+
+        $('.datepicker').datepicker();
+        $('.datepicker').datepicker('option', 'dateFormat', 'dd-mm-yy');
+
+        var ServiciosJson;
+        var PlantillaSubservicios;
+        var totalpaginas = 0;
+        var totalregistros = 0;
+        var costoinicial;
+        var horasservicio;
+
+        @if (Model.dtGrilla != null)
+        {
+            if (Model.dtGrilla.Rows.Count > 0)
+            {
+                @: totalpaginas = '@Model.dtGrilla.Rows[0].ItemArray.GetValue(1)';
+                                                            }
+
+        }
+
+
+
+        var idcotizacion = '@ViewBag.IdCotizacion';
+        var pagina = '@ViewBag.Pagina';
+
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if ($(this).val() <= totalpaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Cotizacion", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+                    dir = dir.replace("reemplazo", idcotizacion);
+                    dir = dir.replace("reemplazo2", $('#txt_pag').val());
+
+                    $('#tb_cmt').load(dir);
+                }
+
+            }
+        });
+
+
+        $('#btn_lmp_frt').click(function () {
+
+            var idcotizacion = '@ViewBag.IdCotizacion'
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Cotizacion", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", idcotizacion);
+            dir = dir.replace("reemplazo2", pagina);
+
+            $('#tb_comp').load(dir);
+        });
+
+        $('#btn_borrar_cot').click(function() {
+            confirmar = confirm("Eliminar cotizacion", "¿Seguro que desea eliminar la cotizacion?.", "Cerrar", "Borrar",function(){
+                var idcotizacion = '@ViewBag.IdCotizacion';
+                var url = '@Url.Action("EliminarCotizacion", "Cotizacion", new { id = "reemplazo" })'
+                url = url.replace("reemplazo", idcotizacion);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    async: false
+                }).done(function(err){
+                    if(err != 'True'){
+                        c_alert('Error al Borrar', err, 'Aceptar');
+                    } else {
+                        window.location.href = $('.urlProy').attr('href');
+                    }
+                });
+            });
+        });
+
+        $('#btn_pri_pag').on('click', function () {
+
+            var idcotizacion = '@ViewBag.IdCotizacion'
+            var pagina = $("#txt_pag").val();
+            var varVersion = $("#cotVersion").val();
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Cotizacion", new { id = "reemplazo", pagina = "1", cotVersion = "reemplazo3" }))'
+
+            dir = dir.replace("reemplazo", idcotizacion);
+            dir = dir.replace("reemplazo3", varVersion);
+
+            $('#tb_comp').load(dir);
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+
+            var totalpaginas = $("#total_pag").text();//.slice(4, ($("#total_pag").text().length - 4));
+            var idcotizacion = '@ViewBag.IdCotizacion'
+            var pagina = $("#txt_pag").val();
+            var varVersion = $("#cotVersion").val();
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Cotizacion", new { id = "reemplazo", pagina = "reemplazo2", cotVersion = "reemplazo3" }))';
+
+                dir = dir.replace("reemplazo", idcotizacion);
+                dir = dir.replace("reemplazo3", varVersion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) - 1);
+
+                $('#tb_comp').load(dir);
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            var totalpaginas = $("#total_pag").text();//.slice(4, ($("#total_pag").text().length - 4));
+            var idcotizacion = '@ViewBag.IdCotizacion';
+            var pagina = $("#txt_pag").val();
+
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Cotizacion", new { id = "reemplazo", pagina = "reemplazo2", cotVersion = "reemplazo3" }))';
+                var varVersion = $("#cotVersion").val();
+
+                dir = dir.replace("reemplazo", idcotizacion);
+                dir = dir.replace("reemplazo3", varVersion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) + 1);
+
+                $('#tb_comp').load(dir);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var totalpaginas = $("#total_pag").text();//.slice(4, ($("#total_pag").text().length - 4));
+            var idcotizacion = '@ViewBag.IdCotizacion'
+            var varVersion = $("#cotVersion").val();
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Cotizacion", new { id = "reemplazo", pagina = "reemplazo2", cotVersion = "reemplazo3" }))';
+
+            dir = dir.replace("reemplazo3", varVersion);
+            dir = dir.replace("reemplazo", idcotizacion);
+            dir = dir.replace("reemplazo2", parseInt(totalpaginas));
+
+            $('#tb_comp').load(dir);
+
+        });
+        $('#btn_nvo_comp').click(function () {
+
+            //validar
+            var validar = 0;
+            $.ajax({
+                type: 'POST',
+                data: {idcotizacion: '@ViewBag.IdCotizacion', tipo: 'C'},
+                url: '@Url.Action("vpValidarCotizacion", "Cotizacion")',
+                async: false
+            }).done(function(response){
+                var valor = parseInt(response);
+                if(valor == 0){
+                    //se prosigue
+                    validar = 0;
+                }
+
+                if(valor > 0){
+                    //existen servicios ingresadas a la cotizacion no se prosigue
+                    validar = 1;
+                }
+            });
+
+            if(validar == 1){
+                alert("No se pueden mezclar servicios y/o componentes en una cotización.");
+                return;
+            }
+
+            var ncdir = '@Html.Raw(Url.Action("Index", "Componente", new { id = "reemplazo" }))';
+            var ncidcotizacion = '@ViewBag.IdCotizacion';
+
+            ncdir = ncdir.replace("reemplazo", ncidcotizacion);
+            window.location.href = ncdir;
+
+        });
+
+        var cadena="",nombre, descripcion,jCantidad,tipoUnidad,tipoUnidadMensual,jCantidadMensual ;
+
+        $("#tblComponentes tbody tr").click(function () {
+
+            var tipo = $(this).children('td').eq(0).text(); //toma el texto del primer td y lo guarada en tipo
+            var tiposervicio = $(this).attr('tiposervicio');
+            var idComponente = $(this).attr("ide");
+
+
+            $('#modModificarServicio').attr('tiposervicio', tiposervicio);
+            $('#modificar_servicio').empty();
+            $('#modServicioGrilla').empty();
+
+
+
+
+            if (tipo == "Componente") {
+
+                idComponente = $(this).attr("ide");
+
+                var dir = '@Html.Raw(Url.Action("leerComponente", "Componente", new { id = "reemplazo", estado = "reemplazo2" }))';
+
+                dir = dir.replace("reemplazo", idComponente);
+                dir = dir.replace("reemplazo2", @ViewBag.idEstado);
+
+                window.location.href = dir;
+
+            }
+            else {
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CargaServicio", "Cotizacion")',
+                    data: {
+                        idservicio: idComponente,
+                        idversion: $("#cotVersion").val()
+                    },
+                    async: false
+                }).done(function (e) {
+
+                    ServiciosJson = $.parseJSON(e);
+
+                    console.log(ServiciosJson);
+                    console.log(@ViewBag.idEstado);
+
+                });
+
+
+                if(tiposervicio == '1') {
+
+                    _.each(ServiciosJson, function(i){
+
+
+                        if(i.Tipocobroinicial == '1') {
+
+                            $('#modificar_servicio').append('<div class="col-sm-4 col-xs-12">\
+                                                                    <label class="control-label">Costo Fijo</label>\
+                                                                    <label class="control-label">Costo Inicial : ' + i.Costounidadinicial + '</label>\
+                                                                </div>');
+
+                            $('#btn_modificar_servicio').hide();
+
+                        }
+
+                        if(i.Tipocobroinicial == '2') {
+
+                            $('#modificar_servicio').append('<div class="col-sm-4 col-xs-12">\
+                                                                    <label id="lbTipoUnidad" class="control-label">Costo Inicial : ' + i.Tipounidad + '</label>\
+                                                                    <input id="modificartbCantidad" type="text" size="9" maxlength="9" class="es-requerido solo-numero-coma form-control input-sm" value="' + i.CostoInicial + '"/>\
+                                                                </div>');
+
+                            $('#btn_modificar_servicio').show();
+
+                        }
+
+                        if(i.Tipocobromensual == '1') {
+
+                            $('#modificar_servicio').append('<div class="col-sm-4 col-xs-12">\
+                                                                    <label class="control-label">Costo Fijo</label>\
+                                                                    <label class="control-label">Costo Mensual : ' + i.CostoMensual + '</label>\
+                                                                </div>');
+
+                            $('#btn_modificar_servicio').hide();
+
+                        }
+
+                        if(i.Tipocobromensual == '2') {
+
+                            $('#modificar_servicio').append('<div class="col-sm-4 col-xs-12">\
+                                                                    <label id="lbTipoUnidadMensual" class="control-label">Costo Mensual : ' + i.TipounidadMensual + '</label>\
+                                                                    <input id="modificartbAgregarCantidadMensual" type="text" size="9" maxlength="9" class="es-requerido solo-numero-coma form-control input-sm" value="' + i.CostoMensual + '"/>\
+                                                                </div>');
+
+                            $('#btn_modificar_servicio').show();
+
+                        }
+
+                    });
+
+
+
+                }
+
+                if(tiposervicio == '2') {
+
+
+                    totalregistros = 0;
+                    pagina = 0;
+                    totalpaginas = 0;
+                    horasservicio = 0;
+                    elemento = '';
+
+                    $('#btn_modificar_servicio').hide();
+                    $('#tb_plantillasubservicio tbody').empty();
+                    $('#tot_reg_serv').empty();
+                    $('#txt_pag_serv').empty();
+                    $('#ttl_pag_serv').empty();
+                    $('#modServicioGrilla').empty();
+                    $('#lbDesHorasServicio').empty().append('0');
+
+                    $('#modificar_servicio').append('<div class="col-sm-4">\
+                                                        <label id="lbHorasServicio" class="control-label">Horas del Servicio :</label>\
+                                                        <label id="lbDesHorasServicio" class="control-label"></label>\
+                                                    </div>');
+
+
+                    elemento = '<div class="row">\
+                                <div class="col-md-12 col-sm-12">\
+                                    <div style="border-top:solid 2px #8FBE00;"></div>\
+                                </div>\
+                            </div>'
+
+                    if ('@User.IsInRole("OBSERVADOR")' == 'False') {
+
+                        elemento += '<div class="row">\
+                                \
+                                    <div class="form-group col-md-3">\
+                                        <label class="control-label">Plantilla de Actividades</label>\
+                                        \
+                                        <fieldset>\
+                                            <select id="cmb_plantilla_subservicio" class="input-sm form-control"></select>\
+                                        </fieldset>\
+                                    </div>\
+                                    \
+                                    <div class="col-md-2 centrado">\
+                                        <label class="control-label">\
+                                Agregar :\
+                                </label>\
+                                \
+                                <span id="subservicio_icono_agregar_plantilla" class="glyphicon glyphicon-plus icono" />\
+                                \
+                            </div>\
+                            \
+                        </div>\
+                        \
+                        <div class="row">\
+                        \
+                            <div class="col-md-3">\
+                                <label class="control-label">\
+                                    Nombre Actividad :\
+                                    </label>\
+                                    <input id="subservicio_in_nombre" class="form-control input-sm es-requerido" type="text" />\
+                                </div>\
+                                \
+                                <div class="col-md-3">\
+                                    <label class="control-label">\
+                                        Horas Actividad :\
+                                    </label>\
+                                    <input id="subservicio_in_horas" class="form-control input-sm es-requerido solo-numero-coma" type="text" />\
+                                </div>\
+                                \
+                                <div class="col-md-2 centrado">\
+                                    <label class="control-label">\
+                                Agregar :\
+                                </label>\
+                                <span id="subservicio_icono_agregar" class="glyphicon glyphicon-plus icono" />\
+                            </div>\
+                            \
+                        </div>'
+
+                    }
+
+                    elemento += '<div class="row">\
+                                \
+                                <table id="tb_plantillasubservicio" class="table table-hover table-striped">\
+                                    <thead>\
+                                        <tr>\
+                                            <th class="col-md-7">Nombre</th>\
+                                            <th class="col-md-3">Horas</th>\
+                                            <th class="col-md-2">Acción</th>\
+                                        </tr>\
+                                    </thead>\
+                                    <tbody></tbody>\
+                                </table>\
+                                \
+                            </div>\
+                                \
+                            <div class="row" style="background-color:#F9F9F9;height:28px;">\
+                                \
+                                <div class="col-md-2">\
+                                    <div id="tot_reg_serv" style="display:inline-block;"></div>\
+                                </div>\
+                                \
+                                <div class="col-md-2 col-md-offset-3 form-inline">\
+                                    <p class="control-label ">\
+                                        Ir a\
+                                        <input id="txt_pag_serv" type="text" class="form-control input-xs" style="width:20%; display:initial;" value="" />\
+                                        de <font id="ttl_pag_serv"></font> Pág.\
+                                    </p>\
+                                </div>\
+                                \
+                                <div class="col-md-3  col-md-offset-2">\
+                                    <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">\
+                                        <div class="btn-group btn-group-sm" role="group">\
+                                            <button id="subservicio_btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>\
+                                            <button id="subservicio_btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>\
+                                            <button id="subservicio_btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>\
+                                            <button id="subservicio_btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>\
+                                        </div>\
+                                    </div>\
+                                </div>\
+                                \
+                            </div>\
+                            ';
+
+
+                    $('#modServicioGrilla').append(elemento);
+
+                    elemento = '';
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("CargaPlantillaSubservicio", "Cotizacion")',
+                        data: {
+                            idservicio: idComponente
+                        },
+                        async: false
+                    }).done(function (e) {
+
+                        PlantillaSubservicios = $.parseJSON(e);
+
+
+                        _.each(PlantillaSubservicios, function(i) {
+
+
+                            $('#cmb_plantilla_subservicio').append('<option value="' + i.Idplantillasubservicio + '">' + i.Nombre + '</option>');
+
+                        });
+
+                    });
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("CargaSubservicio", "Cotizacion")',
+                        data: {
+                            idservicio: idComponente,
+                            idversion: $("#cotVersion").val()
+                        },
+                        async: false
+                    }).done(function (e) {
+
+
+
+                        SubserviciosJson = $.parseJSON(e);
+                        horasservicio = 0;
+
+
+
+
+                        if(SubserviciosJson != '') {
+
+
+
+
+                            totalregistros = _.pluck(SubserviciosJson, 'TotalRegistros')[0];
+                            pagina = _.pluck(SubserviciosJson, 'PaginaActual')[0];
+                            totalpaginas = _.pluck(SubserviciosJson, 'TotalPaginas')[0];
+                            horasservicio = _.pluck(SubserviciosJson, 'HorasTotales')[0];
+
+                            $('#modModificarServicio').attr('totalregistros', totalregistros);
+                            $('#modModificarServicio').attr('pagina', pagina);
+                            $('#modModificarServicio').attr('totalpaginas', totalpaginas);
+                            $('#lbDesHorasServicio').empty().append(horasservicio);
+
+
+
+                        } else {
+
+                            $('#lbDesHorasServicio').empty().append('0');
+
+                        }
+
+                        $('#tot_reg_serv').append('<p>Total de Registros ' + totalregistros + '</p>');
+                        $('#txt_pag_serv').val(pagina);
+                        $('#ttl_pag_serv').append(totalpaginas);
+
+
+                        _.each(SubserviciosJson, function(i) {
+
+
+
+                            elemento += '<tr>\
+                                    <td valoractual="' + i.Nombre + '">' + i.Nombre + '</td>\
+                                    <td valoractual="' + i.Horas + '">' + i.Horas + '</td>\
+                                    <td>';
+
+
+                            if ('@User.IsInRole("OBSERVADOR")' == 'False')
+                            {
+                                elemento += '<span class="glyphicon glyphicon-pencil" idsubservicio="' + i.Idsubservicio + '"></span>\
+                                        <span class="glyphicon glyphicon-trash" idsubservicio="' + i.Idsubservicio + '"></span>\
+                                        <span class="glyphicon glyphicon-ok" idsubservicio="' + i.Idsubservicio + '"></span>\
+                                        <span class="glyphicon glyphicon-remove" idsubservicio="' + i.Idsubservicio + '"></span>';
+                            }
+
+                            elemento += '</td>\
+                        </tr>';
+
+
+
+                        });
+
+
+
+
+                    });
+
+
+                    $('#tb_plantillasubservicio tbody').append(elemento);
+
+                    $('#tb_plantillasubservicio .glyphicon-pencil').show();
+                    $('#tb_plantillasubservicio .glyphicon-trash').show();
+                    $('#tb_plantillasubservicio .glyphicon-ok').hide();
+                    $('#tb_plantillasubservicio .glyphicon-remove').hide();
+
+
+                }
+
+                if(tiposervicio == '3') {
+
+
+                    _.each(ServiciosJson, function(i) {
+
+                        if(i.TipounidadMensual == 'Dolar') {
+
+
+                            $('#modificar_servicio').append('<div class="col-md-4">\
+                                                                <label class="control-label">Unidad Monetaria</label>\
+                                                                <select id="sl_tipo_moneda" class="input-sm form-control">\
+                                                                    <option value="Dolar" selected>Dolar</option>\
+                                                                    <option value="UF">UF</option>\
+                                                                </select>\
+                                                            </div>\
+                                                            <div class="col-sm-4 col-xs-12">\
+                                                                <label id="lbTipoUnidad" class="control-label">Costo Inicial : ' + i.Tipounidad + '</label>\
+                                                                <input id="modificartbCantidad" type="text" size="9" maxlength="9" class="es-requerido solo-numero-coma form-control input-sm" value="' + i.Costounidadinicial + '"/>\
+                                                            </div>');
+
+
+
+                            $('#btn_modificar_servicio').show();
+
+                        } else {
+
+                            $('#modificar_servicio').append('<div class="col-md-4">\
+                                                                <label class="control-label">Unidad Monetaria</label>\
+                                                                <select id="sl_tipo_moneda" class="input-sm form-control">\
+                                                                    <option value="Dolar">Dolar</option>\
+                                                                    <option value="UF" selected>UF</option>\
+                                                                </select>\
+                                                            </div>\
+                                                            <div class="col-sm-4 col-xs-12">\
+                                                                <label id="lbTipoUnidad" class="control-label">Valor</label>\
+                                                                <input id="modificartbCantidad" type="text" size="9" maxlength="9" class="es-requerido solo-numero-coma form-control input-sm" value="' + i.Costounidadinicial + '"/>\
+                                                            </div>');
+
+
+
+                            $('#btn_modificar_servicio').show();
+
+                        }
+
+                    });
+
+                }
+
+                _.each(ServiciosJson, function(i) {
+
+                    $('#lbDescripcionBot').text(i.Descripcion);
+
+                });
+
+                if ($('#btn_nvo_serv').length == 0) {
+                    return;
+                }
+
+                $('#modModificarServicio').attr('idservicio', idComponente);
+
+                var version=$('cotVersion').val();
+
+                var URL = ' @Html.Raw(Url.Action("jsonLeerServicios", "Cotizacion", new { id = "param-id", idCotizacion = "param-idCotizacion" }))';
+                URL = URL.replace("param-id", idComponente).replace("param-idCotizacion",@ViewBag.IdCotizacion);
+
+
+                $.ajax({
+                    dataType: "json",
+                    url: URL,
+                    async: false
+                }).done(function(varJson){
+
+                    _.each(varJson,function(i){
+                        nombre           =i.Nombre       ;
+                        tipoUnidad       =i.TipoUnidad     ;
+                        tipoUnidadMensual  =i.TipoUnidadMensual     ;
+                        descripcion      =i.Descripcion  ;
+                        jCantidad         =i.Cantidad;
+                        jCantidadMensual =i.CantidadMensual;
+                        jcomentario = i.comentario;
+                    });
+                });
+
+
+
+
+                $('#upd_servicio').attr('data-id',idComponente);
+                $('#modModificarServicio h4.modal-title').text('Modificar Servicio');
+                $('#modModificarServicio')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modModificarServicio').modal('show');
+
+
+            }
+        });
+
+        $('#btn_modificar_servicio').click(function () {
+
+            var Cantidad = $('#modificartbCantidad').val();
+            var CantidadMensual = $('#modificartbAgregarCantidadMensual').val();
+            var Version =$('#cotVersion').val();
+            var tiposervicio = $('#modModificarServicio').attr('tiposervicio');
+            var valido = 1;
+            var tipomoneda = $('#sl_tipo_moneda').val();
+
+
+            if(tiposervicio == '1') {
+
+
+                if($('#modificartbCantidad').length != 0 && $('#modificartbCantidad').val() == '') {
+
+                    valido = 0;
+
+                }
+
+                if($('#modificartbAgregarCantidadMensual').length != 0 && $('#modificartbAgregarCantidadMensual').val() == '') {
+
+                    valido = 0;
+
+                }
+
+                if(valido == 1) {
+
+                    var  id=$('#modModificarServicio #upd_servicio').data('id');
+
+                    var url = '@Html.Raw(Url.Action("vpModificarServicioCotizacion", "Cotizacion", new { id = "param-id", idVersion = "param-idVersion", cantidad = "param-cantidad", cantidadMensual = "param-cantidadMensual"}))';
+
+                    if(typeof Cantidad === "undefined"){
+                        
+                        Cantidad = "";
+                    }
+
+                    url = url.replace("param-id", id)
+                             .replace("param-idVersion",Version)
+                             .replace("param-cantidad",Cantidad)
+                             .replace("param-cantidadMensual",CantidadMensual);
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        async:false
+                    }).done(function(response) {
+                        if(response != ""){
+                            alert(response);
+                            return;
+                        }
+                    });
+                    $('#modModificarServicio').modal('toggle');
+                    location.reload();
+
+                }
+
+
+
+            }
+
+            if(tiposervicio == '3') {
+
+                if($('#tbCantidad').length != 0 && $('#tbAgregarCantidadMensual').val() == '') {
+
+                    valido = 0;
+
+                }
+
+                if(valido == 1) {
+
+                    var  id=$('#modModificarServicio #upd_servicio').data('id');
+
+                    var url = '@Html.Raw(Url.Action("vpModificarServicioCotizacion", "Cotizacion", new { id = "param-id", idVersion = "param-idVersion", tipomoneda = "param-tipomoneda", cantidadMensual = "param-cantidadMensual" }))';
+
+                    CantidadMensual = $('#modificartbCantidad').val();
+
+                    url = url.replace("param-id", id)
+                             .replace("param-idVersion",Version)
+                             .replace("param-tipomoneda",tipomoneda)
+                             .replace("param-cantidadMensual",CantidadMensual);
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        async:false
+                    }).done(function(response) {
+                        if(response != ""){
+                            alert(response);
+                            return;
+                        }
+                    });;
+
+                    $('#modModificarServicio').modal('toggle');
+
+                    location.reload();
+
+                }
+
+            }
+
+            @*if((Cantidad.replace(',', '.') > 0 || tcantidad == 0) && (CantidadMensual.replace(',', '.') > 0 || tcostomensual == 0)) {
+
+                    var  id=$('#modModificarServicio #upd_servicio').data('id');
+
+                    var url = '@Html.Raw(Url.Action("vpModificarServicioCotizacion", "Cotizacion", new { id = "param-id", idVersion = "param-idVersion", cantidad = "param-cantidad", cantidadMensual = "param-cantidadMensual", descripcion = "param-descripcion" }))';
+
+                    url = url.replace("param-id", id)
+                             .replace("param-idVersion",Version)
+                             .replace("param-cantidad",Cantidad)
+                             .replace("param-cantidadMensual",CantidadMensual)
+                             .replace("param-descripcion", descripcion);
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        async:false
+                    });
+                    $('#modModificarServicio').modal('toggle');
+                    location.reload();
+
+                }
+                else {
+                    if(Cantidad < 1)
+                    {
+                        alert('Debe ingresar un valor mayor que 0.');
+                        $('#tbCantidad').focus();
+                    }
+                    if(CantidadMensual < 1)
+                    {
+                        alert('Debe ingresar un valor mayor que 0.');
+                        $('#tbCantidadMensual').focus();
+                    }
+
+                }*@
+
+
+        });
+
+        $('#btn_nvo_serv').click(function () {
+            //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+
+
+            var validar = 0;
+            $.ajax({
+                type: 'POST',
+                data: {idcotizacion: '@ViewBag.IdCotizacion', tipo: 'S'},
+                url: '@Url.Action("vpValidarCotizacion", "Cotizacion")',
+                async: false
+            }).done(function(response){
+                var valor = parseInt(response);
+                if(valor == 0){
+                    //se prosigue
+                    validar = 0;
+                }
+
+                if(valor > 0){
+                    //existen servicios ingresadas a la cotizacion no se prosigue
+                    validar = 1;
+                }
+            });
+
+            if(validar == 1){
+                alert("No se pueden mezclar servicios y/o componentes en una cotización.");
+                return;
+            }
+
+            var contadorServicio = $('#cmbServicio option').length;
+
+            if(contadorServicio < 2)
+            {
+                alert('No existen servicios diponibles para este proyecto, comuniquese con el administrador.');
+            }
+            else
+            {
+                $('#modAgregServicio h4.modal-title').text('Agregar Servicio');
+                $('#modAgregServicio')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modAgregServicio').modal('show');
+                $(':input, a').attr('tabindex', '-1');
+            }
+
+        });
+
+        $('#btn_rep').click(function () {
+
+            var repURL;
+            var start = new Date();
+
+            repURL = '@Url.Action("vpReporteCotizacion", "Cotizacion", new { id = "param-id", flg_docto = "PDF" })';
+            repURL = repURL.replace("param-id", $("#cotVersion").val());
+
+            $('#modReporteCot')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+            $('#vpmRep').load(repURL);
+            $('#modReporteCot').modal('show');
+
+            $(window).load(function() {
+
+                $('body').html(new Date() - start);
+                alert(new Date() - start);
+
+            });
+
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btn_excel').click(function () {
+
+            var repURL;
+
+            repURL = '@Url.Action("getReportCotizacion", "Cotizacion", new { id = "param-id", flg_docto = "EXCEL" })';
+            repURL = repURL.replace("param-id", $("#cotVersion").val());
+
+            window.location = repURL;
+
+        });
+
+        $(document).on('click','#btnMRechazar', function(){
+            //string id, string idAplicacion, string idAccion, string motivo)
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("CambiarEstadoCotizacion", "Cotizacion", new { id = "param-id", idAplicacion = "param-idAplicacion", idAccion = "param-idAccion", motivo = "param-motivo" }))';
+            repURL = repURL.replace("param-id", $("#cotVersion").val());
+            repURL = repURL.replace("param-idAplicacion", "3"); //COTIZACION
+            repURL = repURL.replace("param-idAccion", "5"); //RECHAZAR
+            repURL = repURL.replace("param-motivo", $("#hdtxtDescripcion").val());
+
+            if ($('#modCustom').validar()){
+                $('#modCustom .bsError').show();
+                $('#modCustom .bsError #errLabel').text('Datos no válidos');
+                return;
+            }
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function(resp){
+                if (resp.length > 0){
+                    $('#modCustom .bsError').show();
+                    $('#modCustom .bsError #errLabel').text(resp);
+                }
+                else{
+                    $('#modCustom .bsError').hide();
+                    $('#modCustom').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha rechazado la cotización', '0', 'OK', function(){
+                        var dirUrl = $('.urlProy').attr('href');
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        //$('#btnMAprobar').click(function(){
+        $(document).on('click','#btnMAprobar', function(){
+            //string id, string idAplicacion, string idAccion, string motivo)
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("CambiarEstadoCotizacion", "Cotizacion", new { id = "param-id", idAplicacion = "param-idAplicacion", idAccion = "param-idAccion", motivo = "param-motivo" }))';
+            repURL = repURL.replace("param-id", $("#cotVersion").val());
+            repURL = repURL.replace("param-idAplicacion", "3"); //COTIZACION
+            repURL = repURL.replace("param-idAccion", "4"); //APROBAR
+            repURL = repURL.replace("param-motivo", $("#hdtxtDescripcion").val());
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function(resp){
+                if (resp.length > 0){
+                    $('#modCustom .bsError').show();
+                    $('#modCustom .bsError #errLabel').text(resp);
+                }
+                else{
+                    $('#modCustom .bsError').hide();
+                    $('#modCustom').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha aprobado la cotización', '0', 'OK', function(){
+                        var dirUrl = $('.urlProy').attr('href');
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        $(document).on('click','#btnMImp', function(){
+            //string id, string idAplicacion, string idAccion, string motivo)
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("CambiarEstadoCotizacion", "Cotizacion", new { id = "param-id", idAplicacion = "param-idAplicacion", idAccion = "param-idAccion", motivo = "param-motivo" }))';
+            repURL = repURL.replace("param-id", $("#cotVersion").val());
+            repURL = repURL.replace("param-idAplicacion", "3"); //COTIZACION
+            repURL = repURL.replace("param-idAccion", "2"); //ESCRIBIR
+            repURL = repURL.replace("param-motivo", $("#hdtxtDescripcion").val());
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function(resp){
+                if (resp.length > 0){
+                    $('#modCustom .bsError').show();
+                    $('#modCustom .bsError #errLabel').text(resp);
+                }
+                else{
+                    $('#modCustom .bsError').hide();
+                    $('#modCustom').modal('toggle');
+                    confirm('Acción Exitosa', 'Se ha enviado la implementación a facturación', '0', 'OK', function(){
+                        var dirUrl = $('.urlProy').attr('href');
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        $('#btn_dcto').click(function(){
+            $('#txtUF').val('');
+            $('#modDcto')
+              .prop('class', 'modal fade')
+              .addClass('right')
+              .modal({
+                  backdrop: 'static',
+                  keyboard: false
+              });
+            $('#modDcto').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btn_sol_dcto').click(function(){
+            $('#modSolDcto')
+              .prop('class', 'modal fade')
+              .addClass('right')
+              .modal({
+                  backdrop: 'static',
+                  keyboard: false
+              });
+            $('#modSolDcto').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#modbtnSolDcto').click(function(){
+            var bImp = false;
+            $('#tblComponentes tbody tr').each(function(){
+                var iidestado = $(this).attr('idestado');
+                var itipo = $(this).children('td').eq(4).text();
+                if (itipo != '0'){
+                    bImp = true;
+                }
+            });
+            if(!bImp){
+                c_alert('No se pudo ejecutar la acción', 'No existen componentes con monto mensual mayor a 0', 'OK');
+                return;
+            }
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("SolicitarDescuento", "Cotizacion"))';
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                async: false,
+                data: {id : $("#cotVersion").val(), comentarios : $('#modSolDcto #txtDes').val() }
+            }).done(function(resp){
+                if (resp.length > 0){
+                    alert(resp);
+                }
+                else{
+                    //$('#modCopiarCot .bsError').hide();
+                    $('#modSolDcto').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha enviado la solicitud exitósamente', '0', 'OK', function(){
+                        var dirUrl = $('.urlProy').attr('href');
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        $('#modbtnDcto').click(function(){
+            if($('#txtUF').val().length < 1)
+            {
+                $('#modbtnDcto').hide();
+                alert('Debe ingresar un valor en el campo descuento');
+                return;
+            }
+            var descUF = parseFloat($('#txtUF').val().replace(',','.'));
+            var totCot = parseFloat($('#modptotCot').html().replace(',','.'));
+            if(descUF > totCot)
+            {
+                $('#modbtnDcto').hide();
+                alert('Debe ingresar un valor inferior al monto mensual');
+                return;
+            }
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("Descuento", "Cotizacion"))';
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                async: false,
+                data: {id : $("#cotVersion").val(), comentarios : $('#modDcto #txtDes').val(), descuento : descUF.toFixed(2).toString() }
+            }).done(function(resp){
+                if (resp.length > 0){
+                    //$('#modCopiarCot .bsError').show();
+                    //$('#modCopiarCot .bsError #errLabel').text(resp);
+                }
+                else{
+                    //$('#modCopiarCot .bsError').hide();
+                    //$('#modCopiarCot').modal('hide');
+                    $('#modDcto').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha enviado la solicitud exitósamente', '0', 'OK', function(){
+                        var dirUrl = $('.urlProy').attr('href');
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        $('#btn_implem').click(function () {
+            /*VALIDAR QUE ESTEN TODOS IMPLEMENTADOS*/
+            var bImp = false;
+            $('#tblComponentes tbody tr').each(function(){
+                var iidestado = $(this).attr('idestado');
+                var itipo = $(this).children('td').eq(0).text();
+                if (itipo == 'Componente' && iidestado != 2){
+                    bImp = true;
+                }
+            });
+            if(bImp){
+                c_alert('No se pudo ejecutar la acción', 'Faltan componentes por implementar', 'OK');
+                return;
+            }
+            $('#modCustom .modal-title').text('Enviar implementación a facturación');
+            $('#modCustom .modal-footer').empty();
+            $('#modCustom .modal-footer').append('<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>');
+            $('#modCustom .modal-footer').append('<button type="button" id="btnMImp" class="btn btn-success">Enviar</button>');
+            if ($('#modCustom #hdtxtDescripcion').hasClass('es-requerido')){
+                $('#modCustom #hdtxtDescripcion').removeClass('es-requerido');
+            }
+            $('#modCustom .bsError').hide();
+            $('#modCustom .has-error').removeClass('has-error');
+            $('#modCustom .validador').remove('.validador');
+            $('#modCustom')
+              .prop('class', 'modal fade')
+              .addClass('right')
+              .modal({
+                  backdrop: 'static',
+                  keyboard: false
+              });
+            $('#modCustom').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btn_apb').click(function () {
+            $('#modCustom .modal-title').text('Aprobar');
+            $('#modCustom .modal-footer').empty();
+            $('#modCustom .modal-footer').append('<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>');
+            $('#modCustom .modal-footer').append('<button type="button" id="btnMAprobar" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Aprobar</button>');
+            if ($('#modCustom #hdtxtDescripcion').hasClass('es-requerido')){
+                $('#modCustom #hdtxtDescripcion').removeClass('es-requerido');
+            }
+            $('#modCustom .bsError').hide();
+            $('#modCustom .has-error').removeClass('has-error');
+            $('#modCustom .validador').remove('.validador');
+
+            $('#modCustom')
+              .prop('class', 'modal fade')
+              .addClass('right')
+              .modal({
+                  backdrop: 'static',
+                  keyboard: false
+              });
+            $('#modCustom').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btn_rch').click(function () {
+            $('#modCustom .bsError').hide();
+            $('#modCustom .modal-title').text('Rechazar');
+            $('#modCustom .modal-footer').empty();
+            $('#modCustom .modal-footer').append('<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>');
+            $('#modCustom .modal-footer').append('<button type="button" id="btnMRechazar" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> Rechazar</button>');
+            if (!$('#modCustom #hdtxtDescripcion').hasClass('es-requerido')){
+                $('#modCustom #hdtxtDescripcion').addClass('es-requerido');
+            }
+            //alert($('#modCustom .modal-title .modal-footer').length);
+
+            $('#modCustom')
+              .prop('class', 'modal fade')
+              .addClass('right')
+              .modal({
+                  backdrop: 'static',
+                  keyboard: false
+              });
+            $('#modCustom').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btn_vers').click(function () {
+            $('#modVers')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modVers').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        var $contextMenu = $("#contextMenu");
+
+        //$(document).oncontextmenu = function() {$contextMenu.hide();};
+
+        $(this).contextmenu(function(){
+            $contextMenu.hide();
+        });
+
+
+        var idCComponente;
+        var TipoComponente;
+        var idVersion;
+
+        $(document).on("contextmenu", '#tblComponentes tbody tr', function(e) {
+
+            idCComponente = $(this).attr('ide');
+            TipoComponente = $(this).children().eq(0);
+
+            $contextMenu.children().children().eq(0).show();
+
+            if(TipoComponente.text() == 'Servicio'){
+                $contextMenu.children().children().eq(0).hide();
+            }
+
+            $contextMenu.css({
+                display: "block",
+                left: e.pageX,
+                top: e.pageY
+            });
+
+            return false;
+        });
+
+        $('#btn_asigImp').click(function () {
+            $('#modAsignImp')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modAsignImp').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+
+        $('#btn_cpyMig').click(function () {
+            $('#modCopiarCotMig')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            //$('#modCopiarCotMig').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $(document).on('click','#btn_copiaCotiMig', function(){
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("CopiarCotizacionMigrada", "Cotizacion"))';
+
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                data: {id : $("#cotVersion").val(), idProyecto : $('#modCopiarCotMig cmbProyectoMig').val(), idPlantilla : $('#modCopiarCotMig cmbPlantillaMig').val() },
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function(resp){
+                if (resp.length > 0){
+                    $('#modCopiarCot .bsError').show();
+                    $('#modCopiarCot .bsError #errLabel').text(resp);
+                }
+                else{
+                    $('#modCopiarCot .bsError').hide();
+                    $('#modCopiarCot').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha copiado exitosamente la cotización Migrada', '0', 'OK', function(){
+                        var dirUrl = $('.urlProy').attr('href');
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        $('#btn_copy').click(function () {
+            $('#modCopiarCot')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            //$('#modCopiarCot').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $(document).on('click','#btn_copiaCoti', function(){
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("CopiarCotizacion", "Cotizacion", new { id = "param-id", idProyecto = "param-idProyecto" }))';
+            repURL = repURL.replace("param-id", $("#cotVersion").val());
+            repURL = repURL.replace("param-idProyecto", $('#copiaCoti select').val());
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function(resp){
+                if (resp.length > 0){
+                    $('#modCopiarCot .bsError').show();
+                    $('#modCopiarCot .bsError #errLabel').text(resp);
+                }
+                else{
+                    $('#modCopiarCot .bsError').hide();
+                    $('#modCopiarCot').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha copiado exitosamente la cotización', '0', 'OK', function(){
+                        var dirUrl = $('.urlProy').attr('href');
+                        window.location.href = dirUrl;
+                    });
+                }
+            });
+        });
+
+        $contextMenu.on("click", "a", function() {
+            var id= $(this).attr("id")
+
+            if(TipoComponente.text() == 'Componente'){
+                switch($(this).attr("id")) {
+                    // A case for each action. Your actions here
+                    case "1":{
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("CopiarComponente")',
+                            data: {id: idCComponente},
+                            async:false
+                        }).done(function(){
+                        }); ; break;
+                    }
+                    case "2": {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("EliminarComponente")',
+                            data: {id: idCComponente},
+                            async:false
+                        }).done(function(){
+                        }); ; break;
+                    }
+                }
+            }
+            else{
+                idVersion = $('#cotVersion').val();
+                //$contextMenu.children.eq(1).hide();
+                switch($(this).attr("id")) {
+                    // A case for each action. Your actions here
+                    case "2": {
+                        //alert("elimnar servicio");
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("EliminarServicio")',
+                            data: {id: idCComponente,idVersion: idVersion},
+                            async:false
+                        }).done(function(){
+                        });  break;
+                    }
+                }
+            }
+
+            location.reload();
+            $contextMenu.hide();
+
+        });
+
+        $('#btn_factu').click(function () {
+
+            var idCotizacion = '@ViewBag.IdCotizacion';
+            var idusuario = "@User.GetEmail()";
+
+            var validate = 0;
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("vpValidarCentroCostoComponente")',
+                data: {idusuario:  idusuario, idcotizacion: idCotizacion},
+                async: false
+            }).done(function(response){
+                if(response == "1"){
+                    alert("El usuario no tiene los mismos centro de costo que los componentes y/o servicios a facturar.");
+                    validate = 1;
+
+                }
+                if(response == "9"){
+                    alert("El Usuario @User.GetEmail() no tiene asociado CC a facturar, comuníquese con el administrador.");
+                    validate = 1;
+                }
+            });
+
+
+            if(validate == 1){
+                return;
+            }
+
+
+            costoinicial = 0;
+            $('#tb_comp tbody tr').each(function() {
+                if($(this).children('td:nth-child(1)').text().toLowerCase() == 'servicio') {
+                    if(!isNaN(parseInt($(this).children('td:nth-child(4)').text()))) {
+                        costoinicial = parseInt($(this).children('td:nth-child(4)').text()) + parseInt(costoinicial);
+                    }
+                }
+            });
+            if(costoinicial == 0) {
+                repURL = '@Html.Raw(Url.Action("CambiarEstadoCotizacion", "Cotizacion", new { id = "param-id", idAplicacion = "param-idAplicacion", idAccion = "param-idAccion", motivo = "param-motivo" }))';
+                repURL = repURL.replace("param-id", $("#cotVersion").val());
+                repURL = repURL.replace("param-idAplicacion", "3"); //COTIZACION
+                repURL = repURL.replace("param-idAccion", "4"); //RECHAZAR
+                repURL = repURL.replace("param-motivo", $("#hdtxtDescripcion").val());
+                $.ajax({
+                    type: 'POST',
+                    url: repURL,
+                    async: false,
+                }).done(function(resp){
+                    $('#modCustom .bsError').hide();
+                    $('#modCustom').modal('hide');
+                    confirm('Acción Exitosa', 'Se ha enviado a facturar.', '0', 'OK', function(){
+                        var dirUrl = $('.urlProy').attr('href');
+                        window.location.href = dirUrl;
+                    });
+                });
+            } else {
+                $('#modCuotas')
+                  .prop('class', 'modal fade')
+                  .addClass('right')
+                  .modal({
+                      backdrop: 'static',
+                      keyboard: false
+                  });
+
+            }
+        });
+
+        $('#modCuaotasAceptar').click(function () {
+            $('#modCuotas').modal('hide');
+            var heading = 'Facturar';
+            var question = '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;La cotización se enviará a facturar, ¿Desea continuar?';
+            var cancelButtonTxt = 'Cancelar';
+            var okButtonTxt = 'Aceptar';
+
+            var callback = function() {
+                //string id, string idAplicacion, string idAccion, string motivo)
+                var repURL;
+                repURL = '@Html.Raw(Url.Action("AgregarCuotas", "Cotizacion", new { id = "param-id", idAplicacion = "param-idAplicacion", idAccion = "param-idAccion", motivo = "param-motivo", cuotas = "param-cuotas" }))';
+                repURL = repURL.replace("param-id", $("#cotVersion").val());
+                repURL = repURL.replace("param-idAplicacion", "3"); //COTIZACION
+                repURL = repURL.replace("param-idAccion", "4"); //RECHAZAR
+                repURL = repURL.replace("param-motivo", $("#hdtxtDescripcion").val());
+                if($('#combo_cuotas option:selected').attr('value') == 1) {
+                    if(isNaN($('#combo_cuotas option:selected').attr('value'))) {
+                        repURL = repURL.replace("param-cuotas", "1");
+                    } else {
+                        repURL = repURL.replace("param-cuotas", parseInt($('#input_cuotas').val().trim()));
+                    }
+                } else {
+                    repURL = repURL.replace('param-cuotas', '1');
+                }
+
+                if ($('#modCustom').validar()){
+                    $('#modCustom .bsError').show();
+                    $('#modCustom .bsError #errLabel').text('Datos no válidos');
+                    return;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: repURL,
+                    //data: JSON.stringify(jsonArr),
+                    async: false,
+                    //contentType: "application/json; charset=utf-8",
+                    //dataType: "json"
+                }).done(function(resp){
+                    if (resp.length > 0){
+                        $('#modCustom .bsError').show();
+                        $('#modCustom .bsError #errLabel').text(resp);
+                    }
+                    else{
+                        $('#modCustom .bsError').hide();
+                        $('#modCustom').modal('hide');
+                        confirm('Acción Exitosa', 'Se ha enviado a facturar.', '0', 'OK', function(){
+                            var dirUrl = $('.urlProy').attr('href');
+                            window.location.href = dirUrl;
+                        });
+                    }
+                });
+            };
+
+            confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+        });
+
+        $('#combo_cuotas').change(function(){
+            if($('#combo_cuotas option:selected').attr('value') == 1) {
+                $('#CuotasEdit').append('<div id="input_cuotas_row" class="row">\
+                                            <div class="col-md-4">\
+                                                <label class="control-label">\
+                                                    Numero de Cuotas :\
+                                                </label>\
+                                                <input id="input_cuotas" class="soloNumero" type="text" class="form-control"/>\
+                                            </div>\
+                                        </div>');
+            } else {
+                $('#input_cuotas_row').remove();
+            }
+        });
+
+        $('#btn_motiv').click(function () {
+            //$('#modCustom .modal-title').text('Aprobar Cotización');
+            //$('#modCustom .modal-footer').empty();
+            //$('#modCustom .modal-footer').append('<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>');
+            //$('#modCustom .modal-footer').append('<button type="button" id="btnMAprobar" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Aprobar</button>');
+            //alert($('#modCustom .modal-title .modal-footer').length);
+            $('#modMensajes tbody').append();
+            $('#modMensajes')
+              .prop('class', 'modal fade')
+              .addClass('right')
+              .modal({
+                  backdrop: 'static',
+                  keyboard: false
+              });
+            $('#modMensajes').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btnEditAction').click(function () {
+            $('#modEditPry').modal('show');
+
+            $('#txtDes').val('');
+
+            var valorDes = '@Html.Raw(Model.dtDetalleCotizacion.Rows[0].ItemArray.GetValue(6).ToString())';
+
+            $('#txtDes').val(valorDes);
+            var conError = $('#dataEdit').validar();
+
+            if(conError){
+                return;
+            }
+
+        });
+
+        $('#modEditGuardar').click(function (){
+            var conError = $('#dataEdit').validar();
+
+            if(conError){
+                return;
+            }
+
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("editarCotizacion", "Cotizacion"))';
+
+            //repURL = repURL.replace("param-id", idcotizacion);
+            //repURL = repURL.replace("param-descripcion", $('#txtDes').val());
+
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                data: {id:idcotizacion, descripcion:$('#txtDes').val(), fecha: $('#fecFact').val()},
+                async: false,
+            }).done(function (resp) {
+                if (resp.length > 0) {
+
+                    c_alert('Error', '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;' + resp, 'Cerrar');
+                }
+                else {
+                    $('#modEditPry').modal('toggle');
+                    var heading = 'Acción Exitosa';
+                    var question = 'Se ha editado la cotización exitosamente.';
+                    var cancelButtonTxt = '0';
+                    var okButtonTxt = 'OK';
+                    var callback = function () {
+                        location.reload();
+                    };
+                    confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+                }
+            });
+        });
+
+    });
+</script>
+
+
+
+@if (Model.dtGrilla.Rows.Count > 0)
+{
+    <table id="tblComponentes" class="table table-responsive table-striped table-hover">
+        <caption class="titulo-tabla">Componentes</caption>
+        <thead>
+            <tr>
+                <th class="col-md-1">Tipo</th>
+
+                <th class="col-md-3">Descripción</th>
+                <th class="col-md-2">Plantilla</th>
+                <th class="col-md-1">Monto Inicial UF</th>
+                <th class="col-md-2">Monto Mensual UF</th>
+                <th class="col-md-1">Creación</th>
+                <th class="col-md-1">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (DataRow col in Model.dtGrilla.Rows)
+            {
+                <tr ide="@col.ItemArray.GetValue(6)" idestado="@col.ItemArray.GetValue(12)" tiposervicio="@col.ItemArray.GetValue(13)" class="tr-click">
+                    <td>@col.ItemArray.GetValue(1)</td>
+                    <td>@col.ItemArray.GetValue(2)</td>
+                    <td>@col.ItemArray.GetValue(3)</td>
+                    <td>@col.ItemArray.GetValue(11)</td>
+                    <td>@col.ItemArray.GetValue(10)</td>
+                    <td>@col.ItemArray.GetValue(4)</td>
+                    <td>@col.ItemArray.GetValue(5)</td>
+                </tr>
+                
+                
+                totalinicial = totalinicial + float.Parse(col.ItemArray.GetValue(11).ToString());
+                
+                
+
+                }
+
+
+
+    </tbody>
+</table>
+    <div class="container-fluid">
+<div class="row" style="background-color:#F9F9F9;height:28px;">
+    <div class="col-md-4 form-inline">
+        <span class="btn-group btn-group-xs">
+            <a id="btn_pri_pag" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-left fa-lg"></i></a>
+            <a id="btn_pag_ant" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-left fa-lg"></i></a>
+        </span>
+        <span>Pág. <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:8%; display:initial;" value="@ViewBag.Pagina" /> de <font id="total_pag">@Model.dtGrilla.Rows[0].ItemArray.GetValue(7)</font></span>
+        <span class="btn-group btn-group-xs">
+            <a id="btn_pag_sig" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-right fa-lg"></i></a>
+            <a id="btn_ult_pag" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-right fa-lg"></i></a>
+        </span>
+        (@Model.dtGrilla.Rows[0][8] items)
+    </div>
+    <div class="col-md-8">
+        <div class="btn-group pull-right" role="group">
+                @if (User.IsInRole("JEFE_PROY") && (ViewBag.idEstado == "155") && ViewBag.MaxVersion)
+                    {
+                    <button id="btn_cpyMig" type="button" class="btn btn-default" title="Copiar Cotización" style="border:none;background-color:#F9F9F9;"><i class="fa fa-copy"></i></button>
+                    }
+    @if (User.IsInRole("GERENTE") && (ViewBag.idEstado == "17") && ViewBag.MaxVersion)
+                    {
+                    <button id="btn_dcto" type="button" class="btn btn-default" title="Descuento" style="border:none;background-color:#F9F9F9;"><i class="fa fa-percent"></i></button>
+                    }
+    @if (User.IsInRole("JEFE_PROY") && (ViewBag.idEstado == "5") && ViewBag.MaxVersion)
+                    {
+                    <button id="btn_sol_dcto" type="button" class="btn btn-default" title="Solicitar Descuento" style="border:none;background-color:#F9F9F9;"><i class="fa fa-percent"></i></button>
+                    }
+                    @*@if (User.IsInRole("JEFE_PROY") && (ViewBag.idEstado == "1" || ViewBag.idEstado == "3" || ViewBag.idEstado == "5") && ViewBag.MaxVersion)
+                    {
+                    <button id="btn_borrar_cot" type="button" class="btn btn-default" title="Borrar cotizacion" style="border:none;background-color:#F9F9F9;"><i class="fa fa-trash"></i></button>
+                    }*@
+    @if ((User.IsInRole("FACTURADOR") && (ViewBag.idEstado == "9") && ViewBag.MaxVersion))
+                    {
+                        <button id="btn_factu" type="button" class="btn btn-default" title="Facturar" style="border:none;background-color:#F9F9F9;"><i class="fa fa-usd"></i></button>
+                    }
+    @if (User.IsInRole("JEFE_PROY"))
+                    {
+                    <button id="btnEditAction" type="button" class="btn btn-default" title="Editar Cotización" style="border:none;background-color:#F9F9F9;"><i class="fa fa-edit"></i></button>
+                    <button id="btn_copy" type="button" class="btn btn-default" title="Copiar cotizacion" style="border:none;background-color:#F9F9F9;"><i class="fa fa-copy"></i></button>
+                    }
+    @if ((User.IsInRole("IMPLEMENT") && (ViewBag.idEstado == "6" || ViewBag.idEstado == "8") && ViewBag.MaxVersion))
+                    {
+                    <button id="btn_implem" type="button" class="btn btn-default" title="Enviar a Facturación" style="border:none;background-color:#F9F9F9;"><i class="fa fa-mail-forward"></i></button>
+                    }
+    @if ((User.IsInRole("SUBG_PROY") || User.IsInRole("CLIENTE") || User.IsInRole("CLIENTE+") ||
+                        User.IsInRole("JEFE_PROY") || User.IsInRole("FACTURADOR") || User.IsInRole("OBSERVADOR")) &&
+                        ViewBag.MaxVersion)
+                    {
+                    <button id="btn_motiv" type="button" class="btn btn-default" title="Historial de Comentarios" style="border:none;background-color:#F9F9F9;"><i class="fa fa-comment"></i></button>
+                    }
+    @if (User.HasWriteAccess("COTIZACION") && (ViewBag.idEstado == "1" || ViewBag.idEstado == "3" || ViewBag.idEstado == "5") && ViewBag.MaxVersion)
+                    {
+                    <button id="btn_vers" type="button" class="btn btn-default" title="Versionar" style="border:none;background-color:#F9F9F9;"><i class="fa fa-mail-forward"></i></button>
+                    }
+    
+    @if (User.HasAprobarAccess("COTIZACION") && ((User.IsInRole("CLIENTE+") && (ViewBag.idEstado == "7")) || (User.IsInRole("SUBG_PROY") && (ViewBag.idEstado == "2")) || (User.IsInRole("CLIENTE+") && ViewBag.idEstado == "4")) && ViewBag.MaxVersion)
+                    {
+                    <button id="btn_apb" type="button" class="btn btn-default" title="Aprueba" style="border:none;background-color:#F9F9F9;"><i class="fa fa-thumbs-o-up"></i></button>
+                    <button id="btn_rch" type="button" class="btn btn-default" title="Rechaza" style="border:none;background-color:#F9F9F9;"><i class="fa fa-thumbs-o-down"></i></button>
+                    }
+<button id="btn_rep" type="button" class="btn btn-default" title="Reporte" style="border:none;background-color:#F9F9F9;"><i class="fa fa-file-text-o"></i></button>
+    @if (User.HasWriteAccess("COMPONENTE") && ViewBag.MaxVersion && (ViewBag.idEstado == "1" || ViewBag.idEstado == "3" || ViewBag.idEstado == "5"))
+                    {
+                    <button id="btn_nvo_comp" type="button" class="btn btn-default" title="Nuevo Componente" style="border:none;background-color:#F9F9F9;"><i class="fa fa-plus"></i></button>
+                    <button id="btn_nvo_serv" type="button" class="btn btn-default" title="Nuevo Servicio" style="border:none;background-color:#F9F9F9;"><i class="fa fa-suitcase"></i></button>
+                    }
+
+</div>
+</div>
+</div>
+</div>
+    
+    
+    
+    <!-- /.modal -->
+    <div class="modal fade" id="modCustom">
+    <div class="modal-dialog" id="modDialog">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div id="compVariables" class="modal-body ui-front container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="bs-callout bs-callout-danger bsError" style="display: none;">
+                            <label id="errLabel"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="control-label">Comentarios</label>
+                        <textarea id="hdtxtDescripcion" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+    @:<script>
+        @:  $(document).ready(function () {
+            @:      $('#pidMontoInicial').text('@totalinicial');
+            @:
+            @:  });
+    @:</script>
+    
+    <!-- /.modal -->
+
+    @* CONTEXT MENU *@
+    if (User.HasWriteAccess("COMPONENTE") && (ViewBag.idEstado == "1" || ViewBag.idEstado == "3" || ViewBag.idEstado == "5"))
+                    {
+        <div id="contextMenu" style="position:absolute;display:none;" class="list-group">
+            <ul>
+                <li id="Li1" class="list-group-item"><span class="glyphicon glyphicon-duplicate"></span><a id="1" href="#"> Duplicar</a></li>
+                <li id="Li2" class="list-group-item"><span class="glyphicon glyphicon-trash"></span><a id="2" href="#"> Eliminar</a></li>
+            </ul>
+        </div>
+                    }
+
+
+
+}
+else
+{
+    <div class="row alert alert-warning text-center">
+    No se encontraron Componentes. Tiene disponibles las siguientes acciones
+    <div class="btn-group" role="group">
+        @if (User.HasWriteAccess("COMPONENTE"))
+            {
+                <button id="btn_nvo_comp" type="button" class="btn btn-default alert-warning" title="Nuevo Componente" style="border:none;"><i class="fa fa-plus"></i></button>
+                <button id="btn_nvo_serv" type="button" class="btn btn-default alert-warning" title="Nuevo Servicio" style="border:none;"><i class="fa fa-suitcase"></i></button>
+            }
+    </div>
+</div>
+
+}
+    @*</div>*@
+<!-- /.modal Edit -->
+<div class="modal fade" id="modEditPry">
+    <div class="modal-dialog" id="modDialog">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Edición</h4>
+            </div>
+            <div id="dataEdit" class="modal-body ui-front">
+                <div class="row">
+                    <div id="divCod" class="form-group col-sm-6">
+                        <label>Descripción</label>
+                        <input id="txtDes" type="text" class="form-control input-sm" />
+                    </div>
+    @if (ViewBag.idEstado == "15")
+                    {
+                        <div id="divCod" class="form-group col-sm-6">
+            <label>Fecha Inicio Facturación</label>
+            <input id="fecFact" type="text" class="form-control datepicker input-sm" readonly />
+        </div>
+                    }
+</div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+    <button type="button" id="modEditGuardar" class="btn btn-primary">Guardar</button>
+</div>
+</div>
+</div>
+</div>
+<!-- /.modal end -->
+<!-- /.modal Cuotas -->
+<div class="modal fade" id="modCuotas">
+    <div class="modal-dialog" id="modDialog">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Modo Pago Inicial</h4>
+            </div>
+            <div id="CuotasEdit" class="modal-body ui-front">
+                <div class="row">
+                    <div id="divCuotas" class="form-group">
+                        <div class="col-md-4">
+                            <label class="control-label">
+                                Forma de Pago Inicial :
+        </label>
+        <select id="combo_cuotas" class="form-control">
+            <option value="0" selected>Sin Cuotas</option>
+            <option value="1">En Cuotas</option>
+        </select>
+    </div>
+</div>
+</div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+    <button type="button" id="modCuaotasAceptar" class="btn btn-primary">Aceptar</button>
+</div>
+</div>
+</div>
+</div>
+<!-- /.modal end -->
+<!-- /.modal solicitar dcto -->
+<div class="modal fade" id="modSolDcto">
+    <div class="modal-dialog" id="modDialog">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Solicitar Descuento</h4>
+            </div>
+            <div id="dataEdit" class="modal-body ui-front">
+                <div class="row">
+                    <div id="divCod" class="form-group col-sm-12">
+                        <label>Comentarios</label>
+                        <textarea id="txtDes" class="form-control input-sm"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button type="button" id="modbtnSolDcto" class="btn btn-primary">Solicitar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal end -->

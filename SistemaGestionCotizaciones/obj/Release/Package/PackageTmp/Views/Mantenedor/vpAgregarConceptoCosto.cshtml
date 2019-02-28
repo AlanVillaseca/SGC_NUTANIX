@@ -1,0 +1,151 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+<script>
+    var URLjs = ' @Html.Raw(Url.Action("jsonListaConceptoCosto", "Mantenedor"))';
+    var Json = [];
+    $(document).ready(function () {
+        var contLista = 0;    
+	
+
+        ////console.log("antes de asignar " + $('#categoria').html());
+        $('#btn_enviar').click(function () { 
+            if ($('#nvo_header').validar()) {
+                if ($("#tbNombre").val().trim().length == 0) {
+                    alert('Debe ingresar un nombre.');
+                    $("#tbNombre").focus();
+                }
+                if ($("#tbDescripcion").val().trim().length == 0) {
+                    alert('Debe ingresar una descripción.');
+                    $("#tbDescripcion").focus();
+                }
+                if ($("#cbGrupo").val() == null) {
+                    alert('Debe selecionar un grupo.');
+                    $("#cbGrupo").focus();
+                }
+ 		if ($("#cbCentroCosto").val() == 0) {
+                    alert('Debe selecionar un centro de costo.');
+                    $("#cbCentroCosto").focus();
+                }
+                return;
+            }
+            var existe = false;
+            //console.log(' alo'+JSON.stringify(Json));
+            $.ajax({
+                dataType: "json",
+                url: URLjs,
+                async: false,
+            }).done(function (varJson) {
+                //mi codigo
+                // console.log(JSON.stringify(varJson));
+                Json = varJson;
+
+            });
+            _.each(Json, function (i) {
+
+                var nombre = i.Nombreatributo;
+                //console.log(nombre.toLowerCase() + '  ' + $("#tbNombre").val().toLowerCase());
+                if (nombre.toLowerCase() == $("#tbNombre").val().toLowerCase()) {
+                    existe = true;
+                }
+            });
+            // console.log(existe);
+            if (existe) {
+                alert('El nombre que intenta ingresar, no esta disponible, intente con otro nombre.');
+                return;
+            }
+            //alert();
+            // ////console.log("Enviar");
+            // ////console.log($("#select").val() + ' ' + $("#descripcion").val() + ' ' + $("#nombre").val())
+            if ($("#tbNombre").val().trim().length > 0 && $("#tbDescripcion").val().trim().length > 0 && $("#cbGrupo").val() > 0 && $("#cbCentroCosto").val() > 0) {
+                var tbNombre = $("#tbNombre").val();
+                var tbDescripcion = $("#tbDescripcion").val();
+                var cbGrupo = $("#cbGrupo").val();
+                var cbCentroCosto = $("#cbCentroCosto").val();
+               // alert("if");
+                ////console.log("despues de asignar " + $('#categoria').val());
+                var url;
+                ////console.log('categoria: '+categoria);
+                ////console.log("ifdatos" + "tipodato: " +tipoDato);
+                ////console.log('select: ' + $('#tipoDato').val());
+                    url = '@Html.Raw(Url.Action("vpAgregarConceptoCosto", "Mantenedor", new { id = "param-id", descripcion = "param-descripcion", grupo = "param-grupo", centrocosto = "param-centrocosto" }))'
+                url = url.replace("param-id", tbNombre)
+                         .replace("param-descripcion", tbDescripcion)
+                         .replace("param-grupo", cbGrupo)
+                         .replace("param-centrocosto", cbCentroCosto);
+                         
+                // //console.log(nombre + ' des ' + descripcion + ' tidat ' + grupo );
+                /// alert(url);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    async: false
+                });
+                ////console.log("ajax");
+                $(".modal").modal("toggle");
+                location.reload();
+
+                //$('#tb_Header').load(url);
+            }
+            else {
+                // ////console.log('elseenviar');
+                if ($("#tbNombre").val().trim().length == 0) {
+                    alert('Debe ingresar un nombre.');
+                    $("#tbNombre").focus();
+                }
+                if ($("#tbDescripcion").val().trim().length == 0) {
+                    alert('Debe ingresar una descripción.');
+                    $("#tbDescripcion").focus();
+                }
+                if ($("#cbGrupo").val() == null) {
+                    alert('Debe selecionar un grupo.');
+                    $("#cbGrupo").focus();
+                }
+
+               if ($("#cbCentroCosto").val() == 0) {
+                    alert('Debe selecionar un centro de costo.');
+                    $("#cbCentroCosto").focus();
+                }
+            }
+        });
+
+    });
+</script>
+<div id="msg_wrn" class="row"><span></span></div>
+<div class="row">
+    <div id="nom_header" class="form-group col-sm-4">
+        <label for="">Nombre </label>
+        <input id="tbNombre" type="text" required name="nombreAtributo" class="form-control input-sm es-requerido es-texto caracter-250" placeholder="Nombre Concepto de costo">
+    </div>
+
+    <div id="des_header" class="form-group col-sm-6 ">
+        <label for="">Descripción del Concepto</label>
+        <input id="tbDescripcion" type="text" required name="descripcion" class="form-control input-sm es-requerido es-texto caracter-250" placeholder="Descripción">
+    </div>
+</div>
+<div class="row">
+    <div id="serv_neg" class="form-group col-sm-4">
+        <label for="">Grupo</label>
+        <select id="cbGrupo" required style="overflow-y:auto;" class ="form-control input-sm form-group ">
+            <option disabled selected value="0">Selecione una Categoría</option>
+            @foreach (DataRow colCbGrupo in Model.dtListaValoresCE.Rows)
+            {
+                <option value="@colCbGrupo.ItemArray.GetValue(0)">@colCbGrupo.ItemArray.GetValue(2)</option>
+
+            }
+        </select>
+    </div>
+    <div class="form-group col-sm-6">
+        <label for="">Centro de Costo</label>
+        <select id="cbCentroCosto" required style="overflow-y:auto;" class="form-control input-sm form-group ">
+            <option  value="0">Selecione un centro de costo</option>
+            @foreach (DataRow colCbCentroCosto in Model.dtCentroCosto.Rows)
+            {
+                <option value="@colCbCentroCosto.ItemArray.GetValue(0)">@colCbCentroCosto.ItemArray.GetValue(1)</option>
+            }
+        </select>
+    </div>
+</div>
+

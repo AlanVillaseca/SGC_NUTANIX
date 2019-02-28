@@ -1,0 +1,379 @@
+﻿@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/underscore-min.js"></script>
+<script src="~/Scripts/Blob.js"></script>
+
+<script>
+    $(document).ready(function(){
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var paises = @Html.Raw(jss.Serialize(Model.dtPaisJson));
+        var centrocosto = @Html.Raw(jss.Serialize(Model.dtCentroCostoJson));
+        var elemento = '';
+        var agregar;
+        var url;
+        var totalregistros = 0;
+        var pagina = 0;
+        var totalpaginas = 0;
+        var codigo;
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        if(centrocosto != '') {
+
+            totalregistros = _.pluck(centrocosto, 'totalRegistros')[0];
+            pagina = _.pluck(centrocosto, 'paginaActual')[0];
+            totalpaginas = _.pluck(centrocosto, 'totalPaginas')[0];
+        }
+
+        $('#tot_reg').append('<p>Total de Registros ' + totalregistros + '</p>');
+        $('#txt_pag').val(pagina);
+        $('#ttl_pag').append(totalpaginas);
+
+        _.each(paises, function(i){
+
+            elemento += '<option id="' + i.Idpais + '">' + i.Nombre + '</option>';
+
+        });
+
+        $('#combo_pais').append(elemento);
+
+        elemento = '';
+
+        _.each(centrocosto, function(i){
+
+            if(i.tipo == "0"){
+                elemento += '<tr>\
+                            <td>' + i.pais + '</td>\
+                            <td>' + i.Gerencia + '</td>\
+                            <td>' + i.Facturable + '</td>\
+                            <td ccentrocosto="' + i.idCentroCosto + '">' + i.Codigo + '</td>\
+                            <td centrocostotipo="' + i.idCentroCosto+ '">Facturador</td>\
+                            <td centrocostofirma="' + i.idCentroCosto+'">' + i.firma + '</td>\
+                            <td id="' + i.idCentroCosto + '">';
+            }else
+            if(i.tipo == "1"){
+                elemento += '<tr>\
+                            <td>' + i.pais + '</td>\
+                            <td>' + i.Gerencia + '</td>\
+                            <td>' + i.Facturable + '</td>\
+                            <td ccentrocosto="' + i.idCentroCosto + '">' + i.Codigo + '</td>\
+                            <td centrocostotipo="' + i.idCentroCosto+ '">Cliente</td>\
+                            <td centrocostofirma="' + i.idCentroCosto+'">' + i.firma + '</td>\
+                            <td id="' + i.idCentroCosto + '">';
+            }else{
+                elemento += '<tr>\
+                            <td>' + i.pais + '</td>\
+                            <td>' + i.Gerencia + '</td>\
+                            <td>' + i.Facturable + '</td>\
+                            <td ccentrocosto="' + i.idCentroCosto + '">' + i.Codigo + '</td>\
+                            <td centrocostotipo="' + i.idCentroCosto+ '">' + i.tipo + '</td>\
+                            <td centrocostofirma="' + i.idCentroCosto+'">' + i.firma + '</td>\
+                            <td id="' + i.idCentroCosto + '">';
+            }
+            
+            if ('@User.IsInRole("OBSERVADOR")' == 'False')
+            {
+                elemento += '<span class="glyphicon glyphicon-pencil" idcentrocosto="' + i.idCentroCosto + '" codigo="' + i.Codigo + '"></span>\
+                            <span class="glyphicon glyphicon-ok" idcentrocosto="' + i.idCentroCosto + '"></span>\
+                            <span class="glyphicon glyphicon-remove" idcentrocosto="' + i.idCentroCosto + '" codigo="' + i.Codigo + '"></span>\
+                            <span class="glyphicon glyphicon-trash" idcentrocosto="' + i.idCentroCosto + '"></span>';
+            }
+            elemento += '</td>\
+                        </tr>';
+
+        });
+
+        $('#tb_centrocosto tbody').append(elemento);
+        $('.glyphicon-ok').hide();
+        $('.glyphicon-remove').hide();
+
+        $('#icono_agregar').click(function(){
+
+            if ($('#cabecera').validar()) {
+
+                if ($("#input_gerencia").val().trim().length == 0) {
+                    alert('El nobre de la gerencia debe ser ingresado');
+                    $("#input_gerencia").focus();
+                }
+                if ($("#input_facturable").val().trim().length == 0) {
+                    alert('El codigo de facturacion debe ser ingresado');
+                    $("#input_facturable").focus();
+                }
+
+                return;
+            }
+
+
+            url = '@Html.Raw(Url.Action("guardarCentroCosto", "Mantenedor", new { id = "reemplazo", gerencia = "reemplazo2", facturable = "reemplazo3", codigo = "reemplazo4" }))'
+
+            url = url.replace("reemplazo", $('#combo_pais option:selected').attr('id'));
+            url = url.replace("reemplazo2", $('#input_gerencia').val());
+            url = url.replace("reemplazo3", $('#check_facturable').is(':checked'));
+            url = url.replace("reemplazo4", $('#input_facturable').val());
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: "html",
+                async: false
+            }).done(function(){
+                alert('cambio guardado');
+            });
+
+            $("#input_gerencia").val("");
+            $("#input_facturable").val("");
+            $("#check_facturable").prop("checked", false);
+            location.reload();
+
+
+        });
+
+        $('.glyphicon-pencil').click(function(){
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-pencil').hide();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-trash').hide();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-ok').show();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-remove').show();
+            var tipo = "";
+            var firma = "";
+            elemento = '<input class="form-control input-sm" type="text" value="' + $('[ccentrocosto=' + $(this).attr('idcentrocosto') + ']').text() + '"/>';
+
+           
+
+            if($('[centrocostotipo=' + $(this).attr('centrocostotipo') + ']').text().trim() == "0"){
+                tipo = '<select class="form-control"><option value="' + $('[centrocostotipo=' + $(this).attr('centrocostotipo') + ']').text() + '">Facturador</option><option value="1">Cliente</option></select>"';
+            }else{
+                tipo = '<select class="form-control"><option value="' + $('[centrocostotipo=' + $(this).attr('centrocostotipo') + ']').text() + '">Cliente</option><option value="0">Facturador</option></select>"';
+            }
+
+            
+            //firma = '<input class="form-control input-sm" type="text" value="' + $('[centrocostofirma=' + $(this).attr('centrocostofirma') + ']').text() + '"/>';
+            
+                firma = '<select class="form-control"><option value="Facturado por GOP">Facturado por GOP</option><option value="Facturado por GSEG">Facturado por GSEG</option></select>';
+            
+                //firma = '<select class="form-control"><option value="' + $('[centrocostofirma=' + $(this).attr('centrocostofirma') + ']').text() + '">Facturado por GSEG</option><option value="Facturado por GSEG">Facturado por GSEG</option></select>';
+            
+            
+            $('[ccentrocosto=' + $(this).attr('idcentrocosto') + ']').text('');
+            $('[ccentrocosto=' + $(this).attr('idcentrocosto') + ']').append(elemento);
+
+            $('[centrocostotipo=' + $(this).attr('idcentrocosto') + ']').text('');
+            $('[centrocostotipo=' + $(this).attr('idcentrocosto') + ']').append(tipo);
+
+            $('[centrocostofirma=' + $(this).attr('idcentrocosto') + ']').text('');
+            $('[centrocostofirma=' + $(this).attr('idcentrocosto') + ']').append(firma);
+        });
+        $('.glyphicon-trash').click(function(){
+
+            url = '@Html.Raw(Url.Action("eliminarCentroCosto", "Mantenedor", new { id = "reemplazo"}))'
+
+            url = url.replace("reemplazo", $(this).attr('idcentrocosto'));
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: "html",
+                async: false
+            }).done(function(){
+                alert('cambio guardado');
+            });
+
+            location.reload();
+
+        });
+
+        $('.glyphicon-ok').click(function(){
+
+            codigo = $('[ccentrocosto=' + $(this).attr('idcentrocosto') + '] input').val().trim();
+            var tipo = $('[centrocostotipo=' + $(this).attr('idcentrocosto') + '] option:selected').val().trim();
+            if(tipo == ""){
+                tipo = "1";
+            }
+            var firma = $('[centrocostofirma=' + $(this).attr('idcentrocosto') + '] option:selected').val().trim();
+
+            
+
+            url = '@Html.Raw(Url.Action("modificarCentroCosto", "Mantenedor", new { id = "reemplazo", codigo = "reemplazo2", tipo = "reemplazo3", firma = "reemplazo4"}))'
+
+            url = url.replace("reemplazo", $(this).attr('idcentrocosto'));
+            url = url.replace("reemplazo2", $('[ccentrocosto=' + $(this).attr('idcentrocosto') + '] input').val().trim());
+            url = url.replace("reemplazo3", tipo);
+            url = url.replace("reemplazo4", firma);
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: "html",
+                async: false
+            }).done(function(){
+                alert('cambio guardado');
+            });
+
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-pencil').show();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-trash').show();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-ok').hide();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-remove').hide();
+
+            $('[ccentrocosto=' + $(this).attr('idcentrocosto') + ']').text(codigo);
+            if(tipo == 0){
+                $('[centrocostotipo=' + $(this).attr('idcentrocosto') + ']').text("Facturador");
+            }else{
+                $('[centrocostotipo=' + $(this).attr('idcentrocosto') + ']').text("Cliente");
+            }
+            
+            $('[centrocostofirma=' + $(this).attr('idcentrocosto') + ']').text(firma);
+
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-pencil').attr('codigo', codigo)
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-remove').attr('codigo', codigo)
+
+        });
+
+        $('.glyphicon-remove').click(function(){
+
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-pencil').show();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-trash').show();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-ok').hide();
+            $('#' + $(this).attr('idcentrocosto') + ' .glyphicon-remove').hide();
+
+            $('[ccentrocosto=' + $(this).attr('idcentrocosto') + ']').text($(this).attr('codigo'));
+
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if ($(this).val() <= totalpaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaCentroCosto", "Mantenedor", new { id = "reemplazo" }))';
+
+                    dir = dir.replace("reemplazo", $(this).val());
+
+                    $('#tb_centrocosto').load(dir);
+                }
+
+            }
+        });
+
+        $('#btn_pri_pag').on('click', function () {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaCentroCosto", "Mantenedor", new { id = "1" }))';
+
+            $('#tb_centrocosto').load(dir);
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaCentroCosto", "Mantenedor", new { id = "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) - 1);
+
+                $('#tb_centrocosto').load(dir);
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaCentroCosto", "Mantenedor", new { id = "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) + 1);
+
+                $('#tb_centrocosto').load(dir);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaCentroCosto", "Mantenedor", new { id = "reemplazo" }))';
+
+            dir = dir.replace("reemplazo", parseInt(totalpaginas));
+
+            $('#tb_centrocosto').load(dir);
+
+        });
+
+        $('#btn_descargar').click(function () {
+            
+            $.ajax({
+                url: '@Url.Action("CentroCostoFileXls", "Mantenedor")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoCentroCosto.csv");
+
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<div>
+
+    <table id="tb_negociopais" class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-2">Idpais</th>
+                <th class="col-md-3">Gerencia</th>
+                <th class="col-md-1">Facturable</th>
+                <th class="col-md-1">Codigo</th>
+                <th class="col-md-2">Tipo</th>
+                <th class="col-md-2">Descripción</th>
+                <th class="col-md-1">Acción</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-2">
+            <div id="tot_reg" style="display:inline-block;"></div>
+        </div>
+        <div class="col-md-2 col-md-offset-3 form-inline">
+            <p class="control-label ">
+                Ir a
+                <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:13%; display:initial;" value="" />
+                de <font id="ttl_pag"></font> Pág.
+            </p>
+        </div>
+        <div class="col-md-3  col-md-offset-2">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button id="btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+                    <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>

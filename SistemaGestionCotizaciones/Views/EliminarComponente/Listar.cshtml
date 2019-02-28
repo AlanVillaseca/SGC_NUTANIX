@@ -1,0 +1,154 @@
+﻿@{
+    ViewBag.Title = "nuevo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script type="text/javascript" src="~/Scripts/js/listarProyecto.js"></script>
+<script src="~/Scripts/js/paginacion.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/css/listarProyecto.css" />
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    #loadingDiv {
+        position: absolute;
+        top: 400px;
+        left: 50%;
+    }
+</style>
+
+
+
+<div id="msg_wrn" class=""><span></span></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            <h3 id="ttl">Solicitud de Eliminación de Componentes</h3>
+        </div>
+        <div class="col-md-9 col-sm-9 text-right">
+            <ol class="breadcrumb">
+                <li class="active">Inicio</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            <h5 style="padding-top:2%;">Filtros de Búsqueda</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div style="border-top:solid 1px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;padding-bottom:2%;"></div>
+    </div>
+
+    <form role="form">
+        <div class="row">
+
+            <div id="nom_prct" class="form-group col-md-3">
+                <label for="">Nombre del Proyecto</label>
+                <input type="text" class="form-control input-sm" id="txt_proyecto" placeholder="Nombre Proyecto">
+            </div>
+            <div id="nom_prct" class="form-group col-md-2">
+                <label for="">Cód. Cotización</label>
+                <input type="text" class="form-control input-sm solo-numero" id="txt_cotizacion" placeholder="Cód. Cotización">
+            </div>
+
+            <div id="fech_sol" class="form-group col-md-2">
+                <label for="">Fecha Solicitud Desde</label>
+                <input id="fech_sol_min" name="fech_sol_min" type="text" size="10" class="datepicker input-sm" placeholder="Desde">
+            </div>
+
+            <div id="fech_sol1" class="form-group col-md-2">
+                <label for="">Fecha Solicitud Hasta</label>
+                <input id="fech_sol_max" name="fech_sol_max" type="text" size="10" class="datepicker input-sm" placeholder="Hasta">
+            </div>
+
+        </div>
+
+
+        <div class="row">
+            <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;"></div>
+        </div>
+
+
+    </form>
+
+
+
+    <table id="tblListarProyectos" class="table table-hover table-striped">
+        <thead>
+            <tr>
+
+                <th class="col-md-3" ide="2">Proyecto</th>
+                <th class="col-md-2" ide="3">Idcotización</th>
+                <th class="col-md-3" ide="4">Cotizacion</th>
+                <th class="col-md-2" ide="5">Fecha Solicitud</th>
+                <th class="col-md-2" ide="7">Cantidad de Componentes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Servidores sin FSC - SATIF</td>
+                <td>13501</td>
+                <td>Servidor clavel</td>
+                <td>09/11/2016</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Servidores sin FSC - B2B</td>
+                <td>13508</td>
+                <td>Servidor goku</td>
+                <td>09/11/2016</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Servidores sin FSC - Datawarehouse</td>
+                <td>13507</td>
+                <td>Servidor f8cloud015</td>
+                <td>09/11/2016</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Servidores sin FSC - PMM</td>
+                <td>13504</td>
+                <td>Servidor ankara</td>
+                <td>09/11/2016</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Servidores sin FSC - SATIF</td>
+                <td>13502</td>
+                <td>Servidor clematis</td>
+                <td>09/11/2016</td>
+                <td>1</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-4 form-inline">
+            <span class="btn-group btn-group-xs">
+                <a id="btn_pri_pag" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-left fa-lg"></i></a>
+                <a id="btn_pag_ant" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-left fa-lg"></i></a>
+            </span>
+            <span>Pág. <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:8%; display:initial;" value="1" /> de <font id="total_pag">5</font></span>
+            <span class="btn-group btn-group-xs">
+                <a id="btn_pag_sig" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-right fa-lg"></i></a>
+                <a id="btn_ult_pag" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-right fa-lg"></i></a>
+            </span>
+            (23 items)
+        </div>
+    </div>
+
+
+
+
+
+</div>

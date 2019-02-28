@@ -1,0 +1,158 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+<script>
+    $('#modDominio .modal-body select').selectmenu({
+        overlayTheme: "a",
+        width: 150,
+        maxHeight: 150
+    });
+    //$('#tpoUni_catServ').show();
+    //  ////console.log(" aca");
+    //var cadena = "";
+     //cadena = $('#Dominio').data('id');
+    //cadena = "1;1;2";
+    //console.log('cadena:'+cadena);
+    
+    //var elemento = cadena.split(";");
+    var id = '@ViewBag.id';
+    var pais, negocio,subgerencia;
+    pais = '@ViewBag.pais';
+    negocio = '@ViewBag.negocio';
+    subgerencia = '@ViewBag.subgerencia';
+  //  console.log(id+' '+pais+' '+negocio+' '+subgerencia);
+   
+
+   // $('#Dominiopais,#Dominioengocio, #subgerencia').selectmenu('refresh', true);
+
+
+     ////console.log("valores:"+id + " " + pais + "  " + negocio + "  " + subgerencia);
+    $('#modDominio #subGerencia').selectmenu('refresh', true);
+     ////console.log("esta el boton:"+ $('#modDominio #btn_enviar').length);
+    $('#modDominio #btn_enviar').click(function () {
+        //alert("click");
+        $('#Dominiopais,#Dominioengocio, #subgerencia').selectmenu('refresh', true);
+        pais = $(' select#Dominiopais').val();
+        negocio = $(' select#Dominionegocio').val();
+        subgerencia = $(' select#subGerencia').val();
+        var URL = '@Html.Raw(Url.Action("actualizarDominioCatalogoServicio", "Mantenedor", new { id = "param-id", pais = "param-pais", negocio = "param-negocio", subgerencia = "param-subgerencia" }))';
+        //alert("if3");
+         ////console.log("valores 2:id" + id + "pais " + pais + "negocio " + negocio + "subge" + subgerencia);
+        URL = URL.replace('param-id', id)
+                 .replace('param-pais', pais)
+                 .replace('param-negocio', negocio)
+                 .replace('param-subgerencia', subgerencia);
+       
+       $.ajax({
+            type: "POST",
+            url: URL,
+           async:false
+        }).done(function (resp) {
+            resultado = resp;
+             ////console.log("resultado: "+resultado);
+        });
+       
+       $('#modDominio').modal('toggle');
+       location.reload();
+    }) ;
+
+</script>
+<style>
+        div.ui-selectmenu-open {
+            max-height: 200px;
+            overflow-x: hidden;
+            z-index: 65535 !important;
+            overflow-y: auto;
+        }
+
+        
+        /*.ui-dialog-content::-webkit-scrollbar {
+      -webkit-appearance: listbox;
+      width: 11px;
+      height: 11px;
+    }
+
+    .ui-dialog-content::-webkit-scrollbar-thumb {
+      border-radius: 8px;
+      border: 2px solid white;*/ /* should match background, can't be transparent
+      background-color: rgba(0, 0, 0, .5);
+    }*/
+</style>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+
+<div class="container">
+    <div class="row">
+        <label id="idServicio" data-id="">
+
+        </label>
+
+    </div>
+
+    <div class="row">
+        <div id="negocio" class="form-group col-sm-3 col-xs-3">
+            <label class="control-label" for="">Negocío</label>
+            @*<input id="Dominionegocio" type="text" required name="Dominio" class="form-control input-sm" placeholder="Chile">*@
+            <select id="Dominionegocio" class="selectmenu selectToLabel" >
+                
+                @{string negocio = ViewBag.negocio;
+                if (negocio.ToString() == "")
+                {
+                    <option selected value="null">Todos</option>
+                }
+                else
+                {
+                    <option value="null">Todos</option>
+                }
+                foreach (DataRow col3 in Model.dtListNegocio.Rows)
+                {
+                    if (negocio.ToString() == @col3.ItemArray.GetValue(0).ToString())
+                    {
+                        <option selected value="@col3.ItemArray.GetValue(0)">@col3.ItemArray.GetValue(1)</option>
+                    }
+                    else
+                    {
+                        <option value="@col3.ItemArray.GetValue(0)">@col3.ItemArray.GetValue(1)</option>
+                    }
+                }
+                }
+            </select>
+        </div>
+            <div id="pais" class="form-group col-sm-3 col-xs-3">
+                <label class="control-label" for="">País</label>
+                @*<input id="Dominiopais" type="text" required name="Dominio" class="form-control input-sm" placeholder="Chile">*@
+                <select id="Dominiopais" class="selectmenu selectToLabel" >
+                @{string pais = ViewBag.pais;
+                if (pais.ToString() == "")
+                {
+                    <option selected value="null">Todos</option>
+                }
+                else
+                {
+                    <option value="null">Todos</option>
+                }
+                foreach (DataRow col2 in Model.dtListPais.Rows)
+                {
+                    if (pais.ToString() == @col2.ItemArray.GetValue(0).ToString())
+                    {
+                        <option selected value="@col2.ItemArray.GetValue(0)">@col2.ItemArray.GetValue(1)</option>
+                    }
+                    else
+                    {
+                        <option value="@col2.ItemArray.GetValue(0)">@col2.ItemArray.GetValue(1)</option>
+                    }
+                }
+                }
+
+                   
+                </select>
+        </div>
+
+    </div>
+
+            
+
+</div>
+
+
+

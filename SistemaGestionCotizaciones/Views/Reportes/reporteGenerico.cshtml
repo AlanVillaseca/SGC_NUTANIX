@@ -1,0 +1,688 @@
+﻿@{
+    ViewBag.Title = "TestReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.ReporteGenerico
+@using System.Data
+@using System.Web.Script.Serialization;
+
+<script>
+
+    $(document).ready(function(){
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var paises = @Html.Raw(jss.Serialize(Model.dtPaisJson));
+        var negocios = @Html.Raw(jss.Serialize(Model.dtNegocioPaisJson));
+        var serneg = @Html.Raw(jss.Serialize(Model.dtSerNegJson));
+        var estados = @Html.Raw(jss.Serialize(Model.dtEstadosJson));
+        var elementos = @Html.Raw(jss.Serialize(Model.dtElementoJson));
+        var valores = @Html.Raw(jss.Serialize(Model.dtValoresJson));
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        //ocultando Combos
+
+        $('#combo_valor1') .hide();
+        $('#combo_valor2') .hide();
+        $('#combo_valor3') .hide();
+        //LLenando Filtros
+        _.each(paises, function(i){
+            $('#combo_pais').append('<option id="' + i.Idpais + '">' + i.Nombre + '</option>');
+        });
+
+        _.each(estados, function(i){
+            $('#lis_estados').append('<li class="list-group-item"><input type="checkbox" id="'+ i.idestado +'"  >'+i.descripcion+'</input></li>');
+
+        });
+        /*
+        _.each(serneg, function(i){
+            $('#combo_serneg').append('<option id="' + i.Idserviciodenegocio + '">' + i.Nombre + '</option>');
+        });*/
+        //Leenado negocios cuando se selecione un pais
+        $( "#combo_pais" ).change(function() {
+            $('#combo_negocios').html('');
+            $('#combo_negocios').append('<option id="-1">Todos</option>');
+            var paisSel = $( "#combo_pais option:selected" ).prop('id');
+
+            _.each(negocios, function(i){
+                if(i.Idpais == paisSel){
+                    $('#combo_negocios').append('<option id="' + i.Idnegocio + '">'+ i.Descripcion + '</option>');
+                }
+
+            });
+            //vaciando servicio de negocios
+            $('#combo_serneg').html('');
+            $('#combo_serneg').append('<option id="-1">Todos</option>');
+        });
+        $("#combo_negocios").change(function() {
+            //llenando negocios
+            $('#combo_serneg').html('');
+            $('#combo_serneg').append('<option id="-1">Todos</option>');
+            var paisSel = $( "#combo_pais option:selected" ).prop('id');
+            var negSel = $( "#combo_negocios option:selected" ).prop('id');
+            _.each(serneg, function(i){
+                if(i.idPais == paisSel && i.idNegocio == negSel){
+                    $('#combo_serneg').append('<option id="' + i.Idserviciodenegocio + '">'+ i.Nombre + '</option>');
+                }
+            });
+        });
+
+        _.each(elementos, function(i){
+            $('#combo_elemento1').append('<option id="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+            $('#combo_elemento2').append('<option id="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+            $('#combo_elemento3').append('<option id="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+            $('#ccombo_elemento1').append('<option id="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+            $('#ccombo_elemento2').append('<option id="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+            $('#ccombo_elemento3').append('<option id="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>');
+        });
+
+
+        $( "#combo_elemento1" ).change(function() {
+            var elementoSel = $( "#combo_elemento1 option:selected" ).prop('id');
+            var tipoDato=_.pluck(_.where(elementos, {idCatalogoElemento : elementoSel}), 'idtipodato');
+            if(tipoDato == 3)
+            {
+                valoresElemento = _.where(valores, {idCatalogoElemento : elementoSel});
+                $('#combo_valor1').html('');
+                $('#combo_valor1').append('<option id="-1">Todos</option>');
+                _.each(valoresElemento, function(i){
+                    $('#combo_valor1').append('<option id="' + i.Idlistavalores + '">'+ i.Valor + '</option>');
+                });
+                $('#combo_valor1') .show();
+                $('#txt_valor1') .hide();
+            }
+            else{
+                $('#combo_valor1') .hide();
+                $('#txt_valor1') .show();
+            }
+            //Cambiando Columna Comodin a la seleccionada
+            $('#ccombo_elemento1 option:selected').prop('selected', false);
+            $('#ccombo_elemento1 option[id='+elementoSel+']').prop('selected', true);
+        });
+
+        $( "#combo_elemento2" ).change(function() {
+            var elementoSel = $( "#combo_elemento2 option:selected" ).prop('id');
+            var tipoDato=_.pluck(_.where(elementos, {idCatalogoElemento : elementoSel}), 'idtipodato');
+            if(tipoDato == 3)
+            {
+                valoresElemento = _.where(valores, {idCatalogoElemento : elementoSel});
+                $('#combo_valor2').html('');
+                $('#combo_valor2').append('<option id="-1">Todos</option>');
+                _.each(valoresElemento, function(i){
+                    $('#combo_valor2').append('<option id="' + i.Idlistavalores + '">'+ i.Valor + '</option>');
+                });
+                $('#combo_valor2') .show();
+                $('#txt_valor2') .hide();
+            }
+            else{
+                $('#combo_valor2') .hide();
+                $('#txt_valor2') .show();
+            }
+            
+            //Cambiando Columna Comodin a la seleccionada
+            $('#ccombo_elemento2 option:selected').prop('selected', false);
+            $('#ccombo_elemento2 option[id='+elementoSel+']').prop('selected', true);
+        });
+        $( "#combo_elemento3" ).change(function() {
+            var elementoSel = $( "#combo_elemento3 option:selected" ).prop('id');
+            var tipoDato=_.pluck(_.where(elementos, {idCatalogoElemento : elementoSel}), 'idtipodato');
+            if(tipoDato == 3)
+            {
+                valoresElemento = _.where(valores, {idCatalogoElemento : elementoSel});
+                $('#combo_valor3').html('');
+                $('#combo_valor3').append('<option id="-1">Todos</option>');
+                _.each(valoresElemento, function(i){
+                    $('#combo_valor3').append('<option id="' + i.Idlistavalores + '">'+ i.Valor + '</option>');
+                });
+                $('#combo_valor3') .show();
+                $('#txt_valor3') .hide();
+            }
+            else{
+                $('#combo_valor3') .hide();
+                $('#txt_valor3') .show();
+            }
+            //Cambiando Columna Comodin a la seleccionada
+            $('#ccombo_elemento3 option:selected').prop('selected', false);
+            $('#ccombo_elemento3 option[id='+elementoSel+']').prop('selected', true);
+
+        });
+
+        /*Evento Boton Genera Reporte PDF*/
+        $("#genReporte").click(function(){
+
+            $('#genReporte').prop('disabled',true);
+            $('#genReporte').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(@Url.Action("getReportGenerico", "reportes", new {  id              = "idG",
+                                                                                    pais                    = "vpais",
+                                                                                    negocio                 = "vnegocio",
+                                                                                    servNegocio             = "vServNegocio",
+                                                                                    tieneComponentes        = "vtieneComponentes",
+                                                                                    tieneResumen            = "vtieneResumen",
+                                                                                    tieneDetalle            = "vtieneDetalle",
+                                                                                    tieneCaracteristicas    = "vtieneCaracteristicas",
+                                                                                    tieneHistoria           = "vtieneHistoria",
+                                                                                    elemento1               = "velemento1",
+                                                                                    elemento2               = "velemento2",
+                                                                                    elemento3               = "velemento3",
+                                                                                    codElemento1            = "vcodElemento1",
+                                                                                    codElemento2            = "vcodElemento2",
+                                                                                    codElemento3            = "vcodElemento3",
+                                                                                    valElemento1            = "vvalElemento1",
+                                                                                    valElemento2            = "vvalElemento2",
+                                                                                    valElemento3            = "vvalElemento3",
+                                                                                    fa_desde                = "vfa_desde",
+                                                                                    fa_hasta                = "vfa_hasta",
+                                                                                    ff_desde                = "vff_desde",
+                                                                                    ff_hasta                = "vff_hasta",
+                                                                                    estados                 = "vestados",
+                                                                                    flg_docto ="PDF"}))';
+
+            URL = URL.replace('vpais', $("#combo_pais option:selected").prop("id"));
+            URL = URL.replace('vnegocio', $("#combo_negocios  option:selected").prop("id"));
+            URL = URL.replace('vServNegocio', $("#combo_serneg  option:selected" ).prop("id"));
+            URL = URL.replace('vcodElemento1', $("#combo_elemento1  option:selected" ).prop("id"));
+            URL = URL.replace('vcodElemento2', $("#combo_elemento2  option:selected" ).prop("id"));
+            URL = URL.replace('vcodElemento3', $("#combo_elemento3  option:selected" ).prop("id"));
+            if($("#combo_valor1").is(":visible"))
+                URL =  URL.replace('vvalElemento1', $("#combo_valor1  option:selected" ).prop("id"));
+            else
+                URL = URL.replace('vvalElemento1', $("#txt_valor1" ).val()=="" ? "-1" : $("#txt_valor1" ).val());
+            if($("#combo_valor2").is(":visible"))
+                URL = URL.replace('vvalElemento2', $("#combo_valor2  option:selected" ).prop("id"));
+            else
+                URL = URL.replace('vvalElemento2', $("#txt_valor2" ).val()=="" ? "-1" : $("#txt_valor2" ).val());
+
+            if($("#combo_valor3").is(":visible"))
+                URL = URL.replace('vvalElemento3', $("#combo_valor3  option:selected" ).prop("id"));
+            else
+                URL = URL.replace('vvalElemento3', $("#txt_valor3" ).val()=="" ? "-1" : $("#txt_valor3" ).val());
+
+
+            URL = URL.replace('vfa_desde', $("#fadt_desde" ).val()=="" ? "-1" : $("#fadt_desde" ).val());
+            URL = URL.replace('vfa_hasta', $("#fadt_hasta" ).val()=="" ? "-1" : $("#fadt_hasta" ).val());
+            URL = URL.replace('vff_desde', $("#ffdt_desde" ).val()=="" ? "-1" : $("#ffdt_desde" ).val());
+            URL = URL.replace('vff_hasta', $("#ffdt_hasta" ).val()=="" ? "-1" : $("#ffdt_hasta" ).val());
+
+            var estados = '';
+            $("#lis_estados input:checked").each(function(){
+                estados += $(this).prop('id') + '|';
+            });
+            $("#lis_contenidos li input:checked").each(function(){
+
+                if($(this).prop('id') == '1'){
+                    URL = URL.replace('vtieneComponentes', 'S');
+                }
+
+                if($(this).prop('id') == '2'){
+                    URL = URL.replace('vtieneResumen', 'S');
+                }
+
+                if($(this).prop('id') == '3'){
+                    URL = URL.replace('vtieneDetalle', 'S');
+                }
+
+                if($(this).prop('id') == '4'){
+                    URL = URL.replace('vtieneCaracteristicas', 'S');
+                }
+
+                if($(this).prop('id') == '5'){
+                    URL = URL.replace('vtieneHistoria', 'S');
+                }
+
+            });
+            
+            var encabezadoElemento1=$("#ccombo_elemento1 option:selected").val()=='Todos'?'-':$("#ccombo_elemento1 option:selected").val();
+            var encabezadoElemento2=$("#ccombo_elemento2 option:selected").val()=='Todos'?'-':$("#ccombo_elemento2 option:selected").val();
+            var encabezadoElemento3=$("#ccombo_elemento3 option:selected").val()=='Todos'?'-':$("#ccombo_elemento2 option:selected").val();
+
+            URL = URL.replace('vtieneComponentes', 'N');
+            URL = URL.replace('vtieneResumen', 'N');
+            URL = URL.replace('vtieneDetalle', 'N');
+            URL = URL.replace('vtieneCaracteristicas', 'N');
+            URL = URL.replace('vtieneHistoria', 'N');
+            URL = URL.replace('velemento1',encabezadoElemento1);
+            URL = URL.replace('velemento2', encabezadoElemento2);
+            URL = URL.replace('velemento3', encabezadoElemento3);
+            //elementos a mostrar
+            URL = URL.replace('vestados', estados);
+            URL = encodeURI(URL);
+
+            $.ajax({
+                type: "POST",
+                url: URL
+            }).done(function (err) {     
+                $('#genReporte').prop('disabled',false);
+                $('#genReporte').html('<i class="fa fa-file-pdf-o"></i> Generar Reporte PDF');
+                var blob = b64toBlob(err, "data:application/pdf;");              
+                saveAs(blob, 'Reporte Generico.pdf');                
+            });
+
+        });
+
+        $("#genReporteExcel").click(function(){
+
+            $('#genReporteExcel').prop('disabled',true);
+            $('#genReporteExcel').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(@Url.Action("getReportGenerico", "reportes", new
+            {
+                id                      = "vid",
+                pais                    = "vpais",
+                negocio                 = "vnegocio",
+                servNegocio             = "vServNegocio",
+                tieneComponentes        = "vtieneComponentes",
+                tieneResumen            = "vtieneResumen",
+                tieneDetalle            = "vtieneDetalle",
+                tieneCaracteristicas    = "vtieneCaracteristicas",
+                tieneHistoria           = "vtieneHistoria",
+                elemento1               = "velemento1",
+                elemento2               = "velemento2",
+                elemento3               = "velemento3",
+                codElemento1            = "vcodElemento1",
+                codElemento2            = "vcodElemento2",
+                codElemento3            = "vcodElemento3",
+                valElemento1            = "vvalElemento1",
+                valElemento2            = "vvalElemento2",
+                valElemento3            = "vvalElemento3",
+                fa_desde                = "vfa_desde",
+                fa_hasta                = "vfa_hasta",
+                ff_desde                = "vff_desde",
+                ff_hasta                = "vff_hasta",
+                estados                 = "vestados",
+                flg_docto               = "EXCEL"}))';
+            
+            URL = URL.replace('vid', 'fact_'+'@DateTime.Now.Year'+'@DateTime.Now.Month'+'@DateTime.Now.Day');
+            URL = URL.replace('vpais', $("#combo_pais option:selected").prop("id"));
+            URL = URL.replace('vnegocio', $("#combo_negocios  option:selected").prop("id"));
+            URL = URL.replace('vServNegocio', $("#combo_serneg  option:selected" ).prop("id"));
+            URL = URL.replace('vcodElemento1', $("#combo_elemento1  option:selected" ).prop("id"));
+            URL = URL.replace('vcodElemento2', $("#combo_elemento2  option:selected" ).prop("id"));
+            URL = URL.replace('vcodElemento3', $("#combo_elemento3  option:selected" ).prop("id"));
+
+            if($("#combo_valor1").is(":visible"))
+                URL =  URL.replace('vvalElemento1', $("#combo_valor1  option:selected" ).prop("id"));
+            else
+                URL = URL.replace('vvalElemento1', $("#txt_valor1" ).val()=="" ? "-1" : $("#txt_valor1" ).val());
+
+            if($("#combo_valor2").is(":visible"))
+                URL = URL.replace('vvalElemento2', $("#combo_valor2  option:selected" ).prop("id"));
+            else
+                URL = URL.replace('vvalElemento2', $("#txt_valor2" ).val()=="" ? "-1" : $("#txt_valor2" ).val());
+
+            if($("#combo_valor3").is(":visible"))
+                URL = URL.replace('vvalElemento3', $("#combo_valor3  option:selected" ).prop("id"));
+            else
+                URL = URL.replace('vvalElemento3', $("#txt_valor3" ).val()=="" ? "-1" : $("#txt_valor3" ).val());
+
+
+            URL = URL.replace('vfa_desde', $("#fadt_desde" ).val()=="" ? "-1" : $("#fadt_desde" ).val());
+            URL = URL.replace('vfa_hasta', $("#fadt_hasta" ).val()=="" ? "-1" : $("#fadt_hasta" ).val());
+            URL = URL.replace('vff_desde', $("#ffdt_desde" ).val()=="" ? "-1" : $("#ffdt_desde" ).val());
+            URL = URL.replace('vff_hasta', $("#ffdt_hasta" ).val()=="" ? "-1" : $("#ffdt_hasta" ).val());
+
+            var estados = '';
+            $("#lis_estados input:checked").each(function(){
+                estados += $(this).prop('id') + '|';
+            });
+            $("#lis_contenidos li input:checked").each(function(){
+
+                if($(this).prop('id') == '1'){
+                    URL = URL.replace('vtieneComponentes', 'S');
+                }
+
+                if($(this).prop('id') == '2'){
+                    URL = URL.replace('vtieneResumen', 'S');
+                }
+
+                if($(this).prop('id') == '3'){
+                    URL = URL.replace('vtieneDetalle', 'S');
+                }
+
+                if($(this).prop('id') == '4'){
+                    URL = URL.replace('vtieneCaracteristicas', 'S');
+                }
+
+                if($(this).prop('id') == '5'){
+                    URL = URL.replace('vtieneHistoria', 'S');
+                }
+
+            });
+            URL = URL.replace('vtieneComponentes', 'N');
+            URL = URL.replace('vtieneResumen', 'N');
+            URL = URL.replace('vtieneDetalle', 'N');
+            URL = URL.replace('vtieneCaracteristicas', 'N');
+            URL = URL.replace('vtieneHistoria', 'N');
+            URL = URL.replace('velemento1', $("#ccombo_elemento1 option:selected").val());
+            URL = URL.replace('velemento2', $("#ccombo_elemento2 option:selected").val());
+            URL = URL.replace('velemento3', $("#ccombo_elemento3 option:selected").val());
+            //elementos a mostrar
+            URL = URL.replace('vestados', estados);
+            URL = encodeURI(URL);
+            //modReporteGenExcel
+
+            $.ajax({
+                type: "POST",
+                url: URL
+            }).done(function (err) {     
+                $('#genReporteExcel').prop('disabled',false);
+                $('#genReporteExcel').html('<i class="fa fa-file-excel-o"></i> Generar Reporte Excel');
+                var blob = b64toBlob(err, "application/vnd.ms-excel;");              
+                saveAs(blob, 'Reporte Generico.xls');                
+            });
+       
+        });
+
+
+        $('#ffdt_desde').datepicker({ dateFormat: 'dd-mm-yy' });
+        $('#ffdt_hasta').datepicker({ dateFormat: 'dd-mm-yy' });
+        $('#fadt_hasta').datepicker({ dateFormat: 'dd-mm-yy' });
+        $('#fadt_desde').datepicker({ dateFormat: 'dd-mm-yy' });
+
+        //seleccionar todo en los servicios
+        $("#lis_estados  input[type=checkbox]").change(function(){
+            if($(this).prop('id') =='-1')
+            {
+                if(!$(this).is(':checked')){
+                    $("#lis_estados li input[type=checkbox]").prop('checked', false);
+                }
+                else{
+                    $("#lis_estados li input[type=checkbox]").prop('checked', true);
+                }
+            }
+            else{
+                var cont = $("#lis_estados li input[type=checkbox]:checked").length;
+                if(cont < 16 && $("#lis_estados li #-1").is(':checked')){
+                    $("#lis_estados li #-1").prop('checked', false);
+                }
+                else if(cont == 15 && !($("#lis_estados li #-1").is(':checked'))){
+                    $("#lis_estados li #-1").prop('checked', true);
+                }
+            }
+        });
+
+
+    });
+
+
+</script>
+<div class="row">
+    <div class="col-md-5 col-sm-5">
+        <h3 id="ttl">Detalle Cotizaciones</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5 col-sm-5">
+        <h5 id="ttl">Filtros</h5>
+    </div>
+</div>
+<div class="row"><!--raya-->
+    <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+</div>
+<div id="formdiv" class="container-fluid">
+    <div class="row"><!--Primera Fila-->
+        <div class="col-sm-4 col-md-4">
+            <label class="control-label">
+                País :
+            </label>
+            <select id="combo_pais" class="form-control">
+                <option id="-1" selected>Todos</option>
+            </select>
+        </div>
+        <div class="col-sm-4 col-md-4">
+            <label class="control-label">
+                Negocio :
+            </label>
+            <select id="combo_negocios" class="form-control">
+                <option id="-1" selected>Todos</option>
+            </select>
+        </div>
+        <div class="col-sm-4 col-md-4">
+            <label class="control-label">
+                Servicio de Negocio :
+            </label>
+            <select id="combo_serneg" class="form-control">
+                <option id="-1" selected>Todos</option>
+            </select>
+        </div>
+    </div><!--fin Primera fila-->
+
+    <div class="row"><!--Segunda Fila-->
+        <div class="col-sm-4 col-md-4">
+            <label class="control-label">
+                Estados :
+            </label>
+            <div class="well checkbox  well-sm" style="max-height: 160px;overflow: auto;">
+                <ul id="lis_estados" class="list-group checked-list-box">
+                    <li style="font-weight:bold" class="list-group-item"><input type="checkbox" id="-1" >Seleccionar Todos</input></li>
+                </ul>
+                @*<select id="lis_estados" class="form-control" multiple></select>*@
+            </div>
+        </div>
+    
+    <div class="col-sm-2 col-md-2">
+        <label class="control-label">
+            Fecha Aprobación:
+        </label>
+        <label class="control-label">
+            Desde :
+        </label>
+        <input class="form-control" type="text" id="fadt_desde" value="" />
+
+        <label class="control-label">
+            Hasta :
+        </label>
+        <input class="form-control" type="text" id="fadt_hasta" value="" />
+    </div>
+    <div class="col-sm-2 col-md-2">
+        <label class="control-label">
+            Fecha Ini Facturación :
+        </label>
+        <label class="control-label">
+            Desde :
+        </label>
+        <input class="form-control" type="text" id="ffdt_desde" value="" />
+
+        <label class="control-label">
+            Hasta :
+        </label>
+        <input class="form-control" type="text" id="ffdt_hasta" value="" />
+    </div>
+    <div class="col-sm-2 col-md-2">
+        <label class="control-label">
+            Elementos de los componentes:
+        </label>
+
+        <select id="combo_elemento1" class="form-control">
+            <option id="-1" selected>Todos</option>
+        </select>
+
+        <select id="combo_elemento2" class="form-control">
+            <option id="-1" selected>Todos</option>
+        </select>
+        <select id="combo_elemento3" class="form-control">
+            <option id="-1" selected>Todos</option>
+        </select>
+    </div>
+
+    <div class="col-sm-2 col-md-2">
+        <label class="control-label">
+            Valores:
+        </label>
+        <br>
+        <select id="combo_valor1" class="form-control">
+            <option id="-1" selected>Todos</option>
+        </select>
+        <input id="txt_valor1" class="form-control" type="text" value="" />
+
+        <select id="combo_valor2" class="form-control">
+            <option id="-1" selected>Todos</option>
+        </select>
+        <input id="txt_valor2" class="form-control" type="text" value="" />
+
+        <select id="combo_valor3" class="form-control">
+            <option id="-1" selected>Todos</option>
+        </select>
+        <input id="txt_valor3" class="form-control" type="text" value="" />
+    </div>
+    
+    </div><!--Fin Segunda Fila-->
+
+</div>
+
+<div class="row">
+    <!--Fin Terecera Fila-->
+    <div class="col-md-5 col-sm-5">
+        <h5 id="ttl">Contenido</h5>
+    </div>
+</div>
+<div class="row">
+    <!--Fin Cuarta Fila-->
+    <!--raya-->
+    <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+</div>
+<div id="formdiv" class="container-fluid">
+        <div class="row">
+            <!--Quita fila-->
+            <div class="col-sm-4 col-md-4">
+                <label class="control-label">
+                    Contenido a mostrar:
+                </label>
+
+                <div class="well well-sm checkbox" style="max-height: 300px;overflow: auto;">
+                    <!--select id="lis_contenidos" class="form-control" multiple>
+                    <option id="1">Componentes</option>
+                    <option id="2">Resumen Costos</option>
+                    <option id="3">Detalle Costos</option>
+                    <option id="4">Características</option>
+                    <option id="5">Obtiene</option>
+                    </select-->
+
+                    <ul id="lis_contenidos" class="list-group checked-list-box">
+                        <li class="list-group-item">
+                            <input type="checkbox" id="1" checked disabled />Componentes y Servicios
+                        </li>
+                        <li class="list-group-item"><input type="checkbox" id="2" />Resumen Costos </li>
+                        <li class="list-group-item"><input type="checkbox" id="3" />Detalle Costos </li>
+                        <li class="list-group-item"><input type="checkbox" id="4" />Características de los componentes</li>
+                        <li class="list-group-item"><input type="checkbox" id="5" />Detalle de Servicios</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-sm-3 col-md-3">
+                <label class="control-label">
+                    Elementos de los componentes:
+                </label>
+                <div>
+                    <label class="control-label">
+                    </label>
+                    <select id="ccombo_elemento1" class="form-control">
+                        <option id="-1" selected>Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="control-label">
+                    </label>
+                    <select id="ccombo_elemento2" class="form-control">
+                        <option id="-1" selected>Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="control-label">
+                    </label>
+                    <select id="ccombo_elemento3" class="form-control">
+                        <option id="-1" selected>Todos</option>
+                    </select>
+                </div>
+            </div>
+
+        </div><!--Fin Tercera Fila-->
+
+
+        <div class="row">
+            <!--Cuarta fila-->
+            <div class="col-sm-2 col-md-2">
+                <button id="genReporte" class="btn btn-primary">
+                    <i class="fa fa-file-pdf-o"></i> Generar Reporte PDF
+                </button>
+            </div>
+            <div class="col-sm-2 col-md-2">
+                <button id="genReporteExcel" class="btn btn-primary">
+                    <i class="fa fa-file-excel-o"></i> Generar Reporte Excel
+                </button>
+            </div>
+        </div>
+        <div id="vpReporte">
+
+        </div>
+
+    </div>
+
+<!-- /.modal Reporte Generico -->
+<div class="modal fade" id="modReporteGen">
+    <div class="modal-dialog" style="width:80%;">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button>
+                <h4 id="titulomodal" class="modal-title">Reporte Detalle Componentes</h4>
+            </div>
+            <div id="upd_servicio" data-id="" class="modal-body ui-front">
+                <div id="vpmRep">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div><!-- /.modal Excel-->
+<div class="modal fade" id="modReporteGenExcel">
+    <div class="modal-dialog" style="width:50%;">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button>
+                <h4 id="titulomodal" class="modal-title">Reporte Detalle Componentes</h4>
+            </div>
+            <div id="upd_servicio" data-id="" class="modal-body ui-front">
+                <div id="vpmRep">
+                    Procesando ...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- /.modal Reporte Generico -->
+
+@*
+<object id="pdf_container" type="application/pdf" width="100%" height="800px" data="@Url.Action("getReportGenerico")">
+    <p>
+        Al parecer su navegador no cuenta con los plugins necesarios para desplegar este documento...
+        <a href="@Url.Action("getReportGenerico")">
+            Click aqui para descargar el archivo.
+        </a>
+    </p>
+</object>
+    *@

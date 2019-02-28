@@ -1,0 +1,220 @@
+﻿@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.Security.Usuario
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script>
+    $(document).ready(function () {
+
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var usuariosJson = @Html.Raw(jss.Serialize(Model.datosUsuarioIndexJson));
+        var tabla;
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        $('#p_total_registros').text('Total de Registros: ' + JSON.stringify(_.size(usuariosJson)))
+
+        @*@foreach (var item in Model.Usuarios)
+        {
+
+            <text>
+
+        usuariosJson.push({
+            id: '@item.Id',
+            usuario: '@item.Username',
+            nombre: '@item.Displayname',
+            email: '@item.Email',
+            paisnegocio: '@item.Paisnegocio',
+            ultlogin: '@item.Lastlogin',
+            activo: '@item.Activo'
+        });
+
+        </text>
+
+        }*@
+
+        _.each(usuariosJson, function (i) {
+
+
+            tabla = '<tr>\
+                <td>' + i.usuario + '</td>\
+                <td>' + i.nombre + '</td>\
+                <td>' + i.email + '</td>\
+                <td>' + i.paisnegocio + '</td>\
+                <td>' + i.centrocosto + '</td>\
+                <td>' + i.lastlogin + '</td>\
+                <td>' + i.activo + '</td>\
+                <td>';
+
+            if ('@User.IsInRole("OBSERVADOR")' == 'False')
+            {
+                tabla += '<div class="btn-group btn-group-xs" role="group" style="display:inline-block">\
+                            <a title="Editar Usuario y Roles" href="/Usuario/Edit/' + i.id + '" class="btn black"><span class="glyphicon glyphicon-pencil" /></a>\
+                            <a title="Eliminar" href="/Usuario/Delete/' + i.id + '" class="btn black"><span class="glyphicon glyphicon-trash" /></a>\
+                        </div>';
+            }
+
+            tabla += '</td>\
+                    </tr>';
+
+
+            $('#contTbUsuario').append(tabla);
+
+        });
+
+        $('#txtBusqueda1').keyup(function () {
+
+            $('#contTbUsuario').empty();
+
+            _.each(usuariosJson, function (i) {
+
+                tabla = '<tr>\
+                <td>' + i.usuario + '</td>\
+                <td>' + i.nombre + '</td>\
+                <td>' + i.email + '</td>\
+                <td>' + i.paisnegocio + '</td>\
+                <td>' + i.centrocosto + '</td>\
+                <td>' + i.lastlogin + '</td>\
+                <td>' + i.activo + '</td>\
+                <td>\
+                    <div class="btn-group btn-group-xs" role="group" style="display:inline-block">';
+
+
+                if('@User.IsInRole("OBSERVADOR")' == 'False'){
+                    tabla += '<a title="Editar Usuario y Roles" href="/Usuario/Edit/' + i.id + '" class="btn black"><span class="glyphicon glyphicon-pencil" /></a>\
+                        <a title="Eliminar" href="/Usuario/Delete/' + i.id + '" class="btn black"><span class="glyphicon glyphicon-trash" /></a>';
+
+                }
+
+                tabla += '</div>\
+                        </td>\
+                    </tr>';
+
+
+                $('#contTbUsuario').append(tabla);
+
+            });
+
+            if ($(this).val().length == 0) {
+                $('#contTbUsuario tr').each(function () {
+                    $(this).show();
+                });
+            } else {
+                $('#contTbUsuario tr').each(function () {
+
+                    $(this).hide().filter(':contains(' + $('#txtBusqueda1').val() + ')').each(function () {
+
+                        $(this).html($(this).html().replace($('#txtBusqueda1').val(), '<span style="color:red">' + $('#txtBusqueda1').val() + '</span>'));
+
+                    });
+
+                    $(this).hide().filter(':contains(' + $('#txtBusqueda1').val() + ')').show();
+
+                });
+            }
+
+        });
+
+        $('#btn_descargar').click(function () {
+
+            $.ajax({
+                url: '@Url.Action("SecUsuarioFileXls", "Usuario")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoSecUsuario.csv");
+
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        <h3 id="ttl">Usuarios</h3>
+
+        <div class="form-group col-md-3">
+            <label for="">Filtro de Busqueda</label>
+
+            <div id="tabCostos" class="tab-pane container-fluid active" style="padding-left:1px">
+                <input id="txtBusqueda1" type="text" class="form-control input-xs" style="margin:1%;" placeholder="Filtrar">
+                <ul id="sortable1" class="connected-sortable-cos uldrag"></ul>
+            </div>
+        </div>
+
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+        <br />
+        @*@if (Model.Usuarios.Count == 0)
+        {
+            <p>Sin usuarios.</p>
+        }
+        else
+        {*@
+            <div class="row">
+                <table class="table table-responsive table-striped table-condensed grilla">
+                    <thead>
+                        <tr>
+                            <th class="col-md-1">Username</th>
+                            <th class="col-md-1">Nombre</th>
+                            <th class="col-md-1">E-mail</th>
+                            <th class="col-md-2">Pais-Negocio</th>
+                            <th class="col-md-2">Centro Costo</th>
+                            <th class="col-md-2">Ultimo Login</th>
+                            <th class="col-md-1">Activo</th>
+                            <th class="col-md-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="contTbUsuario"></tbody>
+                </table>
+            </div>
+        @*}*@
+    </div>
+</div>
+<div class="row pagination col-md-12 col-sm-12   " style="background-color:#F9F9F9;height:28px;">
+    <div class=" form-inline " role="form">
+        <div class="col-md-2 col-sm-2 col-md-offset-1 ">
+            <p id="p_total_registros" class="control-label">@*@Model.Usuarios.Count*@</p>
+        </div>
+        <!-- /.btn-toolbar -->
+        <div class="col-md-offset-9 col-sm-offset-9">
+            <div id="btn_Func_Tools" class="" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    
+                    @if (!User.IsInRole("OBSERVADOR"))
+                    {
+                        <a title="Nuevo Usuario" href="@Url.Action("Create", "Usuario")" class="btn black"><span class="glyphicon glyphicon-plus"></span></a>
+                    }
+
+                    <button id="btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.btn-toolbar -->
+</div>

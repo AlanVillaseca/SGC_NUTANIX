@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "ReporteRetiro";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.GeneraReporte
+@using System.Data
+@using System.Web.Script.Serialization;
+
+
+<script>
+    $(document).ready(function () {
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+
+        $('#fech_desde').datepicker({
+            onClose: function (selectedDate) {
+                $('#fech_hasta').datepicker('option', 'minDate', selectedDate);
+                $('#fech_desde').datepicker('option', 'dateFormat', 'dd-mm-yy');
+            }
+        });
+
+        $('#fech_hasta').datepicker({
+            onClose: function (selectedDate) {
+                $('#fech_desde').datepicker('option', 'maxDate', selectedDate);
+                $('#fech_hasta').datepicker('option', 'dateFormat', 'dd-mm-yy');
+            }
+        });
+
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        $("#genReporteExcel").click(function () {
+
+            if ($("#formdiv").validar()) return;
+            $('#genReporteExcel').prop('disabled', true);
+            $('#genReporteExcel').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var v_fech_desde = $("#fech_desde").val();
+            var v_fech_hasta = $("#fech_hasta").val();
+
+
+            $.ajax({ 
+                type: "POST",
+                url: '@Url.Action("SolicitudesRetiroReporte", "Retiro")',
+                data: { f_desde: v_fech_desde, f_hasta: v_fech_hasta },
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "Solicitudes Retiradas.csv");
+
+                }
+            }).done(function (err) {
+                $('#genReporteExcel').prop('disabled', false);
+                $('#genReporteExcel').html('<i class="fa fa-file-excel-o"></i> Generar Excel');
+
+            });//fin done
+
+
+        });//fin boton genReporteExcel
+
+    });
+
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-9 col-sm-9">
+            <h3 id="ttl">Reporte de Solicitudes Retiro</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div style="border-top:solid 1px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;padding-bottom:2%;"></div>
+        
+        <div class="form-group col-md-2">
+            <label>Fecha Desde</label>
+            <input id="fech_desde" name="fech_desde" type="text" size="10" class="form-control datepicker input-sm" placeholder="Desde">
+        </div>
+
+        <div class="form-group col-md-2">
+            <label>Fecha Hasta</label>
+            <input id="fech_hasta" name="fech_hasta" type="text" size="10" class="form-control datepicker input-sm" placeholder="Hasta">
+        </div>
+    
+    
+    </div>
+
+    
+
+    <div class="row">
+        <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto"></div>
+    </div>
+    <p><br /></p>
+    <div class="row">
+        <div class="col-sm-2 col-md-2">
+            <button id="genReporteExcel" class="btn btn-primary btn-block">
+                <i class="fa fa-file-excel-o"></i>
+                Generar Excel
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<div id="crearSolicitud"></div>
+

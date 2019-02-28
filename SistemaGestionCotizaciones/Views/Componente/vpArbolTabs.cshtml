@@ -1,0 +1,463 @@
+﻿@model SistemaGestionCotizaciones.Models.Componente
+@using System.Data
+
+@using System.Data
+@using SistemaGestionCotizaciones.Models
+
+
+
+<script src="~/Scripts/js/selectMenu.js"></script>
+<link href="~/Content/css/nanoscroller.css" rel="stylesheet" />
+<script src="~/Scripts/jquery.nanoscroller.min.js"></script>
+
+<style>
+    .level-1 > .gls {
+        padding-left: 2em;
+    }
+
+    .level-2 > .gls {
+        padding-left: 4em;
+    }
+
+    .level-3 > .gls {
+        padding-left: 6em;
+    }
+
+    .level-4 > .gls {
+        padding-left: 8em;
+    }
+
+    .level-5 > .gls {
+        padding-left: 10em;
+    }
+
+    .level-6 > .gls {
+        padding-left: 12em;
+    }
+
+    .level-7 > .gls {
+        padding-left: 14em;
+    }
+
+    #frm_vriabl {
+        position: absolute;
+        top: 200px;
+        left: 90px;
+    }
+
+
+
+    .nano {
+        height: 480px;
+    }
+
+        .nano .nano-content {
+            padding-right: 10px;
+        }
+
+        .nano .nano-pane {
+            background: #ffffff;
+        }
+
+    .contenedorTABS {
+        position: absolute;
+        top: 0px;
+        width: 68%;
+    }
+
+    .resumen {
+        position: absolute;
+        top: 35px;
+        right: 0px;
+        width: 30%;
+    }
+
+    .contenedorArbol {
+        position: absolute;
+        width: 100%;
+    }
+
+    #tabs {
+        width: 98.5%;
+    }
+
+    .hijo {
+        background-color: #fff;
+    }
+
+    .padre {
+        background-color: #F1F8E0;
+    }
+
+    h5 {
+        color: #8FBE00;
+        font-weight: bold;
+        margin-top: 0px;
+    }
+
+    h6 {
+        color: #8FBE00;
+        font-weight: bold;
+        margin-top: 0px;
+        text-align: right;
+    }
+
+
+    .table thead > tr > th,
+    .table tbody > tr > th,
+    .table tfoot > tr > th,
+    .table thead > tr > td,
+    .table tbody > tr > td,
+    .table tfoot > tr > td {
+        padding: 2px;
+        line-height: 1.428571429;
+        vertical-align: top;
+        border-top: 1px solid #dddddd;
+    }
+
+    .sign {
+        font-size: 1.5em;
+    }
+
+    .tata .sign:after {
+        content: "+";
+        display: inline-block;
+    }
+
+    .tata.expand .sign:after {
+        content: "-";
+    }
+
+    .boxes {
+        display: inline-table;
+        width: 200px;
+        height: 100px;
+        margin: 1em;
+    }
+
+    #0frm_vriabl {
+        top: 300px;
+        position: absolute;
+    }
+
+    #RestblArbol tfoot tr {
+        border-top: 1px solid #999;
+    }
+
+    #RestblArbolOpt tfoot tr {
+        border-top: 1px solid #999;
+    }
+
+    #tblResFinal tfoot tr {
+        border-top: 2px solid #999;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $('#contenedorTABS').tooltip();
+        //*Parametros cotizacion*//
+        @{
+            int count = 0;
+        }
+
+        @foreach (Contrl col in Model.controles)
+        {
+
+            @:$('select').selectmenu();
+
+            if (col.control == 1)
+            {
+                @:$('#tblparam').append('<div class="boxes form-group"><label for="">@col.label.ToString()</label><input type="text" id="txt_box_@count" class="form-control input-sm"></input></div>');
+
+            }
+
+            if (col.control == 2)
+            {
+                @:$('#tblparam').append('<div class="boxes form-group"><label for="">@col.label.ToString()</label><input type="checkbox"></input></div>');
+
+            }
+
+            if (col.control == 3)
+            {
+                @:$('#tblparam').append('<div class="boxes form-group"><label for="">@col.label.ToString()</label><select class="selectmenu">@foreach(ValorLista val in col.valoresLista){<option>@val.valor</option>}</select></div>');
+                    }
+
+        }
+
+        $('input:checkbox').removeAttr('checked');
+        $('#tabs').tab();
+        $(".nano").nanoScroller({ preventPageScrolling: true });
+
+        @foreach (DataRow arbol in Model.dtArbol.Rows)
+        {
+
+        <text>$('#tblArbol #@arbol.ItemArray.GetValue(0):checkbox').click(function (e) {
+            var idChk = $(this).attr('id');
+            if ($(this).is(':checked')) {
+                $.each($(this).attr('ruta').split('_'), function (index, value) {
+                    $('#' + value).prop('checked', true);
+                    var valor = parseFloat($('#L_' + idChk).text());
+                    var valAnt = $('#L_' + value).text();
+                    valor = parseFloat(valAnt) + parseFloat(valor);
+                    if (!($('#' + idChk).attr('ruta').split('_').length == index + 1)) {
+                        $('#L_' + value).text(valor);
+                    }
+                });
+            }
+            else {
+                var fHab = 0;
+                var idPadre = $(this).attr('ruta');
+                idPadre = idPadre.substring(0, idPadre.lastIndexOf("_"));
+                $('[ruta^=' + idPadre + '][tipo=hijo]').each(function () {
+                   
+                    if ($(this).is(':checked')) {
+                        fHab = 1;                        
+                    }
+                });
+
+                $.each($(this).attr('ruta').split('_'), function (index, value) {
+                    //INICIO PRUEBA
+
+                    if (fHab == 0) {
+                        $('#' + value).prop('checked', false);
+                    }
+
+                    //FIN PRUEBA
+                    //$('#' + value).prop('checked', false);
+                    var valor = parseFloat($('#L_' + idChk).text());
+                    var valAnt = $('#L_' + value).text();
+                    valor = parseFloat(valAnt) - parseFloat(valor);
+                    if (!($('#' + idChk).attr('ruta').split('_').length == index + 1)) {
+                        $('#L_' + value).text(valor);
+                    }
+                });
+            }
+        });</text>
+
+    }
+
+        @foreach (DataRow arbol in Model.dtArbolOpt.Rows)
+        {
+
+        <text>$('#tblArbolOpt #o_@arbol.ItemArray.GetValue(0):checkbox').click(function (e) {
+            var idChk = $(this).attr('id');
+            if ($(this).is(':checked')) {
+                $.each($(this).attr('ruta').split('_'), function (index, value) {
+                    $('#o_' + value).prop('checked', true);
+                    var valor = parseFloat($('#L_' + idChk).text());
+                    var valAnt = $('#L_o_' + value).text();
+                    valor = parseFloat(valAnt) + parseFloat(valor);
+                    if (!($('#' + idChk).attr('ruta').split('_').length == index + 1)) {
+                        $('#L_o_' + value).text(valor);
+                    }
+                });
+            }
+            else {
+                $.each($(this).attr('ruta').split('_'), function (index, value) {
+                    $('#o_' + value).prop('checked', false);
+                    var valor = parseFloat($('#L_' + idChk).text());
+                    var valAnt = $('#L_o_' + value).text();
+                    valor = parseFloat(valAnt) - parseFloat(valor);
+                    if (!($('#' + idChk).attr('ruta').split('_').length == index + 1)) {
+                        $('#L_o_' + value).text(valor);
+                    }
+                });
+            }
+        });</text>
+
+    }
+
+        $('.nano').nanoScroller();
+
+        $(".contenedorTABS input").click(function () {
+            var rruta;
+            var vvalor;
+            var iide;
+            var ccosto;
+            var suma;
+            var aux = 0;
+
+            iide = $(this).attr("ruta");
+            var tableid = $(this).closest('table').parent().attr('id');
+
+            if ($(this).is(':checked')) {
+                rruta = $(this).parent().parent().children(".lblRuta").html();
+                ccosto = $(this).parent().parent().children("td.lblCosto").html();
+                $("#Res" + tableid).append("<tr id=r" + iide + "><td>" + rruta + "</td><td class=ResCosto>" + ccosto + "</td><td>UF</td></tr>")
+            }
+            else {
+                $("#Res" + tableid + " #r" + iide).remove();
+            }
+
+            //SUMAMOS TOTALES
+            suma = parseInt('0');
+            $("#Res" + tableid + " tbody tr").each(function (index) {
+                suma = parseInt($(this).children('.ResCosto').text()) + suma;
+            });
+
+
+
+            $("#Res" + tableid + " #lblTotal").text(suma);
+            var sumObliga = $("#RestblArbol #lblTotal").text();
+            var sumOpt = $("#RestblArbolOpt #lblTotal").text();
+            var sumTotal = parseInt(sumObliga) + parseInt(sumOpt);
+
+            $("#tblResFinal #lblTotal").text(sumTotal);
+
+        });
+
+        $('.tata').click(function () {
+            $(this).toggleClass('expand').nextUntil('tr.tata').slideToggle(100);
+        });
+
+    });
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+
+    <div class="contenedorArbol fila2">
+        <div class="contenedorTABS">
+            <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">                
+                <li class="active"><a href="#tblArbol" data-toggle="tab">Obligatorio</a></li>
+                <li><a href="#tblArbolOpt" data-toggle="tab">Opcional</a></li>
+                <li><a href="#tblparam" data-toggle="tab">Parametros</a></li>
+            </ul>
+            <div class="nano">
+                <div id="my-tab-content" class="tab-content nano-content">
+                    <div id="tblparam" class="tab-pane">
+                    </div>
+                    <div id="tblArbol" class="tab-pane active">
+                        <table class="table table-bordered table-hover grilla tblPadding">
+                            <thead>
+                                <tr>
+                                    <th width="300px">Item</th>
+                                    <th style="display:none;">Ruta</th>
+                                    <th>Descripcion</th>
+                                    <th>Costo Unitario</th>
+                                    <th>Costo Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (DataRow arbol in Model.dtArbol.Rows)
+                                {
+                                    if (arbol.ItemArray.GetValue(5).ToString() == "-")
+                                    {
+                                        <tr title="@arbol.ItemArray.GetValue(7)" class="level-@arbol.ItemArray.GetValue(3) padre @if (!@arbol.ItemArray.GetValue(4).ToString().Contains("_")) { <text>tata</text> }">
+                                            <td class="gls"><span class="sign"></span><input type="checkbox" id="@arbol.ItemArray.GetValue(0)" ruta="@arbol.ItemArray.GetValue(4)" disabled /> @arbol.ItemArray.GetValue(2)</td>
+                                            <td style="display:none;" class="lblRuta">@arbol.ItemArray.GetValue(7)</td>
+                                            <td>@arbol.ItemArray.GetValue(8)</td>
+                                            <td><label id="F_@arbol.ItemArray.GetValue(0)">@arbol.ItemArray.GetValue(5)</label></td>
+                                            <td class="lblCosto"><label id="L_@arbol.ItemArray.GetValue(0)">0</label></td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr title="@arbol.ItemArray.GetValue(7)" class="level-@arbol.ItemArray.GetValue(3) hijo">
+                                            <td class="gls" title="@arbol.ItemArray.GetValue(7)"><span class="sign"></span><input type="checkbox" id="@arbol.ItemArray.GetValue(0)" ruta="@arbol.ItemArray.GetValue(4)" tipo="hijo" /> @arbol.ItemArray.GetValue(2)</td>
+                                            <td style="display:none;" class="lblRuta">@arbol.ItemArray.GetValue(7)</td>
+                                            <td>@arbol.ItemArray.GetValue(8)</td>
+                                            <td><label id="F_@arbol.ItemArray.GetValue(0)">@arbol.ItemArray.GetValue(5)</label></td>
+                                            <td class="lblCosto"><label id="L_@arbol.ItemArray.GetValue(0)">5</label></td>
+                                        </tr>
+                                    }
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="tblArbolOpt" class="tab-pane">
+                        <table class="table table-bordered table-hover grilla">
+                            <thead>
+                                <tr>
+                                    <th width="300px">Item</th>
+                                    <th style="display:none;">Ruta</th>
+                                    <th>Descripcion</th>
+                                    <th>Costo Unitario</th>
+                                    <th>Costo Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (DataRow arbol in Model.dtArbolOpt.Rows)
+                                {
+                                    if (arbol.ItemArray.GetValue(5).ToString() == "-")
+                                    {
+
+                                        <tr class="level-@arbol.ItemArray.GetValue(3) padre">
+                                            <td class="gls"><input type="checkbox" id="o_@arbol.ItemArray.GetValue(0)" ruta="@arbol.ItemArray.GetValue(4)" disabled /> @arbol.ItemArray.GetValue(2)</td>
+                                            <td style="display:none;" class="lblRuta">@arbol.ItemArray.GetValue(7)</td>
+                                            <td>@arbol.ItemArray.GetValue(8)</td>
+                                            <td><label id="F_o_@arbol.ItemArray.GetValue(0)">@arbol.ItemArray.GetValue(5)</label></td>
+                                            <td class="lblCosto"><label id="L_o_@arbol.ItemArray.GetValue(0)">0</label></td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr class="level-@arbol.ItemArray.GetValue(3) hijo">
+                                            <td class="gls"><input type="checkbox" id="o_@arbol.ItemArray.GetValue(0)" ruta="@arbol.ItemArray.GetValue(4)" /> @arbol.ItemArray.GetValue(2)</td>
+                                            <td style="display:none;" class="lblRuta">@arbol.ItemArray.GetValue(7)</td>
+                                            <td>@arbol.ItemArray.GetValue(8)</td>
+                                            <td><label id="F_o_@arbol.ItemArray.GetValue(0)">@arbol.ItemArray.GetValue(5)</label></td>
+                                            <td class="lblCosto"><label id="L_o_@arbol.ItemArray.GetValue(0)">5</label></td>
+                                        </tr>
+                                    }
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default resumen">
+            <div class="panel-body">
+                <h5>Resumen</h5>
+                <h6>Obligatorio</h6>
+                <table id="RestblArbol" class="table">
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Sub Total</th>
+                            <th><label id="lblTotal">0</label></th>
+                            <th>UF</th>
+                        </tr>
+                    </tfoot>
+                </table>
+                <h6>Opcional</h6>
+                <table id="RestblArbolOpt" class="table">
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Sub Total</th>
+                            <th><label id="lblTotal">0</label></th>
+                            <th>UF</th>
+                        </tr>
+                    </tfoot>
+                </table>
+                <table id="tblResFinal" class="table">
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Monto Mensual Final</th>
+                            <th><label id="lblTotal">0</label></th>
+                            <th>UF</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </div> @**** FIN CONTENEDOR ****@
+
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+
+}

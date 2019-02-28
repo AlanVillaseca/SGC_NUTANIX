@@ -1,0 +1,249 @@
+﻿
+@{
+    ViewBag.Title = "TestReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.GeneraReporte
+@using System.Data
+@using System.Web.Script.Serialization;
+
+
+
+
+<script>
+
+    $(document).ready(function(){
+        
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var paises = @Html.Raw(jss.Serialize(Model.dtPaisJson));
+        var negocios = @Html.Raw(jss.Serialize(Model.dtNegocioJson));
+        var serneg = @Html.Raw(jss.Serialize(Model.dtSerNegJson));
+        _.each(paises, function(i){
+            $('#combo_pais').append('<option id="' + i.Idpais + '">' + i.Nombre + '</option>');
+        });
+
+       /* _.each(negocios, function(i){
+            $('#combo_negocios').append('<option id="' + i.Idnegocio + '">' + i.Descripcion + '</option>');
+        });
+        */
+        _.each(serneg, function(i){
+            $('#combo_serneg').append('<option id="' + i.Idserviciodenegocio + '">' + i.Nombre + '</option>');
+        });
+
+        for(x=@DateTime.Now.Year + 1 ; x >= 2015  ; x--)
+        {
+            $("#dt_ano_desde").append( '<option value="'+x+'">'+x+'</option>');
+            $("#dt_ano_hasta").append( '<option value="'+x+'">'+x+'</option>');
+        }
+
+        //parche
+        $('#combo_negocios').html('');
+        ////////////////$('#combo_negocios').append('<option id="-1">Todos</option>');
+        var paisSel = $( "#combo_pais option:selected" ).prop('id');
+        _.each(negocios, function(i){
+            if(i.Idpais == paisSel){
+                $('#combo_negocios').append('<option id="' + i.Idnegocio + '">'+ i.Descripcion + '</option>');
+            }
+        });
+        //------
+        //Llenado negocios cuando se selecione un pais
+        $("#combo_pais").click(function() {
+            $('#combo_negocios').html('');
+            ////////////////$('#combo_negocios').append('<option id="-1">Todos</option>');
+            var paisSel = $( "#combo_pais option:selected" ).prop('id');
+
+            $('#combo_negocios').append('<option id="-1" selected>Todos</option>');
+            _.each(negocios, function(i){
+                if(i.Idpais == paisSel){
+                    $('#combo_negocios').append('<option id="' + i.Idnegocio + '">'+ i.Descripcion + '</option>');
+                }
+
+            });
+        });
+
+        @*$("#genReporte").click(function(){
+
+            if($("#formdiv").validar()) return;
+
+            $('#genReporte').prop('disabled', true);
+            $('#genReporte').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(@Url.Action("getReport", "reportes", new { id = "idR", desde = "vdesde", hasta = "vhasta", pais = "vpais", negocio = "vnegocio", serneg = "vserneg", flg_docto = "PDF" }))';
+
+            URL = URL.replace('vdesde', $("#dt_ano_desde  option:selected").val()+'-'+ $("#dt_mes_desde  option:selected").val());
+            URL = URL.replace('vhasta', $("#dt_ano_hasta  option:selected").val()+'-'+ $("#dt_mes_hasta  option:selected").val());
+            URL = URL.replace('vpais', $("#combo_pais option:selected").prop("id"));
+            URL = URL.replace('vnegocio', $("#combo_negocios  option:selected").prop("id"));
+            URL = URL.replace('vserneg', $("#combo_serneg  option:selected" ).prop("id"));
+
+            $.ajax({
+                type: "POST",
+                url: URL
+            }).done(function (err) {
+                $('#genReporte').prop('disabled',false);
+                $('#genReporte').html('<i class="fa fa-file-pdf-o"></i> Generar PDF');
+                var blob = b64toBlob(err, "data:application/pdf;");
+                saveAs(blob, 'Historial Facturacion.pdf');
+            });
+
+        });*@
+
+        $("#genReporteExcel").click(function(){
+
+            if($("#formdiv").validar()) return;
+            $('#genReporteExcel').prop('disabled', true);
+            $('#genReporteExcel').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(Url.Action("getReport", "reportes", new { id = "idR", desde = "vdesde", hasta = "vhasta", pais = "vpais", negocio = "vnegocio", serneg = "vserneg" , flg_docto ="EXCEL"}))';
+
+            URL = URL.replace('vdesde', $("#dt_ano_desde  option:selected").val()+'-'+ $("#dt_mes_desde  option:selected").val());
+            URL = URL.replace('vhasta', $("#dt_ano_hasta  option:selected").val()+'-'+ $("#dt_mes_hasta  option:selected").val());
+            URL = URL.replace('vpais', $("#combo_pais option:selected").prop("id"));
+            URL = URL.replace('vnegocio', $("#combo_negocios  option:selected").prop("id"));
+            URL = URL.replace('vserneg', $("#combo_serneg  option:selected" ).prop("id"));
+            URL = URL.replace('idR','fact_'+'@DateTime.Now.Year'+'@DateTime.Now.Month'+'@DateTime.Now.Day');
+
+            $.ajax({
+                type: "POST",
+                url: URL,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "Historial Facturacion.csv");
+
+                }
+            }).done(function (err) {
+                $('#genReporteExcel').prop('disabled',false);
+                $('#genReporteExcel').html('<i class="fa fa-file-excel-o"></i> Generar Excel');
+            });
+
+
+        });
+
+
+    });
+</script>
+    <div class="row">
+        <div class="col-md-5 col-sm-5">
+            <h3 id="ttl">Reporte Facturación</h3>
+        </div>
+    </div>
+   
+    <div id="formdiv" class="container-fluid">
+        <div class="row">
+
+            <div class="col-sm-2 col-md-2">
+                <label class="control-label">
+                    País :
+                </label>
+                <select id="combo_pais" class="form-control">
+                    @*<option id="-1" selected>Todos</option>*@
+                </select>
+            </div>
+            <div class="col-sm-3 col-md-3">
+                <label class="control-label">
+                    Negocio :
+                </label>           
+                <select id="combo_negocios" class="form-control">
+                    <option id="-1" selected>Todos</option>
+                </select>
+            </div>
+            <div class="col-sm-3 col-md-3">
+                <label class="control-label">
+                    Servicio de Negocio :
+                </label>           
+                <select id="combo_serneg" class="form-control">
+                    <option id="-1" selected>Todos</option>
+                </select>
+            </div>
+
+            <div class="col-sm-2 col-md-2">
+                <label class="control-label">
+                    Desde :
+                </label>
+                <select class="form-control" id="dt_mes_desde">
+                    <option value="01">Enero</option>
+                    <option value="02">Febrero</option>
+                    <option value="03">Marzo</option>
+                    <option value="04">Abril</option>
+                    <option value="05">Mayo</option>
+                    <option value="06">Junio</option>
+                    <option value="07">Julio</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+                <select class="form-control" id="dt_ano_desde"></select>
+            </div>
+            <div class="col-sm-2 col-md-2">
+                <label class="control-label">
+                    Hasta :
+                </label>
+                <select class="form-control" id="dt_mes_hasta">
+                    <option value="01">Enero</option>
+                    <option value="02">Febrero</option>
+                    <option value="03">Marzo</option>
+                    <option value="04">Abril</option>
+                    <option value="05">Mayo</option>
+                    <option value="06">Junio</option>
+                    <option value="07">Julio</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+                <select class="form-control" id="dt_ano_hasta"></select>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12" style="border-top:solid 2px #c4c4c4;margin-top:10px;margin-bottom:10px;"></div>
+        </div>
+
+        <div class="row">
+            @*<div class="col-sm-2 col-md-2">
+                <button id="genReporte" class="btn btn-primary btn-block"><i class="fa fa-file-pdf-o"></i>
+                    Generar PDF
+                </button>
+            </div>*@
+            <div class="col-sm-2 col-md-2">
+                <button id="genReporteExcel" class="btn btn-primary btn-block"><i class="fa fa-file-excel-o"></i>
+                    Generar Excel
+                </button>
+            </div>
+        </div>
+
+        <div id="vpReporte">
+
+        </div>
+
+    </div>
+@*
+    <object id="myPdf" type="application/pdf" width="800px" height="600px" data="@Url.Action("getReport")">
+        Unable to open the PDF file.
+    </object>
+*@
+

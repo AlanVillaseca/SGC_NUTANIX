@@ -1,0 +1,896 @@
+﻿@model SistemaGestionCotizaciones.Models.Componente
+
+@using System.Data
+@using System.Web.Script.Serialization;
+@using Microsoft.AspNet.Identity
+@using ExtensionMethods;
+<script src="~/Scripts/underscore-min.js"></script>
+<script src="~/Scripts/js/selectMenu.js"></script>
+
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    .resumen {
+        position: absolute;
+        top: 276px;
+        right: 0px;
+        width: 30%;
+    }
+
+    .tab-pane {
+        padding-top: 10px;
+    }
+
+    .fondo {
+        background-color: #F5F5F5;
+    }
+
+    .enLinea {
+        display: inline-block;
+        padding-left: 20px;
+    }
+</style>
+
+<script>
+    $('#tabs').tab();
+
+    $(document).ready(function () {
+
+        $('#btnGuardar').hide();
+        $('#btnCancelar').hide();
+        $('#rowSWAdd').hide();
+
+        function jsonCombo(jsonArray)
+        {
+            var templateCombo = _.template('<select class="arbolCombo dad" ><option selected >Seleccione</option><% _.each('+ JSON.stringify(jsonArray) + ', function(i) { %>  <option dad="<%=i.item%>" value="<%=i.id%>"><%= i.nombre %></option> <% }); %></select>');
+
+            return templateCombo;
+        }
+
+        function jsonComboRandom(jsonArray)
+        {
+            var templateCombo = _.template('<select class="arbolCombo" ><option selected >Seleccione</option><% _.each('+ JSON.stringify(jsonArray) + ', function(i) { %>  <option dad="<%=i.item%>" value="<%=i.id%>"><%= i.nombre %></option> <% }); %></select>');
+
+            return templateCombo;
+        }
+
+        function jsonLabel(varJson,attJson)
+        {
+            var templateLabel = _.template('<label><%= ' + attJson + ' %></label>');
+
+            return templateLabel(varJson);
+        }
+
+        $('.bsError').hide();
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var arbolJson = @Html.Raw(jss.Serialize(Model.arbolJson));
+        var parametrosJson = @Html.Raw(jss.Serialize(Model.parametrosJson));
+        var costosJson = @Html.Raw(jss.Serialize(Model.costosJson));
+        var headerJson = @Html.Raw(jss.Serialize(Model.headerJson));
+        var swJson = @Html.Raw(jss.Serialize(Model.SWJson));
+        var variablesJson = @Html.Raw(jss.Serialize(Model.variablesJson));
+        var catSwJson = @Html.Raw(jss.Serialize(Model.CatSWJson));
+        
+
+        costosJson = _.where(costosJson, { seleccion: '2' });
+        var arbolFiltradoOp = [];
+        var jsonArr = [];
+        _.each(costosJson, function(i){
+            var op1 = _.where(arbolJson, { id: i.idCosto });
+
+            arbolFiltradoOp.push(op1[0]);
+
+        });
+        //alert(JSON.stringify(arbolFiltradoOp));
+        //alert(JSON.stringify(arbolJson));
+        //$('#divPrueba').html(JSON.stringify(variablesJson));
+        //alert(arbolJson.length);
+        /*
+        if (arbolJson.length == 0){
+            $('#errLabel').text('No se pudo cargar la componente. Consulte con el administrador');
+            $('.bsError').show();
+            $('#rheaderComponente').hide();
+            $('#dmc_cntdo').hide();
+            $('#btnEditar').hide();
+            return;
+        }
+        */
+        /************************************************************************/
+        /*                           CARGA HEADER                               */
+        /************************************************************************/
+        //$('#divPrueba').html(JSON.stringify(headerJson));
+
+        var hdDepSW = 0;
+        var hdDepHW = 0;
+
+        _.each(headerJson, function(i){
+            $('#hdtxtDolar').val(i.ValorDolar);
+            $('#hdtxtUf').val(i.ValorUF);
+            //$('#hdtxtDepSW').val(i.DepSW);
+            //$('#hdtxtDepHW').val(i.DepHW);
+            $('#hdtxtDescripcion').val(i.Descripcion);
+            $('#hdtxtNombre').val(i.Nombre);
+            hdDepSW = i.DepSW;
+            hdDepHW = i.DepHW;
+        });
+
+
+        /************************************************************************/
+        /*                  PINTAMOS LOS TABS Y SUBCOMPONENTES                  */
+        /************************************************************************/
+
+        //$('#divPrueba').html(JSON.stringify(arbolJson));
+
+        var vSoftwareAd = _.where(arbolJson, { SoftAdicional: 'False' });
+
+        $("#liSoftAdicional").show();
+        if (vSoftwareAd.length > 0){
+            $("#liSoftAdicional").hide();
+            //alert("asdasd");
+        }
+        /*else
+        {
+            _.each(swJson, function(i){
+                $('#lista #listaBody').append("<div id=trx"+ i.idSoftwareAdicional +" class='row cargado'><div class='col-md-1'></div><div class='col-md-4 nombre'>" + i.nombre + "</div><div class='col-md-2 licencias'>  " + i.costoLicencias + "</div><div class='col-md-2 mantencion'>" + i.costoMantencion + "</div><div class='col-md-2'><a class='btnEliminar ' style='cursor:pointer;' id=x"+ i.idSoftwareAdicional +"><span class='glyphicon glyphicon-remove'></span></a></div><div class='col-md-1'></div></div>");
+            });
+        }*/
+
+        var copyVariablesJson = variablesJson;
+
+        _.each(copyVariablesJson, function(i){
+
+            var nmbTabs = i.Tabs;
+            if ($('#tab' + nmbTabs).length == 0) {
+                $('#tabs').prepend('<li role="presentation"><a href="#tab' + nmbTabs + '" data-toggle="tab">' + nmbTabs + '</a></li>');
+                $('#tabContenedor').prepend('<div id="tab' + nmbTabs + '" class="tab-pane container-fluid dyn"></div>');
+                $('#tab' + nmbTabs).append('<div class="row"></div>')
+            }
+
+            //texto
+            if (i.Idtipodato == "1"){
+                if(i.tabImplementa == "0"){
+                    $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idElemento+'" class="form-control input-sm ctrlVar caracter-200" editable="'+ i.Editable +'" />\
+                                                        </div>\
+                                                    ');
+
+                    $('#v' + i.idElemento).val(i.seleccion);
+                    if (i.Requerido == "True"){
+                        $('#v' + i.idElemento).addClass('es-requerido');
+                    }
+                }else{
+                    $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idElemento+'" class="form-control input-sm ctrlImp caracter-200" editable="'+ i.Editable +'" />\
+                                                        </div>\
+                                                    ');
+
+                    $('#v' + i.idElemento).val(i.seleccion);
+                    if (i.Requerido == "True"){
+                        $('#v' + i.idElemento).addClass('es-requerido');
+                    }
+                }
+
+            }
+
+            //numerico
+            if (i.Idtipodato == "2"){
+                if(i.tabImplementa == "0"){
+                    $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idElemento+'" class="form-control input-sm ctrlVar solo-numero-dec" editable="'+ i.Editable +'" />\
+                                                        </div>\
+                                                    ');
+
+                    $('#v' + i.idElemento).val(i.seleccion.replace('.',','));
+                    if (i.Requerido == "True"){
+                        $('#v' + i.idElemento).addClass('es-requerido');
+                    }
+                }else{
+                    $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idElemento+'" class="form-control input-sm ctrlImp solo-numero-dec" editable="'+ i.Editable +'" />\
+                                                        </div>\
+                                                    ');
+
+                    $('#v' + i.idElemento).val(i.seleccion);
+                    if (i.Requerido == "True"){
+                        $('#v' + i.idElemento).addClass('es-requerido');
+                    }
+                }
+
+
+            }
+
+            //bool
+            if (i.Idtipodato == "4"){
+                if(i.tabImplementa == "0"){
+                    $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idElemento+'" class="form-control input-sm ctrlVar" type="checkbox" editable="'+ i.Editable +'" />\
+                                                        </div>\
+                                                    ');
+                    $('#v' + i.idElemento).val(i.seleccion);
+                }else{
+                    $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idElemento+'" class="form-control input-sm ctrlImp" type="checkbox" editable="'+ i.Editable +'" />\
+                                                        </div>\
+                                                    ');
+                    $('#v' + i.idElemento).val(i.seleccion);
+                }
+            }
+            //lista
+            if (i.Idtipodato == "3"){
+                if(i.tabImplementa == "0"){
+                    if($('#v' + i.idElemento).length == 0){
+                        $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <select id="v'+i.idElemento+'" class="form-control input-sm ctrlVar" style="width:100%;" editable="'+ i.Editable +'"></select>\
+                                                        </div>\
+                                                    ');
+
+                        $('#v'+i.idElemento).append('<option value="">Sin Seleccionar</option>');
+                        _.each(_.where(copyVariablesJson,{idElemento : i.idElemento}), function(j){
+                            $('#v'+i.idElemento).append('<option value='+ j.Idlistavalores +'>'+ j.Valor +'</option>');
+                        });
+                    }
+                    $('#v' + i.idElemento).val(i.seleccion);
+                    if (i.Requerido == "True"){
+                        $('#v' + i.idElemento).addClass('es-requerido');
+                    }
+                }else{
+                    if($('#v' + i.idElemento).length == 0){
+                        $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <select id="v'+i.idElemento+'" class="form-control input-sm ctrlImp" style="width:100%;" editable="'+ i.Editable +'"></select>\
+                                                        </div>\
+                                                    ');
+
+                        $('#v'+i.idElemento).append('<option value="">Sin Seleccionar</option>');
+                        _.each(_.where(copyVariablesJson,{idElemento : i.idElemento}), function(j){
+                            $('#v'+i.idElemento).append('<option value='+ j.Idlistavalores +'>'+ j.Valor +'</option>');
+                        });
+                    }
+                    $('#v' + i.idElemento).val(i.seleccion);
+                    if (i.Requerido == "True"){
+                        $('#v' + i.idElemento).addClass('es-requerido');
+                    }
+                }
+            }
+
+            //$('#tab' + nmbTabs +' .row #'+ i.id).append(jsonCombo(nivel2));
+            if (i.Requerido == 'True'){
+                $('#v'+i.idElemento).addClass('es-requerido');
+            }
+        });
+        
+
+        $('.ctrlVar').prop('disabled',true);
+        $('.ctrlHeader').prop('disabled',true);
+
+        /************************************************************************/
+        /*                         SOFTWARE ADICIONAL                           */
+        /************************************************************************/
+
+        if (arbolJson[0].SWAdicional == 'True'){
+            $('#txtNombre').append('<option></option>');
+            _.each(catSwJson, function(i){
+                $('#txtNombre').append('<option>'+ i.Valor +'</option>');
+            });
+
+            //alert(JSON.stringify(swJson));
+            var contLista = 0;
+
+            _.each(swJson, function(i){
+                $('#lista #listaBody').append("<div id=trx"+contLista.toString()+" class='row'><div class='col-md-1'></div><div class='col-md-4 nombre'>" + i.nombre + "</div><div class='col-md-2 licencias'>  " + i.costoLicencias + "</div><div class='col-md-2 mantencion'>" + i.costoMantencion + "</div><div class='col-md-2'><a class='btnEliminar ' style='cursor:pointer;' id=x"+ contLista.toString() +"><span class='glyphicon glyphicon-remove'></span></a></div><div class='col-md-1'></div></div>");
+                contLista = contLista + 1;
+            });
+
+            $('.btnEliminar ').hide();
+
+            $("#btnAgregar").click(function () {
+                $('#softAdiEmpty').remove();
+                $('#lista').show();
+
+                var nombre = $("#txtNombre option:selected").text();
+                var valLic = $("#txtValLic").val();
+                var valMan = $("#txtValMan").val();
+
+                if (nombre == "" || !$.isNumeric(valLic) || !$.isNumeric(valMan)){
+                    return;
+                }
+                contLista = contLista + 1;
+                $('#lista #listaBody').append("<div id=trx"+contLista.toString()+" class='row'><div class='col-md-1'></div><div class='col-md-4 nombre'>" + nombre + "</div><div class='col-md-2 licencias'>  " + valLic + "</div><div class='col-md-2 mantencion'>" + valMan + "</div><div class='col-md-2'><a class='btnEliminar ' style='cursor:pointer;' id=x"+ contLista.toString() +"><span class='glyphicon glyphicon-remove'></span></a></div><div class='col-md-1'></div></div>");
+
+                $("#txtNombre").val("");
+                $("#txtValLic").val("");
+                $("#txtValMan").val("");
+            });
+
+            $(document).on("click", ".btnEliminar", function () {
+
+                var ide = $(this).attr("id");
+                $("#tr"+ide).remove();
+
+                if($('#listaBody').children().length == 0){
+                    $('#lista').hide();
+                }
+
+            });
+        }
+        else{
+            $("#liSoftAdicional").hide();
+        }
+        //Software adicional - fin
+        //$('select').selectmenu();
+        //$('select').selectmenu('refresh');
+
+        /************************************************************************/
+        /*                           BOTON EDITAR                               */
+        /************************************************************************/
+        $(document).on("click", "#btnEditar", function () {
+            $('input.ctrlVar[Editable="True"]').prop('disabled',false);
+            $('select.ctrlVar').prop('disabled',false);
+            $('select.ctrlVar[Editable="False"] option:not(:selected)').attr('disabled', true);
+            $('.ctrlHeader').prop('disabled',false);
+            $('#btnEditar').hide();
+            $('#btnGuardar').show();
+            $('#btnCancelar').show();
+            $('#rowSWAdd').show();
+            $('.btnEliminar ').show();
+
+            //$('select').selectmenu('refresh');
+
+        });
+        /************************************************************************/
+        /*                         BOTON CANCELAR                               */
+        /************************************************************************/
+
+        $(document).on("click", "#btnCancelar", function () {
+            location.reload();
+        });
+
+        /************************************************************************/
+        /*                           BOTON IMPLEMENTAR                          */
+        /************************************************************************/
+        $(document).on("click", "#btnImplementar", function () {
+            $('#btnImplementar').prop('disabled', true);
+            $('.bsError').hide();
+
+            if ($('#tabImplementación').validar()){
+                $('#errLabel').text('No se pudo realizar la acción. Existen campos con error');
+                $('.bsError').show();
+                $('#btnImplementar').prop('disabled', false);
+                return;
+            }
+
+            jsonArr = _.reject(jsonArr, { tipo: '2' });
+            jsonArr = _.reject(jsonArr, { tipo: '3' });
+            jsonArr = _.reject(jsonArr, { tipo: '4' });
+            jsonArr = _.reject(jsonArr, { tipo: '5' });
+
+            $(".ctrlImp").each(function(){
+                var tmpValor = $(this).val();
+                if($(this).hasClass('solo-numero-dec')){
+                    tmpValor = tmpValor.replace(',','.');
+                }
+                jsonArr.push({
+                    id: $(this).attr("id").substr(1),
+                    tipo: '4',
+                    padre: '-',
+                    nombre: tmpValor,
+                    licencias: '-',
+                    mantencion: '-',
+                    cotizacion: $("#hiddenCot").val(),
+                    plantilla: $("#cmbPlantilla").val()
+                });
+            });
+
+            var hdNombre = $('#hdtxtNombre').val();
+            var hdDescripcion = $('#hdtxtDescripcion').val();
+            var hdDolar = $('#hdtxtDolar').val();
+            var hdUf = $('#hdtxtUf').val();
+
+            jsonArr.push({
+                id: 0,
+                tipo: '5',
+                padre: hdNombre, //Nombre
+                nombre: hdDolar, //valor dolar
+                licencias: hdUf, //valor uf
+                mantencion: hdDepSW, //annos sw
+                cotizacion: hdDepHW, // annos hw
+                plantilla: hdDescripcion //Descripcion
+            });
+
+            var dirUrl = $('#urlCoti').attr('href');
+
+            $('#modal-cargando').modal('show');
+            
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("jsonReceiverImplementar")',
+                data: JSON.stringify(jsonArr),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).always(function(resp){                
+                $('#modal-cargando').modal('hide');
+                if (resp.responseText.length > 0){
+                    //alert("Error: " + resp.responseText);
+                    $('#errLabel').text(resp.responseText);
+                    $('.bsError').show();
+                    $('#btnImplementar').prop('disabled', false);
+                }else{
+                    $('#btnImplementar').prop('disabled', false);
+                    var dirUrl = $('#urlCoti').attr('href');
+                    window.location.href = dirUrl;
+                }
+                @*if (resp.length > 0){
+                    alert("Error: " + resp);
+                }
+                $('#btnImplementar').prop('disabled', false);
+                var dirUrl = $('#urlCoti').attr('href');
+                window.location.href = dirUrl;
+
+                $('#modal-cargando').modal('hide');*@
+
+            });
+        });
+
+
+        /************************************************************************/
+        /*                           BOTON GUARDAR                              */
+        /************************************************************************/
+        $(document).on("click", "#btnGuardar", function () {
+
+            $('#btnGuardar').prop('disabled', true);
+            $('.bsError').hide();
+
+            //if ($('#dmc_newArbol').validar()){
+            //    $('#errLabel').text('No se pudo realizar la acción. Existen campos con error');
+            //    $('.bsError').show();
+            //    $('#btnGuardar').prop('disabled', false);
+            //    return;
+            //}
+
+            jsonArr = _.reject(jsonArr, { tipo: '2' });
+            jsonArr = _.reject(jsonArr, { tipo: '3' });
+            jsonArr = _.reject(jsonArr, { tipo: '4' });
+            jsonArr = _.reject(jsonArr, { tipo: '5' });
+
+            $("#tabSoftAdicional #listaBody .row").each(function(){
+                var saNombre = $(".nombre", this).text();
+                var saLicencias = $(".licencias", this).text();
+                var saMantencion = $(".mantencion", this).text();
+
+                jsonArr.push({
+                    id: '-',
+                    tipo: '2',
+                    padre: '-',
+                    nombre: saNombre,
+                    licencias: saLicencias,
+                    mantencion: saMantencion,
+                    cotizacion: $("#hiddenCot").val(),
+                    plantilla: $("#cmbPlantilla").val()
+                });
+            });
+
+            $(".ctrlVar").each(function(){
+                var tmpValor = $(this).val();
+                if($(this).hasClass('solo-numero-dec')){
+                    tmpValor = tmpValor.replace(',','.');
+                }
+                jsonArr.push({
+                    id: $(this).attr("id").substr(1),
+                    tipo: '4',
+                    padre: '-',
+                    nombre: tmpValor,
+                    licencias: '-',
+                    mantencion: '-',
+                    cotizacion: $("#hiddenCot").val(),
+                    plantilla: $("#cmbPlantilla").val()
+                });
+            });
+
+            var hdNombre = $('#hdtxtNombre').val();
+            var hdDescripcion = $('#hdtxtDescripcion').val();
+            var hdDolar = $('#hdtxtDolar').val();
+            var hdUf = $('#hdtxtUf').val();
+
+            jsonArr.push({
+                id: 0,
+                tipo: '5',
+                padre: hdNombre, //Nombre
+                nombre: hdDolar, //valor dolar
+                licencias: hdUf, //valor uf
+                mantencion: hdDepSW, //annos sw
+                cotizacion: hdDepHW, // annos hw
+                plantilla: hdDescripcion //Descripcion
+            });
+
+            var dirUrl = $('#urlCoti').attr('href');
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("jsonReceiverEdit")',
+                data: JSON.stringify(jsonArr),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).always(function(resp){                
+                
+                if (resp.responseText.length > 0){
+                    //alert("Error: " + resp.responseText);
+                    $('#errLabel').text(resp.responseText);
+                    $('.bsError').show();
+                }else{
+                    $('#btnGuardar').prop('disabled', false);
+                    var dirUrl = $('#urlCoti').attr('href');
+                    window.location.href = dirUrl;
+                }
+               
+
+            });
+
+
+
+            //$('#divPrueba').html(JSON.stringify(jsonArr));
+        });
+
+        /***********************************************************/
+        /*                    CALCULAR COSTOS                      */
+        /***********************************************************/
+
+
+        $('#btnCalcular').click(function () {
+
+            
+
+            //alert(JSON.stringify(jsonArr));
+
+            //$('#modal-cargando').modal('show');
+
+            $('.bsError').hide();
+            /*if ($('#dmc_newArbol').validar()){
+                $('#errLabel').text('No se pudo realizar la acción. Existen campos con error');
+                $('.bsError').show();
+                return;
+            }*/
+            
+
+            jsonArr = _.reject(jsonArr, { tipo: '2' });
+            jsonArr = _.reject(jsonArr, { tipo: '3' });
+            jsonArr = _.reject(jsonArr, { tipo: '4' });
+            jsonArr = _.reject(jsonArr, { tipo: '5' });
+
+            $("#tabSoftAdicional #listaBody .row").each(function(){
+                var saNombre = $(".nombre", this).text();
+                var saLicencias = $(".licencias", this).text();
+                var saMantencion = $(".mantencion", this).text();
+
+                jsonArr.push({
+                    id: '-',
+                    tipo: '2',
+                    padre: '-',
+                    nombre: saNombre,
+                    licencias: saLicencias,
+                    mantencion: saMantencion,
+                    cotizacion: $("#hiddenCot").val(),
+                    plantilla: $("#cmbPlantilla").val()
+                });
+            });
+
+            $(".ctrlVar").each(function(){
+                var tmpValor = $(this).val();
+                if($(this).hasClass('solo-numero-dec')){
+                    tmpValor = tmpValor.replace(',','.');
+                }
+                jsonArr.push({
+                    id: $(this).attr("id").substr(1),
+                    tipo: '4',
+                    padre: '-',
+                    nombre: tmpValor,
+                    licencias: '-',
+                    mantencion: '-',
+                    cotizacion: $("#hiddenCot").val(),
+                    plantilla: $("#cmbPlantilla").val()
+                });
+            });
+
+            var hdNombre = $('#hdtxtNombre').val();
+            var hdDescripcion = $('#hdtxtDescripcion').val();
+            var hdDolar = $('#hdtxtDolar').val();
+            var hdUf = $('#hdtxtUf').val();
+            var calMontosJson;
+
+            jsonArr.push({
+                id: 0,
+                tipo: '5',
+                padre: hdNombre, //Nombre
+                nombre: hdDolar, //valor dolar
+                licencias: hdUf, //valor uf
+                mantencion: hdDepSW, //annos sw
+                cotizacion: hdDepHW, // annos hw
+                plantilla: hdDescripcion //Descripcion
+            });
+
+
+
+            if(/.net/.test(navigator.userAgent.toLowerCase()) || /chrome/.test(navigator.userAgent.toLowerCase())) {
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("jsonReceiverCalcularComp")',
+                    data: JSON.stringify(jsonArr),
+                    async: false,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(resp){
+                    
+                    calMontosJson = JSON.parse(JSON.stringify(resp));
+                    
+                });
+
+
+            } if (/firefox/.test(navigator.userAgent.toLowerCase())) {
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("jsonReceiverCalcularComp")',
+                    data: JSON.stringify(jsonArr),
+                    async: false,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    beforeSend: function ( xhr ) {
+
+                        $('#modal-cargando').modal('show');
+
+                    },
+                }).done(function(resp){
+                    calMontosJson = JSON.parse(JSON.stringify(resp));
+                }).always(function(){
+
+                    $('#modal-cargando').modal('hide');
+
+                    console.log(resp);
+
+                });
+
+
+            }
+
+            
+
+
+            //$('#divPrueba').html(JSON.stringify(calMontosJson));
+
+            var suma = 0;
+            var cat;
+            var sTotal = 0;
+
+            $('#tblCalculo tr').remove();
+
+            $('#tblCalculo').append('<tr class="col-md-offset-1" class="active" style="background-color:#f5f5f5">\
+                                            <td><div class="col-md-offset-1"><b>Detalle de Costos</b></div></td>\
+                                            <td><b>Valor UF</b></td>\
+                                        </tr>')
+
+            _.each(calMontosJson, function(i){
+
+                if($('#tblCalculo tr[id=cat'+ i.idCategoria +']').length == 0){
+                    $('#tblCalculo').append('<tr id="cat'+ i.idCategoria +'" class="active">\
+                                                <th>'+i.Categoria+'</th>\
+                                                <th id="sum'+ i.idCategoria +'">0</th>\
+                                            </tr>');
+                }
+
+                $('#tblCalculo').append('<tr  class="col-md-offset-1">\
+                                            <td><div class="col-md-offset-1">'+ i.NomCosto +'</div></td>\
+                                            <td class="costo" categoria="'+ i.idCategoria +'">'+ parseFloat(i.Costo.replace(',','.')).toFixed(2) +'</td>\
+                                        </tr>')
+
+            });
+
+            $('#tblCalculo tr .costo').each(function(){
+                cat = $(this).attr('categoria');
+                /*
+                suma = parseFloat($('#tblCalculo tr #sum'+cat).text());
+
+                sTotal = sTotal + parseFloat($(this).text());
+
+                suma = parseFloat($(this).text()) + suma;
+                */
+                suma = parseFloat($('#tblCalculo tr #sum'+cat).text().replace(',','.')).toFixed(2);
+
+
+
+                sTotal = parseFloat(sTotal) + parseFloat($(this).text().replace(',','.'));
+                suma = parseFloat($(this).text().replace(',','.')) + parseFloat(suma);
+
+                sTotal = sTotal.toFixed(2);
+                suma = suma.toFixed(2);
+                $('#tblCalculo tr #sum'+cat).html(suma);
+            });
+
+            $('#tblCalculo').append('<tfoot>\
+                                        <tr class="table warning">\
+                                            <th>Total</th>\
+                                            <th><label id="lblTotal">' + sTotal + '</label></th>\
+                                        </tr>\
+                                    </tfoot>');
+
+            //;
+            //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+            $('h4.modal-title').text('Datos Consolidados');
+            //$('#modCustom')
+            //.prop('class', 'modal fade')
+            //.addClass('right')
+            //.modal({
+            //    backdrop: 'static',
+            //    keyboard: false
+            //});
+            //$('#modCustom').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+
+
+        });
+
+        //});
+
+
+    });
+
+</script>
+<script src="~/Scripts/js/validador.js"></script>
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+    
+    
+    
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div style="border-top:solid 2px #8FBE00;padding-bottom:10px;margin-top:10px;"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="bs-callout bs-callout-danger bsError" style="display: none;">
+                <h4>Error</h4>
+                <label id="errLabel"></label>
+            </div>
+        </div>
+    </div>
+    <div id="rheaderComponente" class="row">
+        <input id="hdtxtNombre" type="hidden" class="form-control input-sm ctrlHeader" value="" />
+        <div class="form-group col-xs-12 col-md-5">
+            <label class="control-label">Descripción</label>
+            <input id="hdtxtDescripcion" type="text" class="form-control input-sm ctrlHeader es-requerido" placeholder="Descripción de Componente" />
+        </div>
+        <div class="form-group col-xs-6 col-md-2 col-md-offset-3 has-warning">
+            <label class="control-label">Valor Dolar</label>
+            <input id="hdtxtDolar" type="text" class="form-control input-sm" placeholder="US$" readonly />
+        </div>
+        <div class="form-group col-xs-6 col-md-2 has-warning">
+            <label class="control-label">Valor UF</label>
+            <input id="hdtxtUf" type="text" class="form-control input-sm" placeholder="UF" readonly />
+        </div>
+    </div>
+    <div id="dmc_cntdo" class="row">
+        <div class="col-md-12">
+            <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                <li id="liSoftAdicional" role="presentation"><a href="#tabSoftAdicional" data-toggle="tab">Software Adicional</a></li>
+                <li id="btnCalcular" role="presentation"><a href="#tabResumen" class="active" data-toggle="tab">Resumen</a></li>
+            </ul>
+            <div id="tabContenedor" class="tab-content" style="border-bottom:1px solid;border-left:1px solid; border-right:1px solid; border-color:#DDD">
+                <div id="tabSoftAdicional" class="tab-pane container-fluid"> 
+                    <div id="rowSWAdd" class="row">
+                        <div class="col-xs-1"></div>
+                        <div class="form-group col-xs-12 col-md-4">
+                            <label>Nombre Software</label>
+                            <select id="txtNombre" class="form-control"></select>                            
+                        </div>
+
+                        <div class="form-group col-xs-6 col-md-2">
+                            <label>Licencias US$</label>
+                            <input id="txtValLic" type="text" class="form-control input-sm" placeholder="Licencia" />
+                        </div>
+                        <div class="form-group col-xs-6 col-md-2">
+                            <label>Mantención Anual US$</label>
+                            <input id="txtValMan" type="text" class="form-control input-sm" placeholder="Mantención" />
+                        </div>
+                        <div class="form-group col-xs-2">
+                            <label>&nbsp;</label>
+                            <button id="btnAgregar" value="Agregar" class="btn btn-default btn-sm" type="button" title="Agregar"><span class="glyphicon glyphicon-plus"></span></button>
+                        </div>
+                        <div class="col-xs-1"></div>
+                    </div>
+
+                    <div id="lista" style="margin-bottom:1%;">
+                        <div class="row">
+                            <div class="col-md-1"></div>
+                            <div class="col-md-4"><b>Nombre Software</b></div>
+                            <div class="col-md-2"><b>Licencias US$</b></div>
+                            <div class="col-md-2"><b>Mantención Anual US$</b></div>
+                            <div class="col-md-2"><b>Eliminar</b></div>
+                            <div class="col-md-1"></div>
+                        </div>
+                        <div id="listaBody"></div>
+                    </div>
+                </div>
+                <div id="tabResumen" class="tab-pane container-fluid active">
+                    <div class="row">
+                        <div class="panel-body">
+                            <table id="tblCalculo" class="table"></table>
+                        </div>
+                    </div>
+                </div>
+                <div id="sComp03" class="tab-pane" style="padding-left:10%;">
+                </div> 
+            </div>
+            <div id="divPrueba"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-right">
+        @if (User.HasWriteAccess("COMPONENTE") && User.IsInRole("FACTURADOR"))
+        {
+            <button id="btnEditar" class="btn btn-primary btn-sm" type="button"><span class="glyphicon glyphicon-pencil"></span> Editar</button>       
+            <button id="btnGuardar" class="btn btn-success btn-sm" type="button" style="display:none;"><span class="glyphicon glyphicon-floppy-save"></span> Guardar</button>
+            <button id="btnCancelar" class="btn btn-danger btn-sm" type="button" style="display:none;"><span class="glyphicon glyphicon-remove-circle"></span> Cancelar</button>
+        }
+        
+            @if (User.HasWriteAccess("COMPONENTE") && User.IsInRole("JEFE_PROY") && (ViewBag.Estado == "1" || ViewBag.Estado == "3" || ViewBag.Estado == "5"))
+            {
+                <button id="btnEditar" class="btn btn-primary btn-sm" type="button"><span class="glyphicon glyphicon-pencil"></span> Editar</button>
+                <button id="btnGuardar" class="btn btn-success btn-sm" type="button" style="display:none;"><span class="glyphicon glyphicon-floppy-save"></span> Guardar</button>
+                <button id="btnCancelar" class="btn btn-danger btn-sm" type="button" style="display:none;"><span class="glyphicon glyphicon-remove-circle"></span> Cancelar</button>
+            }
+        
+        @if ((User.HasWriteAccess("COMPONENTE") && User.IsInRole("IMPLEMENT") && (ViewBag.Estado == "6" || ViewBag.Estado == "15")) || ViewBag.Origen == "1")
+        {
+            <button id="btnImplementar" class="btn btn-success btn-sm" type="button"><span class="glyphicon glyphicon-cog"></span> Implementar</button>
+        }
+        </div>
+    </div>
+
+    @*<!— /.modal con el detalle de los costos —>*@
+    <div class="modal fade" id="modCustom">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div id="modCalculo" class="modal-body">
+                    <table id="tblCalculo" class="table"></table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @*<!— /.modal —>*@
+
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+}
+

@@ -1,0 +1,139 @@
+﻿@{
+    ViewBag.Title = "TestReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.GeneraReporte
+@using System.Data
+@using System.Web.Script.Serialization;
+
+
+
+<script>
+
+    $(document).ready(function(){
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        $('#fech_sol_min').datepicker({
+            onClose: function (selectedDate) {
+                $('#fech_sol_max').datepicker('option', 'minDate', selectedDate);
+                $('#fech_sol_min').datepicker('option', 'dateFormat', 'dd-mm-yy');
+            }
+        });
+
+        $('#fech_sol_max').datepicker({
+            onClose: function (selectedDate) {
+                $('#fech_sol_min').datepicker('option', 'maxDate', selectedDate);
+                $('#fech_sol_max').datepicker('option', 'dateFormat', 'dd-mm-yy');
+            }
+        });
+
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+
+
+
+
+
+        $("#genReporteExcel").click(function(){
+
+            if($("#formdiv").validar()) return;
+            $('#genReporteExcel').prop('disabled', true);
+            $('#genReporteExcel').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(Url.Action("ReporteServicios", "reportes", new { id = "idR", hasta = "vhasta" }))';
+
+            URL = URL.replace('idR', $('#fech_sol_min').val());
+            URL = URL.replace('vhasta', $('#fech_sol_max').val());
+
+            $.ajax({
+                type: "POST",
+                url: URL,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "Historial Facturacion.csv");
+
+                }
+            }).done(function (err) {
+                $('#genReporteExcel').prop('disabled',false);
+                $('#genReporteExcel').html('<i class="fa fa-file-excel-o"></i> Generar Excel');
+            });
+
+
+        });
+
+
+    });
+</script>
+<div class="row">
+    <div class="col-md-5 col-sm-5">
+        <h3 id="ttl">Reporte Servicios Desglosado</h3>
+    </div>
+</div>
+
+<div id="formdiv" class="container-fluid">
+    <div class="row">
+
+        <div class="form-group col-md-2">
+            <label>Fecha Solicitud Desde</label>
+            <input id="fech_sol_min" name="fech_sol_min" type="text" size="10" class="form-control datepicker input-sm" placeholder="Desde">
+        </div>
+
+        <div class="form-group col-md-2">
+            <label>Fecha Solicitud Hasta</label>
+            <input id="fech_sol_max" name="fech_sol_max" type="text" size="10" class="form-control datepicker input-sm" placeholder="Hasta">
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #c4c4c4;margin-top:10px;margin-bottom:10px;"></div>
+    </div>
+
+    <div class="row">
+        @*<div class="col-sm-2 col-md-2">
+                <button id="genReporte" class="btn btn-primary btn-block"><i class="fa fa-file-pdf-o"></i>
+                    Generar PDF
+                </button>
+            </div>*@
+        <div class="col-sm-2 col-md-2">
+            <button id="genReporteExcel" class="btn btn-primary btn-block">
+                <i class="fa fa-file-excel-o"></i>
+                Generar Excel
+            </button>
+        </div>
+    </div>
+
+    <div id="vpReporte">
+
+    </div>
+
+</div>
+@*
+    <object id="myPdf" type="application/pdf" width="800px" height="600px" data="@Url.Action("getReport")">
+        Unable to open the PDF file.
+    </object>
+*@
+
+
+
+
+

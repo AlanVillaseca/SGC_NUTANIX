@@ -1,0 +1,252 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/underscore-min.js"></script>
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var feriados = @Html.Raw(jss.Serialize(Model.dtFeriadosJson));
+        var existe = 0;
+        var url;
+        var elemento = '';
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        _.each(feriados, function (i) {
+            console.log(feriados);
+            elemento += '<tr>\
+                            <td>' + i.Fecha + '</td>\
+                            <td>' + i.Descripcion + '</td>\
+                            <td>' + i.UsrCreacion + '</td>\
+                            <td>' + i.FecCreacion + '</td>\
+                            <td>';
+
+            if ('@User.IsInRole("OBSERVADOR")' == 'False')
+            {
+                elemento += '<span class="glyphicon glyphicon-trash" fecha="' + i.Fecha + '"></span>';
+            }
+
+            elemento += '</td>\
+                        </tr>';
+
+        });
+
+        $('#tb_feriados tbody').append(elemento);
+
+
+        $('#icono_agregar').click(function () {
+
+            if ($('#cabecera').validar()) {
+
+                if ($("#cal_fecha").val().trim().length == 0) {
+                    alert('El nobre de la gerencia debe ser ingresado');
+                    $("#input_gerencia").focus();
+                }
+                if ($("#input_Descripcion").val().trim().length == 0) {
+                    alert('El codigo de facturacion debe ser ingresado');
+                    $("#input_facturable").focus();
+                }
+
+                return;
+            }
+
+            _.each(feriados, function (i) {
+
+                if(i.Fecha == $('#cal_fecha').val()) {
+
+                    existe = 1;
+
+                }
+
+            });
+
+            if(existe == 0) {
+
+                url = '@Html.Raw(Url.Action("Feriados", "Mantenedor", new { id = "reemplazo", descripcion = "reemplazo2"}))'
+
+                url = url.replace("reemplazo", $('#cal_fecha').val());
+                url = url.replace("reemplazo2", $('#input_Descripcion').val());
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    dataType: "html",
+                    async: false
+                }).done(function () {
+                    alert('cambio guardado');
+                });
+
+                $('#cal_fecha').val('');
+                $('#input_Descripcion').val('');
+
+                location.reload();
+
+            } else {
+
+                alert('La fecha estipulada ya existe');
+
+            }
+
+
+        });
+
+        $('.glyphicon-trash').click(function(){
+
+            url = '@Html.Raw(Url.Action("eliminarFeriados", "Mantenedor", new { id = "reemplazo" }))'
+
+            url = url.replace("reemplazo", $(this).attr('fecha'));
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: "html",
+                async: false
+            }).done(function(){
+                alert('cambio guardado');
+            });
+
+            location.reload();
+
+        });
+
+        $('#cal_fecha').datepicker({
+            minDate: new Date(),
+            dateFormat: 'dd-mm-yy'
+        });
+
+        $('#btn_descargar').click(function () {
+
+            $.ajax({
+                url: '@Url.Action("FeriadosFileXls", "Mantenedor")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoFeriados.csv");
+
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<style>
+    .centrado {
+        text-align: center;
+    }
+
+    .icono {
+        cursor: pointer;
+    }
+
+    .icono:hover {
+        color: #8FBE00;
+    }
+
+    #cal_fecha{
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    vertical-align: middle;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075);
+}
+</style>
+
+<div class="container-fluid">
+    <h3 id="ttl">Mantenedor de Feriados</h3>
+
+    @if (!User.IsInRole("OBSERVADOR"))
+    {
+
+        <div id="cabecera" class="row">
+            <div class="col-md-2">
+                <label class="control-label">
+                    Fecha :
+                </label>
+                <input id="cal_fecha" name="cla_fecha" type="text" size="10" class="form-control datepicker input-sm es-requerido">
+            </div>
+
+            <div class="col-md-2">
+                <label class="control-label">
+                    Descripcion :
+                </label>
+                <input id="input_Descripcion" class="form-control input-sm es-requerido" type="text" />
+            </div>
+
+            <div class="col-md-1 centrado">
+                <label class="control-label">
+                    Agregar :
+                </label>
+                <span id="icono_agregar" class="glyphicon glyphicon-plus icono" />
+            </div>
+        </div>
+
+    }
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+    </div>
+
+    <div class="row">
+        <div id="tb_feriados" class="grilla">
+            <table id="tb_negociopais" class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-md-2">Fecha</th>
+                        <th class="col-md-6">Descripcion</th>
+                        <th class="col-md-2">Creado por</th>
+                        <th class="col-md-2">Creado el</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-2">
+            <div id="tot_reg" style="display:inline-block;"></div>
+        </div>
+        <div class="col-md-offset-10">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button id="btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

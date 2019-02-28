@@ -1,0 +1,87 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/underscore-min.js"></script>
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var servicios = @Html.Raw(jss.Serialize(Model.dtServicio));
+        var url = '@Url.Action("vpGrillaPlantillaSubservicio", "Mantenedor")';
+        var elemento = '';
+
+        _.each(servicios, function (i) {
+
+            elemento += '<option value="' + i.Idcatalogoservicio + '">' + i.Nombreservicio + '</option>';
+
+        });
+
+        $('#combo_servicios').append(elemento);
+
+        $('#dv_plantillasubservicio').load(url);
+
+
+    });
+</script>
+
+<style>
+    .centrado {
+        text-align: center;
+    }
+
+    .icono {
+        cursor: pointer;
+    }
+
+    .icono:hover {
+        color: #8FBE00;
+    }
+</style>
+
+<div class="container-fluid">
+    <h3 id="ttl">Mantenedor de Plantilla de Actividades</h3>
+
+    @if (!User.IsInRole("OBSERVADOR"))
+    {
+        <div id="cabecera" class="row">
+
+            <div class="col-md-3">
+                <label class="control-label">
+                    Nombre Plantilla Actividades :
+                </label>
+                <input id="in_nombre" class="form-control input-sm es-requerido" type="text" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="control-label">
+                    Servicios Asociado :
+                </label>
+                <select id="combo_servicios" class="form-control input-sm es-requerido">
+                    <option value="-1" selected>Seleccionar</option>
+                </select>
+            </div>
+
+            <div class="col-md-1 centrado">
+                <label class="control-label">
+                    Agregar :
+                </label>
+                <span id="icono_agregar" class="glyphicon glyphicon-plus icono" />
+            </div>
+        </div>
+    }
+    <div class="row">
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+    </div>
+
+    <div class="row">
+        <div id="dv_plantillasubservicio" class="grilla"></div>
+    </div>
+
+</div>

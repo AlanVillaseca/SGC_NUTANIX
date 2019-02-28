@@ -1,0 +1,378 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using SistemaGestionCotizaciones.Models;
+using System.Web.Script.Serialization;
+
+namespace SistemaGestionCotizaciones.Controllers
+{
+    [Authorize]
+    public class RetiroController : Controller
+    {
+        public ActionResult FiltroNegocio(string id)
+        {
+
+            try
+            {
+                string sError = "";
+                string idnegocio = "";
+
+                RetiroComponentes ctrlRetiroComponente = new RetiroComponentes();
+
+                if (idnegocio != null)
+                {
+
+                    idnegocio = ctrlRetiroComponente.CargaNegocio(id, out sError);
+
+                }
+
+                ctrlRetiroComponente.CargaNegocios(out sError);
+
+                ViewBag.Error = sError;
+                ViewBag.Idnegocio = idnegocio;
+
+                return View(ctrlRetiroComponente);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+
+        }
+        public ActionResult vpFiltroNegocio(string pagina, string idnegocio)
+        {
+            try
+            {
+                string sError = "";
+
+                if (pagina == null)
+                {
+
+                    pagina = "1";
+
+                }
+
+                RetiroComponentes ctrlRetiroComponentes = new RetiroComponentes();
+
+                ctrlRetiroComponentes.CargaServicioNegocios(pagina, idnegocio, out sError);
+
+                ViewBag.Idnegocio = idnegocio;
+                ViewBag.PaginaActual = pagina;
+
+                return PartialView(ctrlRetiroComponentes);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e.Message;
+                return PartialView();
+            }
+        }
+        public ActionResult FiltroAmbiente(string id)
+        {
+            try
+            {
+                string sError = "";
+
+                JavaScriptSerializer varjon = new JavaScriptSerializer();
+                RetiroComponentes ctrlRetiroComponentes = new RetiroComponentes();
+
+                ctrlRetiroComponentes.CargaInfraestructura(id, out sError);
+
+                ViewBag.Error = sError;
+                ViewBag.IdServicioNegocio = id;
+                ViewBag.ServicioNegocio = ctrlRetiroComponentes.CargaNombreServicioNegocio(id, out sError);
+
+                return View(ctrlRetiroComponentes);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+        }
+        public ActionResult SolicitudRetiro(string id, string idservicionegocio, string ambiente)
+        {
+            try
+            {
+                string sError = "";
+
+                RetiroComponentes ctrlRetiroComponentes = new RetiroComponentes();
+
+                ctrlRetiroComponentes.CargaDetalleSolicitudRetiro(id, idservicionegocio, ambiente, out sError);
+
+                ViewBag.PaginaActual = id;
+                ViewBag.ambiente = ambiente;
+                ViewBag.Error = sError;
+                ViewBag.IdServicioNegocio = idservicionegocio;
+                ViewBag.ServicioNegocio = ctrlRetiroComponentes.CargaNombreServicioNegocio(idservicionegocio, out sError);
+
+                return View(ctrlRetiroComponentes);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+        }
+        public String GuardarSolicitudRetiro(string idcomponentes, string motivo)
+        {
+            try
+            {
+                string sError = "";
+
+                RetiroComponentes ctrlRetiroComponentes = new RetiroComponentes();
+
+                ctrlRetiroComponentes.GuardarSolicitudRetiro(out sError, idcomponentes, motivo);
+
+                ViewBag.Error = sError;
+
+                return sError;
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e.Message;
+                return "error";
+            }
+        }
+        public ActionResult SolicitudRetiroAprobacion(string id)
+        {
+
+            try
+            {
+                string sError = "";
+
+
+                if (id == null)
+                {
+                    id = "1";
+                }
+
+                RetiroComponentes ctrlRetiroComponente = new RetiroComponentes();
+
+                ctrlRetiroComponente.CargaSolicitudesRetiro(out sError, id);
+
+                ViewBag.PaginaActual = id;
+                ViewBag.Error = sError;
+
+                return View(ctrlRetiroComponente);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+
+        }
+        public ActionResult SolicitudRetiroAprobacionDetalle(string id)
+        {
+
+            try
+            {
+                string sError = "";
+
+
+
+                RetiroComponentes ctrlRetiroComponente = new RetiroComponentes();
+
+                ctrlRetiroComponente.CargaSolicitudesRetiroDetalle(out sError, id);
+
+                ViewBag.Error = sError;
+                ViewBag.IdsolicitudRetiro = id;
+
+                return View(ctrlRetiroComponente);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+
+        }
+        public String ApruebaSolicitudFacturador(string idsolicitudretiro, List<iComponentesRetiro> componentesJson)
+        {
+            try
+            {
+                string sError = "";
+
+                RetiroComponentes ctrlRetiroComponente = new RetiroComponentes();
+
+                ctrlRetiroComponente.ApruebaSolicitudFacturador(out sError, idsolicitudretiro, componentesJson);
+
+                ViewBag.Error = sError;
+
+                return sError;
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e.Message;
+                return "error";
+            }
+        }
+        public ActionResult SolicitudRetiroAprobacionCliente(string id)
+        {
+
+            try
+            {
+                string sError = "";
+
+
+                if (id == null)
+                {
+                    id = "1";
+                }
+
+                RetiroComponentes ctrlRetiroComponente = new RetiroComponentes();
+
+                ctrlRetiroComponente.CargaSolicitudesRetiroCliente(out sError, id);
+
+                ViewBag.PaginaActual = id;
+                ViewBag.Error = sError;
+
+                return View(ctrlRetiroComponente);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+
+        }
+        public ActionResult SolicitudRetiroAprobacionClienteDetalle(string id)
+        {
+
+            try
+            {
+                string sError = "";
+
+
+
+                RetiroComponentes ctrlRetiroComponente = new RetiroComponentes();
+
+                ctrlRetiroComponente.CargaSolicitudesRetiroClienteDetalle(out sError, id);
+
+                ViewBag.Error = sError;
+                ViewBag.IdsolicitudRetiro = id;
+
+                return View(ctrlRetiroComponente);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+
+        }
+        public String ReporteSolicitudRetiro(string id)
+        {
+            RetiroComponentes ctrlRetiro = new RetiroComponentes();
+            byte[] filestream = ctrlRetiro.getReporteSolicitudRetiro(id);
+
+
+
+            return Convert.ToBase64String(filestream);
+        }
+        public String ApruebarRechazarSolicitud(string accion, string idsolictudretiro)
+        {
+            try
+            {
+                string sError = "";
+
+                RetiroComponentes ctrlRetiroComponente = new RetiroComponentes();
+
+                ctrlRetiroComponente.AprobarRechazarSolicitudRetiro(out sError, idsolictudretiro, accion);
+
+                ViewBag.Error = sError;
+
+                return sError;
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e.Message;
+                return "error";
+            }
+        }
+        public ActionResult SolicitudRetiroInfra(string id)
+        {
+            try
+            {
+                string sError = "";
+
+                if (id == null)
+                {
+                    id = "1";
+                }
+
+                RetiroComponentes ctrlRetiroComponentes = new RetiroComponentes();
+
+                ctrlRetiroComponentes.CargaDetalleInfraestructura(id, out sError);
+
+                ViewBag.PaginaActual = id;
+                ViewBag.Error = sError;
+
+                return View(ctrlRetiroComponentes);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+        }
+        public ActionResult SolicitudRetiroInfraDetalle(string id)
+        {
+            try
+            {
+                string sError = "";
+
+
+                RetiroComponentes ctrlRetiroComponentes = new RetiroComponentes();
+
+                ctrlRetiroComponentes.CargaInfraestructuraSolicitud(id, out sError);
+
+                ViewBag.IdsolicitudRetiro = id;
+                ViewBag.Error = sError;
+
+                return View(ctrlRetiroComponentes);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e;
+                return View(ViewBag.Error);
+            }
+        }
+
+        public ActionResult CrearSolicitud(string id)
+        {
+            return View();
+        }
+
+        public ActionResult ComponentesFacturar(string id)
+        {
+            return View();
+        }
+
+
+        public String RetiroSolicitud(string idsolictudretiro)
+        {
+            try
+            {
+                string sError = "";
+
+                RetiroComponentes ctrlRetiroComponente = new RetiroComponentes();
+
+                ctrlRetiroComponente.RetirarSolicitudRetiro(out sError, idsolictudretiro);
+
+                ViewBag.Error = sError;
+
+                return sError;
+            }
+            catch (Exception e)
+            {
+                ViewBag.Error = e.Message;
+                return "error";
+            }
+        }
+    }
+}

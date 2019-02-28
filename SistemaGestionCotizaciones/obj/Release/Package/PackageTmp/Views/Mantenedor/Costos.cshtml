@@ -1,0 +1,1032 @@
+﻿@{
+    ViewBag.Title = "Detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/js/soloNumero.js" type="text/javascript"></script>
+<script src="~/Scripts/js/soloNumeroComa.js" type="text/javascript"></script>
+<script src="~/Scripts/js/separadorCLP.js" type="text/javascript"></script>
+<script src="~/Scripts/js/separadorUSD.js" type="text/javascript"></script>
+<script src="~/Scripts/js/separadorUF.js" type="text/javascript"></script>
+<script src="~/Scripts/js/MantenedorCostos.js" type="text/javascript"></script>
+<script src="~/Scripts/Blob.js"></script>
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var Padres = @Html.Raw(jss.Serialize(Model.dtParPadreJson));
+        var Formulas = @Html.Raw(jss.Serialize(Model.cargaFormulasJson));
+        var Variables = @Html.Raw(jss.Serialize(Model.cargaVariablesJson));
+        var Categorias = @Html.Raw(jss.Serialize(Model.dtCategoriasJson));
+        var VariablesFormulas = @Html.Raw(jss.Serialize(Model.cargaVariablesFormulasJson));
+        var subcomponentecosto = @Html.Raw(jss.Serialize(Model.cargaVariablesFormulasJson));
+        var url = '@Url.Action("vpGrillaMantenedorCostos", "Mantenedor")'
+        var Simulacion;
+        var simulacionelemento;
+        var subcomponenteafecha = [];
+        var updFormula = [];
+        var idcotizacionanterior;
+        var idcomponenteactual;
+        var idcomponenteanterior;
+        var idcotizacionactual;
+        var idcatalogo;
+        var idparametro;
+        var categorias;
+        var variables;
+        var variableSeleccion = [];
+        var elemento;
+        var selectformula;
+        var formula;
+        var formula2;
+        var formula3;
+        var temp;
+        var temp2;
+        var count;
+        var countOrden;
+        var countglosa;
+        var numvariables;
+        var arrayJson = [];
+        var seleccion;
+        var glosaVariables = [];
+        var datosCosto = [];
+        var idcosto;
+        var idsubcosto;
+        var idformula;
+        var idcatalogo;
+        var costo;
+        var glosa;
+        var orden;
+        var fecha;
+        var padre;
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        /************************************************************************/
+        /*                     AGREGAR EL ID A LA GLOSA                         */
+        /************************************************************************/
+
+        function encodeGlosa(idsubcosto, str)
+        {
+            if (!str) return "";
+
+            var strArr = str.split(/[\[.*\]]/);
+            glosaVariables = [];
+
+            for(i = 0; i < strArr.length; i++)
+            {
+                var lstCVar = _.findWhere(Variables, {Nombreatributo : strArr[i]});
+
+                if (lstCVar)
+                {
+                    str = str.replace(strArr[i], 'idCatalogoElemento:' + lstCVar.idCatalogoElemento);
+
+                    glosaVariables.push({
+                        idsubcosto : idsubcosto,
+                        idcatalogoelemento : lstCVar.idCatalogoElemento
+                    });
+
+                }
+            }
+           
+            return str;
+        }
+
+        /************************************************************************/
+        /*            REEMPLAZA EK UD DE LA GLOSA POR NOMBRE                    */
+        /************************************************************************/
+
+        function decodeGlosa(str)
+        {
+            if (!str) return "";
+
+            var strArr = str.split(/[\[.*\]]/);
+
+            for(i = 0; i < strArr.length; i++)
+            {
+                if (strArr[i].indexOf('idCatalogoElemento:') == 0 )
+                {
+                    var node = _.findWhere(Variables, {idCatalogoElemento : strArr[i].substring(19)});
+                    if (node)
+                        str = str.replace(strArr[i], node.Nombreatributo);
+                }
+            }
+            return str;
+        }
+
+        filtropadres = '<fieldset">\
+                            <select id="selectpadre" class="input-sm form-control">\
+                                <option value="0" selected>Todos</option>';
+
+        _.each(Padres, function (i) {
+
+            filtropadres +=     '<option value="' + i.Idparametrocosto + '">' + i.Nombre + '</option>';
+        });
+
+        filtropadres +=     '</select>\
+                        </fieldset>';
+
+        selectformula = '<fieldset>\
+                            <select id="modselectformula" class="input-sm form-control">';
+
+        _.each(Formulas, function(i){
+
+            selectformula +=      '<option value="' + i.Idformula + '">' + i.Nombreformula + '</option>';
+        });
+
+        selectformula +=      '</select>\
+                            </fieldset>';
+
+        categorias = '<div class="form-group">\
+                        <fieldset>\
+                            <select class="input-sm form-control">';
+
+        _.each(Categorias, function(i){
+
+            categorias +=       '<option value="' + i.idlistaValores + '">' + i.Valor + '</option>';
+        });
+
+        categorias +=       '</select>\
+                        </fieldset>\
+                    </div>';
+
+        variables = '<fieldset>\
+                        <select class="input-sm form-control">';
+
+        _.each(Variables, function(i){
+
+            variables +=         '<option value="' + i.idCatalogoElemento + '">' + i.Nombreatributo + '</option>';
+        });
+
+        variables += ' </select>\
+                    </fieldset>';
+
+        $('#contGlosa').append('<div class="col-md-4">'
+                                    + variables +
+                               '</div>');
+
+        function float(item) {
+            item = parseFloat(item.replace(',', '.')).toFixed(7).replace('.', ',');
+            return item;
+        }
+
+        function agregarsubafecha(idcosto, idsubcosto, costo) {
+
+            
+            subcomponenteafecha.push({
+                idpadre: idcosto,
+                idcosto: idsubcosto,
+                costo: costo.replace(',', '.')
+            });
+
+        }
+
+        function agregarsubcosto(idcosto, idsubcosto, idcatalogo, idformula, costo, glosa, orden, numvar) {
+
+            subcomponentecosto.push({
+                origen: idcosto,
+                idparametrocosto: idsubcosto,
+                idcatalogoelemento: idcatalogo,
+                idformula: idformula,
+                Costo: costo,
+                Glosa: encodeGlosa(idcatalogo ,glosa),
+                orden: orden,
+                NumVariables: numvar
+            });
+        }
+
+        function quitarsubcosto(idcosto, idsubcosto) {
+
+            subcomponentecosto = _.reject(subcomponentecosto, {
+                origen: idcosto,
+                idparametrocosto: idsubcosto
+            });
+
+        }
+
+        function actualizarsubcosto(idcosto, idsubcosto, idcatalogo, idformula, costo, glosa, orden, numvar) {
+
+            VariablesFormulas = _.reject(VariablesFormulas, {
+                origen: idcosto,
+                idparametrocosto: idsubcosto
+            });
+
+            VariablesFormulas.push({
+                origen: idcosto,
+                idparametrocosto: idsubcosto,
+                idcatalogoelemento: idcatalogo,
+                idformula: idformula,
+                Costo: costo,
+                Glosa: encodeGlosa(idcatalogo, glosa),
+                orden: orden,
+                NumVariables: numvar
+            });
+
+        }
+
+        function regresarSubcosto(idcosto, idsubcosto) {
+
+            var tempJson = (_.where(VariablesFormulas, {
+                origen: idcosto,
+                idparametrocosto: idsubcosto
+            }));
+
+            quitarsubcosto(idcosto, idsubcosto);
+
+            count = 0;
+
+            _.each(tempJson, function(i){
+
+                var tempCosto = (_.pluck(tempJson, 'Costo'))[count];
+                var tempGlosa = (_.pluck(tempJson, 'Glosa'))[count];
+                var tempIdcatalogo = (_.pluck(tempJson, 'idcatalogoelemento'))[count];
+                var tempIdformula = (_.pluck(tempJson, 'idformula'))[count];
+                var tempIdparametro = (_.pluck(tempJson, 'idparametrocosto'))[count];
+                var tempOrden = (_.pluck(tempJson, 'orden'))[count];
+                var tempOrigen = (_.pluck(tempJson, 'origen'))[count];
+
+                agregarsubcosto(tempOrigen, tempIdparametro, tempIdcatalogo, tempIdformula, tempCosto, tempGlosa, tempOrden)
+
+                count++;
+
+            });
+
+        }
+
+        $('#tb_cmt').load(url);
+
+        $(document).on('click','#btn_prb_cos',function () {
+
+            var datos = ';';
+
+            $('.simular')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#simular').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+
+            $.each(idsubcomponente, function (index) {
+                datos += index + '-' + idsubcomponente[index] + ';';
+            });
+
+            datos = datos.substring(1, datos.length - 1);
+
+            datos = datos.replace(/\./g, '');
+
+            var url = '@Url.Action("modMantenedorCostos", "Mantenedor", new { id = "reemplazo" })'
+
+            url = url.replace("reemplazo", datos);
+
+            $('#vpmodal').load(url);
+        });
+
+        $(document).on('click', 'input[type="checkbox"]', function () {
+
+            padre = $(this).attr('idparametro');
+
+            if ($(this).is(':checked')) {
+
+                $('[fechaaplicacion="'+ padre +'"]').append('<input type="text" name="fecha" class="datepicker input-sm form-control" id="fecha'+ padre +'" placeholder="Ingresar Fecha" readonly>');
+                $('#fecha' + padre).datepicker();
+
+                $('#fecha'+ padre).datepicker({
+                    minDate: new Date(),
+                    dateFormat: 'dd/mm/yy'
+                });
+
+                $('#simular'+ padre).append('<button class="btn btn-primary btn-sm simulacion" idparametro="' + padre + '">Simular</button>');
+                $('#modificacion'+ padre).append('<button class="btn btn-primary btn-sm modificarPrecio" idparametro="' + padre + '">Modificar</button>');
+
+
+            } else {
+
+                $('[fechaaplicacion="'+ padre +'"]').empty();
+
+                $('#simular'+ padre).empty();
+                $('#modificacion'+ padre).empty();
+
+            }
+
+        });
+
+        $(document).on('click', 'tbody span', function () {
+
+            idcosto = $(this).parents('td').attr('id');
+
+            idsubcosto = $(this).attr('idparametro');
+
+            idformula = $('#formula' + idsubcosto).attr('idformula');
+
+            if($('#costo' + idsubcosto).text().trim()){
+
+                costo = $('#costo' + idsubcosto).text().trim();
+
+            } else {
+
+                if($('#costo' + idsubcosto + ' input').val()) {
+
+                    costo = $('#costo' + idsubcosto + ' input').val();
+
+                } else {
+
+                    costo = _.where(VariablesFormulas, {idparametrocosto: idsubcosto});
+
+                    costo = (_.pluck(costo, 'Costo'))[0];
+
+                    if(costo) {
+
+                        alert('El costo esta vacia');
+
+                    }
+                }
+
+            }
+
+            idcatalogo = $('#formula' + idsubcosto).attr('idcatalogo');
+
+            glosa = _.where(subcomponentecosto, {idparametrocosto: idsubcosto});
+            glosa = (_.pluck(glosa, 'Glosa'))[0];
+            glosa = decodeGlosa(glosa);
+            temp = encodeGlosa(idsubcosto, glosa);
+
+            orden = _.where(VariablesFormulas, {idparametrocosto: idsubcosto});
+            orden = (_.pluck(orden, 'orden'))[0];
+
+            numvariables = _.where(VariablesFormulas, {idparametrocosto: idsubcosto});
+            numvariables = (_.pluck(numvariables, 'NumVariables'))[0];
+
+            if ($(this).attr('class') == 'glyphicon glyphicon-pencil') {
+
+                if($(this).attr('hoja') == '1') {
+
+                    elemento = '<input class="solo-numero-coma input-sm form-control input' + idsubcosto + '" type="text" style="text-align:right" value="' +
+                                   float(costo)
+                                +'" />';
+
+                    formula = '<button class="btn btn-primary btn-sm modformula" \
+                                idparametro="' + idsubcosto + '" \
+                                idformula="' + idformula + '"\
+                                 idcatalogo="' + idcatalogo + '">\
+                                    ' + $('#formula' + idsubcosto).text() + '\
+                               </button>';
+
+                    $('#formula' + $(this).attr('idparametro')).empty();
+                    $('#formula' + $(this).attr('idparametro')).append(formula);
+
+                    $('#costo' + $(this).attr('idparametro')).empty();
+                    $('#costo' + $(this).attr('idparametro')).append(elemento);
+
+                } else {
+
+                    $('#categoria' + $(this).attr('idparametro')).empty();
+                    $('#categoria' + $(this).attr('idparametro')).append(categorias);
+
+                }
+
+                $('#editar' + $(this).attr('idparametro')).hide();
+                $('#glosa' + $(this).attr('idparametro')).show();
+                $('#aceptar' + $(this).attr('idparametro')).show();
+                $('#cancelar' + $(this).attr('idparametro')).show();
+
+            }
+
+            if ($(this).attr('class') == 'glyphicon glyphicon-ok') {
+
+                if($(this).attr('hoja') == '1') {
+
+                    $('#textglosa' + $(this).attr('idparametro')).attr('glosa', $('#textglosa' + $(this).attr('idparametro')).text());
+
+                    elemento = float(costo);
+
+                    formula2 = (_.where(subcomponentecosto, {idparametrocosto: idsubcosto}));
+                    formula2 = _.pluck(formula2, 'idformula');
+                    formula2 = _.where(Formulas, {Idformula: formula2[0]});
+                    formula2 = _.pluck(formula2, 'Nombreformula');
+
+                    count = 0;
+
+                    idcatalogo = $('#formula' + idsubcosto).attr('idcatalogo');
+
+                    actualizarsubcosto(idcosto, idsubcosto, idcatalogo, idformula, costo, glosa, orden, numvariables);
+
+                    datosCosto = JSON.parse(JSON.stringify(_.where(VariablesFormulas, {idparametrocosto: idsubcosto})));
+
+                    _.each(datosCosto, function(i) {
+
+                        datosCosto[count].Costo = costo.trim();
+                        datosCosto[count].orden = count + 1;
+
+                        count++;
+
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("actualizarCosto", "Mantenedor")',
+                        data: JSON.stringify({updCostoJson : datosCosto, updGlosaJson : glosaVariables}),
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        async: false
+                    }).done(function(){
+                        alert('cambio guardado');
+                    }).fail(function(e){
+                        console.log(JSON.stringify(e));
+                    });
+
+
+                    $('#textglosa' + idsubcosto).empty();
+                    $('#textglosa' + idsubcosto).append(jQuery.trim(glosa).substring(0, 45) + ' ...');
+
+                    $('#costo' + $(this).attr('idparametro')).attr('costoactual', costo);
+
+                    $('#formula' + $(this).attr('idparametro')).empty();
+                    $('#formula' + $(this).attr('idparametro')).append(formula2);
+
+                    $('#costo' + $(this).attr('idparametro')).empty();
+                    $('#costo' + $(this).attr('idparametro')).append(elemento);
+
+                } else {
+
+                    temp = $('input[idparametro="' + $(this).attr('idparametro') + '"][type="checkbox"]').is(':checked');
+
+                    if(!(temp == true)) {
+
+                        temp = $('#categoria' + $(this).attr('idparametro') + ' select').val();
+
+                        var url = '@Html.Raw(Url.Action("Costos", "Mantenedor", new { id = "reemplazo", idcategoria = "reemplazo2" }))'
+
+                        url = url.replace("reemplazo", $(this).attr('idparametro'));
+                        url = url.replace("reemplazo2", temp);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: url,
+                            dataType: "html",
+                            async: false
+                        }).done(function(){
+                            alert('cambio guardado');
+                        });
+
+                        temp2 = $('#categoria' + $(this).attr('idparametro') + ' select').find('option:selected').text();
+
+                        $('#categoria' + $(this).attr('idparametro')).empty();
+                        $('#categoria' + $(this).attr('idparametro')).append(temp2);
+                        $('#categoria' + $(this).attr('idparametro')).attr('idcategoria', temp);
+
+                    }
+                }
+
+                $('#editar' + $(this).attr('idparametro')).show();
+                $('#glosa' + $(this).attr('idparametro')).hide();
+                $('#aceptar' + $(this).attr('idparametro')).hide();
+                $('#cancelar' + $(this).attr('idparametro')).hide();
+
+            }
+
+            if ($(this).attr('class') == 'glyphicon glyphicon-remove') {
+
+                if($(this).attr('hoja') == '1') {
+
+                    $('#textglosa' + $(this).attr('idparametro')).text($('#textglosa' + $(this).attr('idparametro')).attr('glosa'));
+
+                    temp = $('#formula' + $(this).attr('idparametro')).attr('idformula');
+
+                    elemento = '<label id="costo' + $(this).attr('idparametro') + '" costoactual="' + $('#costo' + $(this).attr('idparametro')).attr('costoactual').replace('.', '').trim() + '"\
+                    style="text-align:right">' + float($('#costo' + $(this).attr('idparametro')).attr('costoactual').trim()) + '</label>';
+
+
+                    formula3 = $('#formula' + $(this).attr('idparametro') + ' button').text();
+
+                    regresarSubcosto(idcosto, idsubcosto);
+
+                    $('#formula' + $(this).attr('idparametro')).empty();
+                    $('#formula' + $(this).attr('idparametro')).append(formula3);
+
+                    $('#costo' + $(this).attr('idparametro')).empty();
+                    $('#costo' + $(this).attr('idparametro')).append(elemento);
+
+                } else {
+
+                    temp = $('input[idparametro="' + $(this).attr('idparametro') + '"][type="checkbox"]').is(':checked');
+
+                    if(temp == true) {
+
+                        temp = $('#categoria' + $(this).attr('idparametro')).attr('idcategoria');
+
+
+
+                        formula3 = $('#categoria' + $(this).attr('idparametro')).find('select option:selected').text();
+
+                        $('[fechaaplicacion="'+$(this).attr('idparametro')+'"]').empty();
+
+                        $('input[idparametro="' + $(this).attr('idparametro') + '"][type="checkbox"]').prop('checked', false);
+
+                        $('#categoria' + $(this).attr('idparametro')).empty();
+                        $('#categoria' + $(this).attr('idparametro')).append(formula3);
+
+                        $('#simular' + $(this).attr('idparametro')).empty();
+
+                    } else {
+
+                        temp = $('#categoria' + $(this).attr('idparametro')).attr('idcategoria');
+
+
+                        formula3 = $('#categoria' + $(this).attr('idparametro')).find('select option:selected').text();
+
+                        $('#categoria' + $(this).attr('idparametro')).empty();
+                        $('#categoria' + $(this).attr('idparametro')).append(formula3);
+
+                    }
+                }
+
+                $('#editar' + $(this).attr('idparametro')).show();
+                $('#glosa' + $(this).attr('idparametro')).hide();
+                $('#aceptar' + $(this).attr('idparametro')).hide();
+                $('#cancelar' + $(this).attr('idparametro')).hide();
+            }
+
+            if ($(this).attr('class') == 'glyphicon glyphicon-font') {
+
+                $('#modGlosa textarea').val(glosa);
+
+                $('#modGlosaGuardar').attr('idcosto', $(this).parents('td').attr('id'));
+                $('#modGlosaGuardar').attr('idparametro', $(this).attr('idparametro'));
+
+                $('#modGlosa')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modGlosa').modal('show');
+
+            }
+
+        });
+
+        $(document).on('click', '.simulacion', function() {
+
+            padre = $(this).attr('idparametro');
+            fecha = $('#fecha' + padre).val();
+           
+            $('.padre'+ $(this).attr('idparametro') + ' input').each(function() {
+                
+                agregarsubafecha(padre, ($(this).parents().attr('id')).slice(5), $(this).val());
+
+            });
+
+            if($('#fecha' + padre).val().trim() != '') {
+
+                if(JSON.stringify(subcomponenteafecha) == '[]') {
+                    
+                    alert('No hay elementos para simular');
+                    console.log(subcomponenteafecha);
+                    
+
+                } else {
+
+                    $(this).prop('disabled', true);
+                    $(this).html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SimularCosto", "Mantenedor")',
+                        data: JSON.stringify(subcomponenteafecha),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "html",
+                        async: false,
+                        success: function (data) {
+
+                            var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                            saveAs(blob, "Simulacion.csv");
+
+                            $('#simular'+ padre).prop('disabled',false);
+                            $('#simular'+ padre).html('<button class="btn btn-primary btn-sm simulacion" idparametro="' + padre + '">Simular</button>');
+
+                        }
+                    });
+                    
+                }
+            } else {
+                alert('Se debe ingresar una fecha para simular');
+            }
+
+        });
+
+        $(document).on('click','.modformula',function () {
+
+            idcosto = $(this).parents('td').attr('id');
+
+            idparametro = $(this).attr('idparametro');
+
+            $('#modVarGuardar').attr('idcosto', idcosto);
+            $('#modVarGuardar').attr('idparametro', idparametro);
+
+            temp = '<div class="container">\
+                        <div id="seleccionformula" class="row">\
+                            <label class="col-md-2">Tipo Formula</label>\
+                            <label id="modparametro" hidden>' + idparametro +'</label>\
+                            <div class="col-md-2">'
+                                + selectformula +
+                            '</div>\
+                        </div>';
+
+            count = 1;
+
+            temp += '<div id="seleccionvariable" class="variables">';
+
+            _.each(_.where(VariablesFormulas, {idparametrocosto: idparametro}), function(i){
+
+                if(i.NumVariables > 0) {
+
+                    temp += '<div id="seleccionvariable' + count + '" class="row">\
+                                        <label class="col-md-2">Variable ' + count + '</label><div class="col-md-2">'
+                                + variables +
+                            '</div></div>';
+
+                    variableSeleccion.push(i.idcatalogoelemento);
+
+                    count++;
+                }
+
+            });
+
+            temp += '   </div>\
+                    </div>';
+
+            $('#modVariables .modal-body #mm_Variables').empty();
+            $('#modVariables .modal-body #mm_Variables').append(temp);
+
+            $.each(variableSeleccion, function( index, value ) {
+
+                $('#seleccionvariable' + parseInt(index + 1) + ' select').val(value);
+
+            });
+
+            variableSeleccion = [];
+
+            $('#modselectformula').on('change', function() {
+
+                temp = '';
+                count = 1; 
+                numvariables = _.pluck(_.where(Formulas, {Idformula: $(this).val()}), 'NumVariables');
+
+                $.each(new Array(numvariables), function(){
+
+                    if(numvariables > 0) {
+
+                        temp += '<div id="seleccionvariable' + count + '" class="row">\
+                                    <label class="col-md-2">variable ' + count + '</label>\
+                                    <div class="col-md-2">'
+                                            + variables +
+                                '   </div>\
+                                </div>';
+
+                        count++;
+
+                    }
+
+                });
+
+                $('#seleccionvariable').empty();
+                $('#seleccionvariable').append(temp);
+
+            });
+
+            temp = '';
+
+            $('#seleccionformula select').val($(this).attr('idformula'));
+
+            $('#modVariables')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modVariables').modal('show');
+
+            variableSeleccion = [];
+
+        });
+
+        $('#modVarGuardar').click(function() {
+
+            count = 0;
+
+            idcosto = $(this).attr('idcosto');
+            idsubcosto = $(this).attr('idparametro');
+
+            numvariables = _.where(VariablesFormulas, {idparametrocosto: idsubcosto});
+            numvariables = (_.pluck(numvariables, 'NumVariables'))[0];
+
+            if($('#seleccionformula select').val() == 1) {
+
+                _.each(_.where(subcomponentecosto, {idparametrocosto: idsubcosto}), function(i) {
+
+                    if(count == 0) {
+
+                        quitarsubcosto(idcosto, idsubcosto);
+
+                        costo = i.costo;
+                        glosa = i.glosa;
+
+                        agregarsubcosto(idcosto, idsubcosto, '', '1', costo, glosa, '', numvariables);
+
+                        count++;
+
+                    }
+
+                });
+
+            } else {
+
+                count = 0;
+
+                _.each(_.where(subcomponentecosto, {idparametrocosto: idsubcosto}), function(i,row) {
+
+                    if(count == 0) {
+
+                        quitarsubcosto(idcosto, idsubcosto);
+
+                        $('#formula' + idsubcosto).attr('idcatalogo', $('#seleccionvariable' + parseInt(row + 1) + ' option:selected').attr('value'));
+
+                        idcatalogo = i.idcatalogoelemento;
+                        costo = i.Costo;
+                        glosa = i.Glosa;
+
+                        agregarsubcosto(idcosto, idsubcosto, idcatalogo, '1', costo, glosa, '1', numvariables);
+
+                        count++;
+                    } else {
+
+                        agregarsubcosto(idcosto, idsubcosto, idcatalogo, '1', costo, glosa, parseInt(row + 1), numvariables);
+
+                    }
+
+                });
+
+                quitarsubcosto(idcosto, idsubcosto);
+
+                $('#seleccionvariable select').each(function(index) {
+
+                    agregarsubcosto(idcosto, idsubcosto, $(this).val(), $('#seleccionformula select').val(), costo, glosa, parseInt(index + 1), numvariables);
+
+                });
+            }
+
+            $('#' + idsubcosto + ' button').html($( "#seleccionformula select option:selected" ).text());
+
+            $('#modVariables').modal('hide');
+
+        });
+
+        $('#modGlosaGuardar').click(function() {
+
+            idcosto = $(this).attr('idcosto');
+            idsubcosto = $(this).attr('idparametro');
+            countOrden = 1;
+
+            $('#textglosa' + idsubcosto).text(jQuery.trim($('#contGlosa textarea').val()).substring(0, 45) + '...');
+
+            numvariables = _.where(VariablesFormulas, {idparametrocosto: idsubcosto});
+            numvariables = (_.pluck(numvariables, 'NumVariables'))[0];
+
+            temp = _.where(subcomponentecosto, {idparametrocosto: idsubcosto});
+
+            quitarsubcosto(idcosto, idsubcosto);
+
+            _.each(temp, function(i) {
+                
+                idcatalogo = i.idcatalogoelemento;
+                idformula = i.idformula;
+                costo = i.Costo;
+                glosa = encodeGlosa(idsubcosto, $('#contGlosa textarea').val());
+
+                agregarsubcosto(idcosto, idsubcosto, idcatalogo[0], idformula[0], costo[0], glosa, countOrden, numvariables);
+
+                countOrden++;
+
+            });
+
+            $('#modGlosa').modal('hide');
+
+        });
+
+        $(document).on('click', '.modificarPrecio',function () {
+
+            padre = $(this).attr('idparametro');
+            fecha = $('#fecha' + padre).val();
+
+            $('.padre'+ $(this).attr('idparametro') + ' input').each(function() {
+
+                agregarsubafecha(padre, ($(this).parents().attr('id')).slice(5), $(this).val());
+
+            });
+
+            if($('#fecha' + padre).val().trim() != '') {
+
+                if(JSON.stringify(subcomponenteafecha) == '[]') {
+
+                   
+                    alert('No hay elementos para simular');
+
+
+                } else {
+
+                    var callback = function () {
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("modificarSimular", "Mantenedor")',
+                            data: JSON.stringify({elementoCostoJson: subcomponenteafecha, fecha: fecha}),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            async: false,
+                        });
+
+                        subcomponenteafecha = [];
+
+                        //$('#simular').modal('hide');
+
+                        alert('Fecha de la modificacion se ha ingresado correctamente');
+
+                    };
+
+                    confirm('', '¿Esta seguro que desea modificar con aplicación inmediata?', 'Cancelar', 'Modificar', callback);
+
+                }
+            } else {
+                alert('Se debe ingresar una fecha para simular');
+            }
+
+
+        });
+
+        $('#cerrarsimulacion').click(function() {
+
+            subcomponenteafecha = [];
+
+        });
+
+        $('#cerrarsimulacion2').click(function() {
+
+            subcomponenteafecha = [];
+
+        });
+
+        $('#filtro').append('<div class="col-md-2">'
+                                  + filtropadres +
+                            '</div>');
+
+        $('#selectpadre').on('change', function() {
+
+            $('#modal-cargando').modal('show');
+
+            var url = '@Html.Raw(Url.Action("vpGrillaMantenedorCostos", "Mantenedor", new {id = "reemplazo"}))'
+
+            url = url.replace("reemplazo", $(this).val());
+
+            $('#tb_cmt').load(url);
+
+        });
+
+        $('#contGlosa select').on('change', function() {
+
+            seleccion = $("#contGlosa select").children('option:selected').text();
+
+            $('#contGlosa textarea').val($('#contGlosa textarea').val() + ' [' + seleccion + '] ');
+
+        });
+
+    });
+</script>
+
+<style>
+    .ui-menu {
+        max-height: 100px;
+    }
+
+    tr {
+        height: 50px;
+    }
+
+    #ttlfiltro {
+        padding-top: 10px;
+    }
+</style>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+<div>
+
+    <h3 id="ttl" class="row">Modificar Parámetros de Costos</h3>
+
+    <h5 id="ttlfiltro" class="row">Filtrar por Elemento</h5>
+
+    <div id="filtro" class="row"></div>
+
+    <div class="container">
+        <div id="tb_cmt" class="grilla"></div>
+    </div>
+
+    <!-- /.modal -->
+    <div id="simular" class="modal fade modCustom">
+        <div class="modal-dialog modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button id="cerrarsimulacion2" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <div id="modalsimulacion" class="grilla"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="modificarPrecio" type="button" class="btn btn-default">Modificar</button>
+                    <button id="cerrarsimulacion" type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    <!-- /.modal -->
+    <div class="modal fade" id="modVariables">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Variables</h4>
+                </div>
+                <div id="editFormulas" class="modal-body ui-front">
+                    <div id="mm_Variables" class="row">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="modVarGuardar" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    <!-- /.modal -->
+    <div class="modal fade" id="modGlosa">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Glosa</h4>
+                </div>
+                <div id="contGlosa" class="modal-body row">
+                    <textarea class="col-md-offset-1 col-md-4 form-control" style="resize:none;width:300px;height:100px"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="modGlosaGuardar" class="btn btn-primary" data-toggle="tooltip" title="Debe ingresar todas las variables">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    
+    <!-- Modal -->
+    <div class="modal fade" id="modal-cargando" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog" style="width:85px">
+
+            <div class="modal-content">
+                <div class="modal-body">
+                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+
+                    <label>Cargando...</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal -->
+
+</div>

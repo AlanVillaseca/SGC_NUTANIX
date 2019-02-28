@@ -1,0 +1,24 @@
+﻿
+@model SistemaGestionCotizaciones.Models.DetalleProyecto
+@using System.Data;
+<script src="~/Scripts/js/validador.js"></script>
+<script>
+    var idProyecto = '1';
+    var usuarioCreador = '1';
+    var url3;
+    /*
+    $('#btn_agr_cot').click(function () {
+        url3 = 'vpAgregarCotizacion/' + idProyecto + '?descCotizacion=' + $('#descCotizacion').val() + '&usuarioCreador=' + usuarioCreador;
+        $('#agr_cot_popup').load(url3);
+        $('#agr_cot_popup').hide();
+        $('#tb_cot').load('vpGrillaDetalle');
+        $('#agr_cot_popup').load('vpAgregarCotizacion');
+    });*/
+</script>
+
+<div id="desc" class="form-group">
+    <label class="control-label">Descripcion de la Cotización</label>
+    <textarea id="descCotizacion" rows="4" cols="30" class="form-control input-sm es-requerido" name="descripcion"></textarea>
+</div>
+
+@*<button id="btn_agr_cot" type="button" class="btn btn-primary">Ingresar</button>*@

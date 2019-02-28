@@ -1,0 +1,75 @@
+﻿@model SistemaGestionCotizaciones.Models.ListarCotizaciones
+@using System.Data;
+
+<script src="~/Scripts/js/paginacion.js"></script>
+
+<style>
+    #numeracion {
+        position: absolute;
+        top: 500px;
+        left: 0px;
+        right: 0px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #numeracion label {
+        display: inline;
+        cursor: pointer;
+    }
+
+    #numeracion label:hover {
+        color: #8FBE00;
+    }
+
+</style>
+
+<div id="tb_ctn">
+    @if (Model.dtGrilla.Rows.Count > 0)
+    {
+        
+        <table class="table table-hover">
+            <thead>
+                <tr>                
+                    <th>Proyecto</th>
+                    <th>Descripcion</th>
+                    <th>Creacion</th>
+                    <th>Aprob. Interna</th>
+                    <th>Aprob. Externa</th>
+                    <th>Implementado</th>
+                    <th>Estado</th>
+                    <th>Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow col in Model.dtGrilla.Rows)
+                {            
+                <tr>                
+                    <td>@col.ItemArray.GetValue(3)</td>
+                    <td>@col.ItemArray.GetValue(4)</td>
+                    <td>@col.ItemArray.GetValue(5)</td>
+                    <td>@col.ItemArray.GetValue(6)</td>
+                    <td>@col.ItemArray.GetValue(7)</td>
+                    <td>@col.ItemArray.GetValue(8)</td>
+                    <td>@col.ItemArray.GetValue(10)</td>
+
+                    <td>
+                        <span title="Ver" class="glyphicon glyphicon-eye-open"></span>
+
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="row alert alert-warning text-center">
+            No se encontraron coincidencias.
+        </div>
+    }
+</div>
+
+<!-->div id="numeracion">
+
+</!--div-->

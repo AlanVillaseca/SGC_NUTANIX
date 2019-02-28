@@ -1,0 +1,184 @@
+﻿
+@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.RetiroComponentes
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+<script>
+
+    $(document).ready(function () {
+
+        var SolicitudRetiro = @Html.Raw(jss.Serialize(Model.solicitudretiroJson));
+        var paginaActual = '@ViewBag.PaginaActual';
+        var totalRegistros = _.pluck(SolicitudRetiro, 'totalRegistros')[0];
+        var totalPaginas = _.pluck(SolicitudRetiro, 'totalPaginas')[0];
+
+
+
+        $('#txt_pag').val(paginaActual);
+        $('#total_pag').text(totalPaginas);
+        $('#registros').text('( ' + totalRegistros + ' items)');
+
+
+        _.each(SolicitudRetiro, function(index){
+
+            $('#tb_solicitud_retiro tbody').append('<tr id="' + index.Idsolicitudretiro + '">\
+                                                        <td>' + index.FechaRetiro + '</td>\
+                                                        <td>' + index.Negocio + '</td>\
+                                                        <td>' + index.ServicioNegocio + '</td>\
+                                                        <td>' + index.Nrocomponentes + '</td>\
+                                                    </tr>');
+
+        });
+
+
+        $('#btn_pri_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("SolicitudRetiroAprobacion", "Retiro", new
+                  {
+                    id = "1"
+                  }))';
+
+            window.location.href = dir;
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if (parseInt(paginaActual) - 1 > 0 && parseInt(paginaActual) - 1 <= totalPaginas) {
+
+                var dir = '@Html.Raw(Url.Action("SolicitudRetiroAprobacion", "Retiro", new
+                      {
+                        id = "reemplazo"
+                      }))';
+
+                dir = dir.replace("reemplazo", parseInt(paginaActual) - 1);
+
+                window.location.href = dir;
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            if (parseInt(paginaActual) + 1 > 1 && parseInt(paginaActual) + 1 <= totalPaginas) {
+
+                var dir = '@Html.Raw(Url.Action("SolicitudRetiroAprobacion", "Retiro", new
+                      {
+                        id = "reemplazo"
+                      }))';
+
+                dir = dir.replace("reemplazo", parseInt(paginaActual) + 1);
+
+                window.location.href = dir;
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("SolicitudRetiroAprobacion", "Retiro", new
+                  {
+                    id = "reemplazo"
+                  }))';
+
+            dir = dir.replace("reemplazo", totalPaginas);
+
+            window.location.href = dir;
+
+        });
+
+        $(document).on('keypress', '#txt_pag',function(e) {
+
+            var key = e.which;
+
+            carga_variables_paginacion();
+
+
+            if (key == 13) {
+
+
+                if ($(this).val() <= totalPaginas && $(this).val() != '0') {
+
+
+                    var dir = '@Html.Raw(Url.Action("SolicitudRetiroAprobacion", "Retiro", new
+                    {
+                        id = "reemplazo"
+                    }))';
+
+                    dir = dir.replace("reemplazo", $(this).val());
+
+                    window.location.href = dir;
+
+                }
+
+            }
+        });
+
+        $(document).on('click', '#tb_solicitud_retiro tr', function() {
+
+
+
+            var dir = '@Html.Raw(Url.Action("SolicitudRetiroAprobacionDetalle", "Retiro", new
+                  {
+                      id = "reemplazo"
+                  }))';
+
+            dir = dir.replace("reemplazo", $(this).attr('id'));
+
+            window.location.href = dir;
+
+
+        });
+
+
+    });
+
+</script>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-md-5 col-sm-5">
+            <h3 id="ttl">Solicitud de Retiro</h3>
+        </div>
+    </div>
+
+    <div class="row grilla">
+        
+
+        <table id="tb_solicitud_retiro" class="table table-responsive table-striped table-condensed grilla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Negocio</th>
+                    <th>Servicio Negocio</th>
+                    <th>Nro Componentes</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-4 form-inline">
+            <span class="btn-group btn-group-xs">
+                <a id="btn_pri_pag" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-left fa-lg"></i></a>
+                <a id="btn_pag_ant" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-left fa-lg"></i></a>
+            </span>
+            <span>Pág. <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:8%; display:initial;" value="" /> de <font id="total_pag"></font></span>
+            <span class="btn-group btn-group-xs">
+                <a id="btn_pag_sig" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-right fa-lg"></i></a>
+                <a id="btn_ult_pag" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-right fa-lg"></i></a>
+            </span>
+            <font id="registros"></font>
+        </div>
+    </div>
+
+</div>

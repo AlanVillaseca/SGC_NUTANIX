@@ -1,0 +1,386 @@
+﻿
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/underscore-min.js"></script>
+<script src="~/Scripts/js/LimpiarTexto.js"></script>
+
+<script>
+    $(document).ready(function(){
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var Subservicio = @Html.Raw(jss.Serialize(Model.dtSubservicio));
+        var SubservicioComprobar = @Html.Raw(jss.Serialize(Model.dtSubservicioComprobar));
+        var idsubservicio;
+        var totalregistros = '0';
+        var pagina = '1';
+        var totalpaginas = '0';
+        var elemento = '';
+        var existe = 0;
+        var NombreSubservicio;
+        var HorasSubservicio;
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+
+        if(Subservicio != '') {
+
+            totalregistros = _.pluck(Subservicio, 'TotalRegistros')[0];
+            pagina = _.pluck(Subservicio, 'PaginaActual')[0];
+            totalpaginas = _.pluck(Subservicio, 'TotalPaginas')[0];
+        }
+
+        $('#subservicio_tot_reg').append('<p>Total de Registros ' + totalregistros + '</p>');
+        $('#subservicio_txt_pag').val(pagina);
+        $('#subservicio_ttl_pag').append(totalpaginas);
+
+        _.each(Subservicio, function(i) {
+
+
+            elemento += '<tr>\
+                            <td valoractual="' + i.Nombre + '">' + i.Nombre + '</td>\
+                            <td valoractual="' + i.Horas + '">' + i.Horas + '</td>\
+                            <td>';
+
+
+            if ('@User.IsInRole("OBSERVADOR")' == 'False')
+            {
+                elemento += '<span class="glyphicon glyphicon-pencil" idsubservicio="' + i.Idsubservicio + '"></span>\
+                            <span class="glyphicon glyphicon-ok" idsubservicio="' + i.Idsubservicio + '"></span>\
+                            <span class="glyphicon glyphicon-remove" idsubservicio="' + i.Idsubservicio + '"></span>\
+                            <span class="glyphicon glyphicon-trash" idsubservicio="' + i.Idsubservicio + '"></span>';
+            }
+
+            elemento += '</td>\
+                        </tr>';
+
+        });
+
+        $('#tb_subservicio tbody').append(elemento);
+
+        $('#tb_subservicio .glyphicon-ok').hide();
+        $('#tb_subservicio .glyphicon-remove').hide();
+
+        $(document).off('click', '#subservicio_icono_agregar').on('click', '#subservicio_icono_agregar',function(e) {
+
+
+            existe = 0;
+
+            if ($('#subservicio_in_nombre').val().trim() != '' && $('#subservicio_in_horas').val().trim() != '') {
+
+                _.each(_.where(SubservicioComprobar), function(index) {
+
+
+                    if(limpiar(index.Nombre) == limpiar($('#subservicio_in_nombre').val().trim())){
+
+
+                        existe = 1;
+
+
+                    }
+
+                });
+
+
+                if($.isNumeric($('#subservicio_in_horas').val().replace(',', '.'))) {
+
+
+                    if(existe == 0) {
+
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Html.Raw(Url.Action("GuardarSubservicio", "Mantenedor"))',
+                            dataType: "html",
+                            cache: false,
+                            data: { idplantillasubservicio: '@ViewBag.idplantillasubservicio',
+                                nombre: $('#subservicio_in_nombre').val().trim(),
+                                horas: $('#subservicio_in_horas').val().trim()},
+                            async: false
+                        }).done(function () {
+                            alert('Subservicio guardada');
+                        });
+
+                        $('#subservicio_in_nombre').val('');
+                        $('#subservicio_in_horas').val('');
+
+                        $('#dv_subservicio').load('@Url.Action("vpGrillaPlantillaSubservicio_Subservicios", "Mantenedor")', {
+                            idplantillasubservicio : '@ViewBag.idplantillasubservicio'});
+
+
+                    } else {
+
+                        alert('El nombre ingresado para la plantilla de actividades ya existe');
+
+
+                    }
+
+                } else {
+                
+                    alert('Se debe ingresar un número entero o decimal en el campo de las horas');
+                    
+
+                }
+
+
+            } else {
+
+                alert('Se debe ingresar un nombre y horas para la actividades');
+
+
+            }
+
+        });
+
+        $(document).off('click', '#tb_subservicio .glyphicon-pencil').on('click', '#tb_subservicio .glyphicon-pencil',function(e) {
+
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').text();
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').text();
+
+            $(this).closest('td').find('.glyphicon-pencil').hide();
+            $(this).closest('td').find('.glyphicon-trash').hide();
+            $(this).closest('td').find('.glyphicon-ok').show();
+            $(this).closest('td').find('.glyphicon-remove').show();
+
+            elemento = '<input class="form-control input-sm" type="text" value="' + NombreSubservicio + '"/>';
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(elemento);
+
+
+            elemento = '<input class="form-control input-sm" type="text" value="' + HorasSubservicio + '"/>';
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(elemento);
+
+        });
+
+        $(document).off('click', '#tb_subservicio .glyphicon-trash').on('click', '#tb_subservicio .glyphicon-trash',function(e) {
+
+
+            idsubservicio = $(this).attr('idsubservicio');
+
+            var callback = function () {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminarSubservicio", "Mantenedor")',
+                    dataType: "html",
+                    data: {idsubservicio: idsubservicio},
+                    async: false
+                }).done(function(){
+                    alert('Elemento eliminado correctamente');
+                });
+
+                $('#dv_subservicio').load('@Url.Action("vpGrillaPlantillaSubservicio_Subservicios", "Mantenedor")', {
+                    idplantillasubservicio : '@ViewBag.idplantillasubservicio'});
+
+            };
+
+            confirm('', '¿Esta seguro que desea borrar este subservicio?', 'Cancelar', 'Eliminar', callback);
+
+        });
+
+
+        $(document).off('click', '#tb_subservicio .glyphicon-ok').on('click', '#tb_subservicio .glyphicon-ok',function(e) {
+
+
+            idsubservicio = $(this).attr('idsubservicio');
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').find('input').val().trim();
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').find('input').val().trim();
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ModificarSubservicio", "Mantenedor")',
+                data: {
+                    idsubservicio: idsubservicio,
+                    nombre: NombreSubservicio,
+                    horas: HorasSubservicio},
+                dataType: "html",
+                async: false
+            });
+
+            $(this).closest('td').find('.glyphicon-pencil').show();
+            $(this).closest('td').find('.glyphicon-trash').show();
+            $(this).closest('td').find('.glyphicon-ok').hide();
+            $(this).closest('td').find('.glyphicon-remove').hide();
+
+
+            $(this).closest('td').siblings(':first-child').attr('valoractual', NombreSubservicio);
+            $(this).closest('td').siblings(':nth-child(2)').attr('valoractual', HorasSubservicio);
+
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(NombreSubservicio);
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(HorasSubservicio);
+
+        });
+
+
+        $(document).off('click', '#tb_subservicio .glyphicon-remove').on('click', '#tb_subservicio .glyphicon-remove',function(e) {
+
+            NombreSubservicio = $(this).closest('td').siblings(':first-child').attr('valoractual');
+            HorasSubservicio = $(this).closest('td').siblings(':nth-child(2)').attr('valoractual');
+
+            $(this).closest('td').find('.glyphicon-pencil').show();
+            $(this).closest('td').find('.glyphicon-trash').show();
+            $(this).closest('td').find('.glyphicon-ok').hide();
+            $(this).closest('td').find('.glyphicon-remove').hide();
+
+
+            $(this).closest('td').siblings(':first-child').text('');
+            $(this).closest('td').siblings(':first-child').append(NombreSubservicio);
+
+            $(this).closest('td').siblings(':nth-child(2)').text('');
+            $(this).closest('td').siblings(':nth-child(2)').append(HorasSubservicio);
+
+
+        });
+
+        $(document).off('keypress', '#subservicio_txt_pag').on('keypress', '#subservicio_txt_pag',function(e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if ($(this).val() <= totalpaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio_Subservicios", "Mantenedor", new { id = "reemplazo" }))';
+
+                    dir = dir.replace("reemplazo", $(this).val());
+
+                    $('#dv_subservicio').load(dir);
+                }
+
+            }
+        });
+
+
+        $(document).off('click', '#subservicio_btn_pri_pag').on('click', '#subservicio_btn_pri_pag',function(e) {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio_Subservicios", "Mantenedor", new { pagina = "1", idplantillasubservicio = ViewBag.idplantillasubservicio }))';
+
+            $('#dv_subservicio').load(dir);
+        });
+
+
+        $(document).off('click', '#subservicio_btn_pag_ant').on('click', '#subservicio_btn_pag_ant',function(e) {
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio_Subservicios", "Mantenedor", new { pagina = "reemplazo", idplantillasubservicio = ViewBag.idplantillasubservicio }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) - 1);
+
+                $('#dv_subservicio').load(dir);
+            }
+        });
+
+
+        $(document).off('click', '#subservicio_btn_pag_sig').on('click', '#subservicio_btn_pag_sig',function(e) {
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio_Subservicios", "Mantenedor", new { pagina = "reemplazo", idplantillasubservicio = ViewBag.idplantillasubservicio }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) + 1);
+
+                $('#dv_subservicio').load(dir);
+            }
+        });
+
+
+        $(document).off('click', '#subservicio_btn_ult_pag').on('click', '#subservicio_btn_ult_pag',function(e) {
+
+            $(document).off( "click", "#dv_subservicio");
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio_Subservicios", "Mantenedor", new { pagina = "reemplazo", idplantillasubservicio = ViewBag.idplantillasubservicio }))';
+
+            dir = dir.replace("reemplazo", parseInt(totalpaginas));
+
+            $('#dv_subservicio').load(dir);
+
+        });
+
+        @*$(document).off('click', '#subservicio_btn_descargar').on('click', '#subservicio_btn_descargar',function(e) {
+
+
+            $.ajax({
+                url: '@Url.Action("PlantillaSubservicioFileXls", "Mantenedor")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoPlantillaSubservicio.csv");
+
+                }
+            });
+
+        });*@
+
+    });
+</script>
+
+<div style="padding:20px">
+
+    <table id="tb_subservicio" class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-9">Nombre</th>
+                <th class="col-md-2">Horas</th>
+                <th class="col-md-1">Acción</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px">
+        <div class="col-md-2">
+            <div id="subservicio_tot_reg" style="display:inline-block;"></div>
+        </div>
+        <div class="col-md-2 col-md-offset-3 form-inline">
+            <p class="control-label ">
+                Ir a
+                <input id="subservicio_txt_pag" type="text" class="form-control input-xs solo-numero" style="width:13%; display:initial;" value="" />
+                de <font id="subservicio_ttl_pag"></font> Pág.
+            </p>
+        </div>
+        <div class="col-md-3  col-md-offset-2">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    @*<button id="subservicio_btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>*@
+                    <button id="subservicio_btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                    <button id="subservicio_btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    <button id="subservicio_btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button id="subservicio_btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>

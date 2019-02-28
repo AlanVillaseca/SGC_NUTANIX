@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DataFacturacion" targetNamespace="http://tempuri.org/DataFacturacion.xsd" xmlns:mstns="http://tempuri.org/DataFacturacion.xsd" xmlns="http://tempuri.org/DataFacturacion.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DataFacturacion" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DataFacturacion" msprop:Generator_UserDSName="DataFacturacion">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Table_Facturacion" msprop:Generator_TableClassName="Table_FacturacionDataTable" msprop:Generator_TableVarName="tableTable_Facturacion" msprop:Generator_RowChangedName="Table_FacturacionRowChanged" msprop:Generator_TablePropName="Table_Facturacion" msprop:Generator_RowDeletingName="Table_FacturacionRowDeleting" msprop:Generator_RowChangingName="Table_FacturacionRowChanging" msprop:Generator_RowEvHandlerName="Table_FacturacionRowChangeEventHandler" msprop:Generator_RowDeletedName="Table_FacturacionRowDeleted" msprop:Generator_RowClassName="Table_FacturacionRow" msprop:Generator_UserTableName="Table_Facturacion" msprop:Generator_RowEvArgName="Table_FacturacionRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="FECHA" msprop:Generator_ColumnVarNameInTable="columnFECHA" msprop:Generator_ColumnPropNameInRow="FECHA" msprop:Generator_ColumnPropNameInTable="FECHAColumn" msprop:Generator_UserColumnName="FECHA" type="xs:string" minOccurs="0" />
+              <xs:element name="PAIS" msprop:Generator_ColumnVarNameInTable="columnPAIS" msprop:Generator_ColumnPropNameInRow="PAIS" msprop:Generator_ColumnPropNameInTable="PAISColumn" msprop:Generator_UserColumnName="PAIS" type="xs:string" minOccurs="0" />
+              <xs:element name="NEGOCIO" msprop:Generator_ColumnVarNameInTable="columnNEGOCIO" msprop:Generator_ColumnPropNameInRow="NEGOCIO" msprop:Generator_ColumnPropNameInTable="NEGOCIOColumn" msprop:Generator_UserColumnName="NEGOCIO" type="xs:string" minOccurs="0" />
+              <xs:element name="SERVICIONEGOCIO" msprop:Generator_ColumnVarNameInTable="columnSERVICIONEGOCIO" msprop:Generator_ColumnPropNameInRow="SERVICIONEGOCIO" msprop:Generator_ColumnPropNameInTable="SERVICIONEGOCIOColumn" msprop:Generator_UserColumnName="SERVICIONEGOCIO" type="xs:string" minOccurs="0" />
+              <xs:element name="COTIZACION" msprop:Generator_ColumnVarNameInTable="columnCOTIZACION" msprop:Generator_ColumnPropNameInRow="COTIZACION" msprop:Generator_ColumnPropNameInTable="COTIZACIONColumn" msprop:Generator_UserColumnName="COTIZACION" type="xs:string" minOccurs="0" />
+              <xs:element name="PROYECTO" msprop:Generator_ColumnVarNameInTable="columnPROYECTO" msprop:Generator_ColumnPropNameInRow="PROYECTO" msprop:Generator_ColumnPropNameInTable="PROYECTOColumn" msprop:Generator_UserColumnName="PROYECTO" type="xs:string" minOccurs="0" />
+              <xs:element name="MONTO" msprop:Generator_ColumnVarNameInTable="columnMONTO" msprop:Generator_ColumnPropNameInRow="MONTO" msprop:Generator_ColumnPropNameInTable="MONTOColumn" msprop:Generator_UserColumnName="MONTO" type="xs:string" minOccurs="0" />
+              <xs:element name="CODIGO" msprop:Generator_ColumnVarNameInTable="columnCODIGO" msprop:Generator_ColumnPropNameInRow="CODIGO" msprop:Generator_ColumnPropNameInTable="CODIGOColumn" msprop:Generator_UserColumnName="CODIGO" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

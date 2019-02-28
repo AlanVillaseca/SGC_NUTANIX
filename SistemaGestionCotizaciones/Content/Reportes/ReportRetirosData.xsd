@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ReportRetirosData" targetNamespace="http://tempuri.org/ReportRetirosData.xsd" xmlns:mstns="http://tempuri.org/ReportRetirosData.xsd" xmlns="http://tempuri.org/ReportRetirosData.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="ReportRetirosData" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="ReportRetirosData" msprop:Generator_UserDSName="ReportRetirosData">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="SEL_REPORTE_RETIRO" msprop:Generator_TableClassName="SEL_REPORTE_RETIRODataTable" msprop:Generator_TableVarName="tableSEL_REPORTE_RETIRO" msprop:Generator_RowChangedName="SEL_REPORTE_RETIRORowChanged" msprop:Generator_TablePropName="SEL_REPORTE_RETIRO" msprop:Generator_RowDeletingName="SEL_REPORTE_RETIRORowDeleting" msprop:Generator_RowChangingName="SEL_REPORTE_RETIRORowChanging" msprop:Generator_RowEvHandlerName="SEL_REPORTE_RETIRORowChangeEventHandler" msprop:Generator_RowDeletedName="SEL_REPORTE_RETIRORowDeleted" msprop:Generator_RowClassName="SEL_REPORTE_RETIRORow" msprop:Generator_UserTableName="SEL_REPORTE_RETIRO" msprop:Generator_RowEvArgName="SEL_REPORTE_RETIRORowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="PAIS" msprop:Generator_ColumnVarNameInTable="columnPAIS" msprop:Generator_ColumnPropNameInRow="PAIS" msprop:Generator_ColumnPropNameInTable="PAISColumn" msprop:Generator_UserColumnName="PAIS" type="xs:string" minOccurs="0" />
+              <xs:element name="NEGOCIO" msprop:Generator_ColumnVarNameInTable="columnNEGOCIO" msprop:Generator_ColumnPropNameInRow="NEGOCIO" msprop:Generator_ColumnPropNameInTable="NEGOCIOColumn" msprop:Generator_UserColumnName="NEGOCIO" type="xs:string" minOccurs="0" />
+              <xs:element name="COTIZACION" msprop:Generator_ColumnVarNameInTable="columnCOTIZACION" msprop:Generator_ColumnPropNameInRow="COTIZACION" msprop:Generator_ColumnPropNameInTable="COTIZACIONColumn" msprop:Generator_UserColumnName="COTIZACION" type="xs:string" minOccurs="0" />
+              <xs:element name="PROYECTO" msprop:Generator_ColumnVarNameInTable="columnPROYECTO" msprop:Generator_ColumnPropNameInRow="PROYECTO" msprop:Generator_ColumnPropNameInTable="PROYECTOColumn" msprop:Generator_UserColumnName="PROYECTO" type="xs:string" minOccurs="0" />
+              <xs:element name="IDPROYECTO" msprop:Generator_ColumnVarNameInTable="columnIDPROYECTO" msprop:Generator_ColumnPropNameInRow="IDPROYECTO" msprop:Generator_ColumnPropNameInTable="IDPROYECTOColumn" msprop:Generator_UserColumnName="IDPROYECTO" type="xs:string" minOccurs="0" />
+              <xs:element name="COMPONETE" msprop:Generator_ColumnVarNameInTable="columnCOMPONETE" msprop:Generator_ColumnPropNameInRow="COMPONETE" msprop:Generator_ColumnPropNameInTable="COMPONETEColumn" msprop:Generator_UserColumnName="COMPONETE" type="xs:string" minOccurs="0" />
+              <xs:element name="IDCOMPONENTE" msprop:Generator_ColumnVarNameInTable="columnIDCOMPONENTE" msprop:Generator_ColumnPropNameInRow="IDCOMPONENTE" msprop:Generator_ColumnPropNameInTable="IDCOMPONENTEColumn" msprop:Generator_UserColumnName="IDCOMPONENTE" type="xs:string" minOccurs="0" />
+              <xs:element name="MONTO" msprop:Generator_ColumnVarNameInTable="columnMONTO" msprop:Generator_ColumnPropNameInRow="MONTO" msprop:Generator_ColumnPropNameInTable="MONTOColumn" msprop:Generator_UserColumnName="MONTO" type="xs:string" minOccurs="0" />
+              <xs:element name="ALIASEQUIPO" msprop:Generator_ColumnVarNameInTable="columnALIASEQUIPO" msprop:Generator_ColumnPropNameInRow="ALIASEQUIPO" msprop:Generator_ColumnPropNameInTable="ALIASEQUIPOColumn" msprop:Generator_UserColumnName="ALIASEQUIPO" type="xs:string" minOccurs="0" />
+              <xs:element name="ESTADO" msprop:Generator_ColumnVarNameInTable="columnESTADO" msprop:Generator_ColumnPropNameInRow="ESTADO" msprop:Generator_ColumnPropNameInTable="ESTADOColumn" msprop:Generator_UserColumnName="ESTADO" type="xs:string" minOccurs="0" />
+              <xs:element name="FECHA" msprop:Generator_ColumnVarNameInTable="columnFECHA" msprop:Generator_ColumnPropNameInRow="FECHA" msprop:Generator_ColumnPropNameInTable="FECHAColumn" msprop:Generator_UserColumnName="FECHA" type="xs:dateTime" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

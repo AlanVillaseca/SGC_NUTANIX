@@ -1,0 +1,49 @@
+﻿body{
+    margin-top: 500px;
+}
+
+#fech_cld{
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    vertical-align: middle;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+
+#neg{    
+    top: 400px;
+}
+
+#ico_agr{
+    position: absolute;
+    top: 430px;
+    left: 30%;
+    cursor: pointer;
+    color: #5EB93F;
+}
+
+#ico_qtr{
+    position: absolute;
+    top: 430px;
+    left: 35%;
+    cursor: pointer;
+    color: #FF1A00;
+}
+
+#btn_ing{
+    position: absolute;
+    top: 410px;
+    left: 82%;
+}
+
+#btn_cnr{
+    position: absolute;
+    top: 363px;
+    left: 83%;
+}
+

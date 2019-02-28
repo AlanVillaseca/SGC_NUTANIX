@@ -1,0 +1,75 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+
+<script>
+    var URLjs = ' @Html.Raw(Url.Action("jsonListaNegocio", "Mantenedor"))';
+    var Json = [];
+   
+    var existe = false;
+   
+
+    $('#btn_enviar').click(function () {
+        //console.log(' alo'+JSON.stringify(Json));
+        existe = false
+        if ($('#nvo_header').validar()) {
+            return;
+        }
+       
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: URLjs,
+            async: false,
+        }).done(function (varJson) {
+            //mi codigo
+           // console.log(JSON.stringify(varJson));
+            Json = varJson;
+            
+        });
+        _.each(Json, function (i) {
+
+            var nombre = i.Descripcion;
+            //console.log(nombre.toLowerCase() + '  ' + $("#nombre").val().toLowerCase());
+            if (nombre.toLowerCase() == $("#descripcion").val().toLowerCase()) {
+                existe = true;
+            }
+        });
+        // console.log(existe);
+        if (existe) {
+            alert('El nombre que intenta ingresar, no esta disponible, intente con otro nombre.');
+            return;
+        }
+        if ($('#descripcion').val().trim().length > 0 && !existe) {
+            var nombre = $("#descripcion").val();
+           // console.log(nombre);
+            //var URL = ' @Html.Raw(Url.Action("vpAgregarNegocio", "Mantenedor", new { id = "param-descripcion" }))';
+            //URL=URL.replace("param-descripcion", nombre);
+            var URL = '@Html.Raw(Url.Action("vpAgregarNegocio", "Mantenedor"))';
+            
+            $.ajax({
+                type: "POST",
+                //dataType: "json",
+                url: URL,
+                data:{id : nombre},
+                async: false,
+            }).done(function (e) {
+                //mi codigo
+                alert('Guardado');
+
+            }).error(function(e){alert(e.statusText)});
+            $(".modal").modal("toggle");
+            location.reload();
+        }
+    });
+</script>  
+<div id="msg_wrn" class="row"><span></span></div>
+
+<div class="row">
+    <div id="contenedorModal" class="form-group ">
+        <div id="nom_header" class="col-md-4 col-sm-12  ">
+            <label class="control-label" for="">Nombre</label>
+            <input id="descripcion" type="text" name="descripcion" class="form-control  es-requerido caracter-250" placeholder="Negocio">
+        </div>
+    </div>
+</div>

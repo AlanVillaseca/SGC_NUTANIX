@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "Parametros Generales";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Data;
+
+<script>
+    $(document).ready(function () {
+        var url = '@Url.Action("vpGrillaParametrosGenerales", "Mantenedor")'
+        var valortemp;
+        $('#tb_pargen').load(url);
+        
+        $(document).on('click', 'tbody span', function () {
+            var elemento;
+            
+            if ($(this).attr('class') == 'glyphicon glyphicon-pencil') {
+                elemento = '<p id="' + $(this).attr('valor') + '">';
+                elemento += '<input type="text" style="text-align:right" value="';
+                elemento += $('#' + $(this).attr('valor')).text().trim();
+                elemento += '" />';
+                elemento += '</p>';
+                
+                valortemp = $('#' + $(this).attr('valor')).text().trim();
+
+                $('#' + $(this).attr('valor')).after(elemento).remove();
+
+                $('#t' + $(this).attr('valor') + ' .glyphicon-pencil').hide();
+                $('#t' + $(this).attr('valor') + ' .glyphicon-ok').show();
+                $('#t' + $(this).attr('valor') + ' .glyphicon-remove').show();
+
+            }
+            if ($(this).attr('class') == 'glyphicon glyphicon-ok') {
+
+                elemento = '<p id="' + $(this).attr('valor') + '" class="derecha">';
+                elemento += $('#' + $(this).attr('valor')).find('input').val().trim();
+                elemento += '</p>';
+
+                url = '@Html.Raw(Url.Action("vpGrillaParametrosGenerales", "Mantenedor", new { id = "reemplazo", valor = "reemplazo2" }))'
+                
+                url = url.replace("reemplazo", $(this).attr('valor'));
+                url = url.replace("reemplazo2", $('#' + $(this).attr('valor')).find('input').val().trim());
+
+                $('#tb_pargen').load(url);
+            }
+            if ($(this).attr('class') == 'glyphicon glyphicon-remove') {
+
+                elemento = '<p id="' + $(this).attr('valor') + '" class="derecha">';
+                elemento += valortemp;
+                elemento += '</p>';
+                
+                $('#' + $(this).attr('valor')).after(elemento).remove();
+
+                $('#t' + $(this).attr('valor') + ' .glyphicon-pencil').show();
+                $('#t' + $(this).attr('valor') + ' .glyphicon-ok').hide();
+                $('#t' + $(this).attr('valor') + ' .glyphicon-remove').hide();
+            }
+
+        });
+
+    });
+</script>
+<div>
+    <h3 id="ttl">Modifica Parámetros Generales</h3>
+
+    <div class="container">
+        <div id="tb_pargen"></div>
+    </div>
+</div>
+

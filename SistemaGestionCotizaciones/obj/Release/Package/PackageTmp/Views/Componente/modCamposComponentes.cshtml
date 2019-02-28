@@ -1,0 +1,452 @@
+﻿@using System.Data;
+
+<script>
+
+    $(document).ready(function () {
+
+        var valoresCampos;
+        var codtemp;
+
+        $('select').selectmenu();
+        $('select').addClass('ui-icon ui-icon-triangle-1-s');
+
+        function mostrarElemento(idcatalogo, idtipodato, nombre, contrl, nombreatributo, descripcion) {
+
+            if (contrl == "1") {
+
+                codtemp = '<div id="reemplazo">';
+                codtemp +=  '<label>' + nombreatributo + '</label>';
+                codtemp +=  '<input id="' + idcatalogo + '" class="form-control input-sm" type="text" />';
+                codtemp +=  '<p>' + descripcion + '</p>';
+                codtemp +=  '<button class="agrEle btn btn-primary btn-sm" name="' + idcatalogo + '">Agregar</button>';
+                codtemp +='</div>';
+
+                $('#reemplazo').after(codtemp).remove();
+            }
+            if (contrl == "2")
+            {
+                codtemp = '<div id="reemplazo">';
+                codtemp +=  '<label>' + nombreatributo + '</label>';
+                codtemp +=  '<input id="' + idcatalogo + '" type="checkbox" />';
+                codtemp +=  '<p>' + descripcion + '</p>';
+                codtemp +=  '<button class="agrEle btn btn-primary btn-sm" name="' + idcatalogo + '">Agregar</button>';
+                codtemp +='</div>';
+
+                $('#reemplazo').after(codtemp).remove();
+
+            }
+            if (contrl == "3")
+            {
+                codtemp = '<div id="reemplazo">';
+                codtemp +=  '<label>' + nombreatributo + '</label>';
+                codtemp +=  '<fieldset class="ui-front">';
+                codtemp +=      '<select id="' + idcatalogo +'" class="lista selectmenu">';
+
+                @foreach (DataRow collista in Model.dtListaCamposFaltantes.Rows)
+                {
+
+                    @:if (idcatalogo == @collista.ItemArray.GetValue(0).ToString())
+                                                                                {
+                        @:codtemp += '<option value="'+@collista.ItemArray.GetValue(0).ToString()+'">'+ '@collista.ItemArray.GetValue(1).ToString()' +'</option>';
+
+                    }
+
+                }
+                
+                codtemp +=      '</select>';
+                codtemp +=  '</fieldset>';
+                codtemp +=  '<p>' + descripcion + '</p>';
+                codtemp +=  '<button class="agrEle btn btn-primary btn-sm" name="' + idcatalogo + '">Agregar</button>';
+                codtemp +='</div>';
+                
+                $('#reemplazo').after(codtemp).remove();
+
+                $('#' + idcatalogo).selectmenu();
+            }
+        }
+
+
+        $('#formulario a').click(function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+        })
+
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#formulario').on('click', '.agrEle', function () {
+
+            var idelemento = $(this).attr('name');
+            var valorelemento = $('#' + idelemento).val();
+
+            if ($('#' + idelemento).attr('class') == 'lista') {
+                valorelemento = $('#' + idelemento + ' option:selected').text();
+            }
+
+            var url = '@Html.Raw(Url.Action("modCamposComponentes", "Componente", new {id = "reemplazo", idelemento = "reemplazo2", valor = "reemplazo3" }))'
+
+            url = url.replace("reemplazo", '@ViewBag.idcomponente');
+            url = url.replace("reemplazo2", idelemento);
+            url = url.replace("reemplazo3", valorelemento);
+
+            if ($('#' + idelemento).attr('class') == 'lista') {
+                alert();
+                $('#formulario').off('click', '.agrEle');
+                $('#formulario').load(url);
+            }
+            else {
+                if (valorelemento != '') {
+                    alert();
+                    $('#formulario').off('click', '.agrEle');
+                    $('#formulario').load(url);
+                }
+                else {
+                    alert('El campo que desea agregar no puede estar vacio');
+                }
+            }
+
+
+        });
+
+        $('#formulario').on('click', '#guardarConfig', function (event) {
+
+            valoresCampos = '';
+            var hacer;
+
+            $('.True, .False').each(hacer = function () {
+
+                if ($(this).attr('class') == 'True') {
+
+                    if ($(this).is(':checkbox')) {
+                        if ($(this).is(':checked')) {
+                            valoresCampos = valoresCampos + $(this).attr('id') + ',1;';
+                        }
+                        else {
+                            valoresCampos = valoresCampos + $(this).attr('id') + ',0;';
+                        }
+                    }
+                    else {
+
+                        if ($(this).val().trim() === '') {
+
+                            alert('Aceptar');
+                            valoresCampos = '';
+                            return false;
+                        }
+                        else {
+
+                            valoresCampos = valoresCampos + $(this).attr('id') + ',' + $(this).val().trim() + ';';
+                        }
+                    }
+                }
+                else {
+
+                    if ($(this).is(':checkbox')) {
+                        if ($(this).is(':checked')) {
+                            valoresCampos = valoresCampos + $(this).attr('id') + ',1;';
+                        }
+                        else {
+                            valoresCampos = valoresCampos + $(this).attr('id') + ',0;';
+                        }
+                    }
+                    else {
+
+                        if ($(this).val().trim() === '') {
+
+                            answer = confirm('Confirmar');
+                            if (answer) {
+
+                            }
+                            else {
+                                valoresCampos = '';
+                                return false;
+                            }
+                        }
+                        else {
+
+                            valoresCampos = valoresCampos + $(this).attr('id') + ',' + $(this).val().trim() + ';';
+                        }
+                    }
+                }
+            });
+
+            if (valoresCampos) {
+
+                valoresCampos = valoresCampos.slice(0, -1);
+
+                var url = '@Url.Action("modCamposComponentes2", "Componente", new {valoresCampos = "reemplazo" })'
+
+                url = url.replace("reemplazo", valoresCampos);
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+
+                }).done(function (resp) {
+
+                    if (resp) {
+                        alert(resp);
+                    }
+
+                }).fail(function (jqXHR, textStatus) {
+                    alert("Request failed: " + textStatus);
+                });
+            }
+
+        });
+
+        $('.listaelementos').click(function () {
+
+            var idcatalogo = $(this).attr('idcatalogo');
+            var idtipodato = $(this).attr('idtipodato');
+            var nombre = $(this).attr('nombre');
+            var contrl = $(this).attr('contrl');
+            var nombreatributo = $(this).attr('nombreatributo');
+            var descripcion = $(this).attr('descripcion');
+
+            mostrarElemento(idcatalogo, idtipodato, nombre, contrl, nombreatributo, descripcion);
+        });
+    });
+</script>
+
+<style>
+#formulario{
+    height: 600px;
+}
+
+#ttl_tab{
+    color:#8FBE00;
+}
+
+#tabs .ui-tabs-panel {
+    height: 500px;
+    overflow: auto;
+}
+
+#contenedorElemento{
+    width: 300px;
+    height: 150px;
+    margin-left: 130px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#guardarConfig{
+    position: fixed;
+    bottom: 55px;
+    right: 160px;
+}
+
+#eleFalt{
+    height: auto;
+    max-height: 350px;
+    overflow-x: hidden;
+}
+
+#contenedorElemento{
+    position: fixed;
+    bottom: 100px;
+}
+
+.tab-content{
+    padding-top: 20px;
+}
+
+.tab-pane{
+    height:500px;
+}
+
+.nav-tabs > .active > a, .nav-tabs > .active > a:hover { 
+    outline: 0;
+    color: #555555;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+    cursor: default;
+}
+
+.list-group-item{
+    text-align: left;
+    cursor: pointer;
+}
+
+.list-group-item:hover {
+    color: #FFF;
+    background-color: #428BCA;
+    border-color: #428BCA;
+}
+
+fieldset {
+    border: 0;
+}
+
+label {
+    display: block;
+}
+
+.radio, .checkbox {
+    height: 20px;
+}
+
+select {
+    width: 150px;
+    height: 50px;
+}
+
+.overflow {
+    height: 200px;
+}
+
+.ui-widget{
+    font-size:11px;
+}
+</style>
+
+@if (Model.dtCampos.Rows.Count > 1)
+{
+    
+    <div id="formulario">
+
+        <h3 id="ttl_tab">Configuración</h3>
+
+        <ul id="tabComp" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#home" aria-controls="home" role="tab" data-toggle="tab">Atributos</a>
+            </li>
+            <li role="presentation">
+                <a href="#eleFalt" aria-controls="eleFalt" role="tab" data-toggle="tab">Agregar Atributo</a>
+            </li>
+        </ul>
+        
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="home">
+                @foreach (DataRow col in Model.dtCampos.Rows)
+                {
+                    if (col.ItemArray.GetValue(3).ToString() == "1")
+                    {
+                        <div class="fila">
+                            <label>@col.ItemArray.GetValue(1).ToString()</label>
+                            @if (col.ItemArray.GetValue(5).Equals(true))
+                            {
+                                <input id="@col.ItemArray.GetValue(0).ToString()" class="@col.ItemArray.GetValue(6).ToString() form-control input-sm" type="text" value="@col.ItemArray.GetValue(4).ToString()" />
+                            }
+                            else
+                            {
+                                <input id="@col.ItemArray.GetValue(0).ToString()" class="@col.ItemArray.GetValue(6).ToString() form-control input-sm" type="text" value="@col.ItemArray.GetValue(4).ToString()" readonly />
+                            }
+                        </div>
+                    }
+                    if (col.ItemArray.GetValue(3).ToString() == "2")
+                    {
+                        <div class="fila">
+                            <label>@col.ItemArray.GetValue(1).ToString()</label>
+
+                            @if (col.ItemArray.GetValue(5).Equals(true))
+                            {
+                                if (col.ItemArray.GetValue(4).ToString() == "1")
+                                {
+                                    <input id="@col.ItemArray.GetValue(0).ToString()" class="@col.ItemArray.GetValue(6).ToString()" type="checkbox" value="@col.ItemArray.GetValue(4).ToString()" checked />
+                                }
+                                else
+                                {
+                                    <input id="@col.ItemArray.GetValue(0).ToString()" class="@col.ItemArray.GetValue(6).ToString()" type="checkbox" value="@col.ItemArray.GetValue(4).ToString()" />
+                                }
+                            }
+                            else
+                            {
+                                if (col.ItemArray.GetValue(4).ToString() == "1")
+                                {
+                                    <input id="@col.ItemArray.GetValue(0).ToString()" class="@col.ItemArray.GetValue(6).ToString()" type="checkbox" value="@col.ItemArray.GetValue(4).ToString()" checked disabled />
+                                }
+                                else
+                                {
+                                    <input id="@col.ItemArray.GetValue(0).ToString()" class="@col.ItemArray.GetValue(6).ToString()" type="checkbox" value="@col.ItemArray.GetValue(4).ToString()" disabled />
+                                }
+                            }
+                        </div>
+                    
+                    }
+                    if (col.ItemArray.GetValue(3).ToString() == "3")
+                    {
+                        <div class="fila ui-front">
+                            <label>@col.ItemArray.GetValue(1).ToString()</label>
+                            <ul>
+                                <li>
+                                    <fieldset>
+                                        <select id="@col.ItemArray.GetValue(0).ToString()" class="selectmenu @col.ItemArray.GetValue(6).ToString()">
+                                            @if (col.ItemArray.GetValue(5).Equals(true))
+                                            {
+                                                foreach (DataRow collista in Model.dtListaCampos.Rows)
+                                                {
+
+                                                    if (col.ItemArray.GetValue(8).ToString() == collista.ItemArray.GetValue(0).ToString())
+                                                    {
+                                                        if (@col.ItemArray.GetValue(4).ToString() == @collista.ItemArray.GetValue(1).ToString())
+                                                        {
+                                                            <option value="@collista.ItemArray.GetValue(0).ToString()" selected>@collista.ItemArray.GetValue(1).ToString()</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@collista.ItemArray.GetValue(0).ToString()">@collista.ItemArray.GetValue(1).ToString()</option>
+                                                        }
+
+                                                    }
+
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="@col.ItemArray.GetValue(4).ToString()">@col.ItemArray.GetValue(4).ToString()</option>
+                                            }
+                                        </select>
+                                    </fieldset>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+
+                }
+                <button id="guardarConfig" class="btn btn-primary btn-sm">Guardar</button>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="eleFalt" overflow:auto>
+
+                @if (Model.dtCamposFaltantes != null)
+                {
+
+                    <ul class="list-group">
+                        @foreach (DataRow col in Model.dtCamposFaltantes.Rows)
+                        {
+                            <li class="list-group-item listaelementos"
+                                idcatalogo="@col.ItemArray.GetValue(0).ToString()"
+                                idtipodato="@col.ItemArray.GetValue(1).ToString()"
+                                nombre="@col.ItemArray.GetValue(2).ToString()"
+                                contrl="@col.ItemArray.GetValue(3).ToString()"
+                                nombreatributo="@col.ItemArray.GetValue(4).ToString()"
+                                descripcion="@col.ItemArray.GetValue(5).ToString()">
+                                <span class="badge">@col.ItemArray.GetValue(5).ToString()</span>
+                                @col.ItemArray.GetValue(4).ToString()
+                            </li>
+                        }
+                    </ul>
+
+                    <div id="contenedorElemento" class="form-control">
+                        <div id="reemplazo"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning">No hay mas atributos que agregar</div>
+                }
+            </div>
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="alert alert-warning">No se encontraron coincidencias.</div>
+}

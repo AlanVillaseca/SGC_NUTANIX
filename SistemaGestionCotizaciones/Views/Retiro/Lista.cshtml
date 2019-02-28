@@ -1,0 +1,58 @@
+﻿
+@{
+    ViewBag.Title = "Lista";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.Retiro
+@using System.Data;
+@using System.Web.Script.Serialization;
+<script>
+    $(document).ready(function () {
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var listaRetiro = @Html.Raw(jss.Serialize(@Model.retirosJson));
+
+        _.each(listaRetiro, function(i){
+            $('#tblRetiros tbody').append('<tr ide="'+ i.idretiro +'">\
+                                                <td>'+ i.idretiro +'</td>\
+                                                <td>'+ i.nomproyecto +'</td>\
+                                                <td>'+ i.nomcotizacion +'</td>\
+                                                <td>'+ i.fecha +'</td>\
+                                                <td>'+ i.nomestado +'</td>\
+                                                    ');
+        });
+
+        $("#tblRetiros tbody tr").click(function () {
+            var idRetiro = $(this).attr("ide");
+            var dir = '@Url.Action("DetalleRetiro", "Retiro", new { id =  "reemplazo" })';
+            dir = dir.replace("reemplazo", idRetiro);
+
+            window.location.href = dir;
+        });
+    });
+</script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            <h3 id="ttl">Retiros</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12" style="border-top:solid 2px #8FBE00;"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="tblRetiros" class="table table-condensed table-hover table-responsive">
+                <thead>
+                    <tr>
+                        <th class="col-md-1">ID</th>
+                        <th class="col-md-3">Proyecto</th>
+                        <th class="col-md-3">Cotización</th>
+                        <th class="col-md-1">Fecha</th>
+                        <th class="col-md-4">Estado</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>

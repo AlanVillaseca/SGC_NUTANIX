@@ -1,0 +1,302 @@
+﻿
+@{
+    ViewBag.Title = "CotizacionesNutanix";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    $(document).ready(function () {
+
+        let divOculto = $('#resultado');
+        divOculto.hide();
+        divOculto.show(300);
+    });
+
+    function espereUnmomento() {
+        let divCargando = $('#wait');
+        divCargando.addClass("loader").show();
+
+        function quitarDivCargando() {
+            divCargando.removeClass("loader");
+
+        }
+
+        setInterval(quitarDivCargando, 2000);
+    }
+</script>
+
+
+
+
+    @*------------------------libreria necesaria para el loading...----------------*@
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    @*--------------------------Cambiar a archivo css-------------------*@
+<style>  
+.loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('../../Content/img/loading.gif') 50% 50% no-repeat rgb(249,249,249);
+    opacity: .8;
+}
+.ready {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('../../Content/img/visto.gif') 50% 50% no-repeat rgb(249,249,249);
+    opacity: .8;
+}
+</style>
+    @*--------------------------Cambiar a archivo css-------------------*@
+
+<div id="resultado" class="container-fluid">
+    <div class="row">
+        <div class="col-md-4 col-sm-4">
+            <h3 id="ttl">Componentes Nutanix</h3>
+        </div>
+    </div>
+
+    <div id="wait"></div>
+    <div id="borde" class="row">
+        <div style="border-top:solid 1px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;padding-bottom:2%;"></div>
+    </div>
+
+
+
+    @*---------------------------------Comienzo Descripción-------------------*@
+
+
+    <div class="row">
+        <div id="desc" class="form-group col-md-3" >
+            <label for="">SGC</label>
+            <p class="form-control-static">46</p>
+        </div>
+        <div id="desc" class="form-group col-md-3">
+            <label for="">Descripción</label>
+            <p class="form-control-static">CAB_SGC</p>
+        </div>
+        <div id="pyct_est" class="form-group col-md-3">
+            <label for="">#Com</label>
+            <p class="form-control-static">42</p>
+        </div>
+        <div id="usu_cr" class="form-group col-md-3">
+            <label for="">Estado Cotización</label>
+            <p class="form-control-static">Delivery</p>
+        </div>
+
+    </div>
+
+
+    @*---------------------------------Final Descripción----------------------*@
+
+
+    <div class="row">
+
+
+
+        <table class="table table-hover table-striped">
+
+            <thead>
+
+                <tr>
+                    <th class="col-md-3">Seleccione</th>
+                    <th class="col-md-3">Id componente</th>
+                    <th class="col-md-3">Nombre componente</th>
+                    <th class="col-md-3">Nombre Plantilla</th>
+                    <th class="col-md-3">Acción</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+                <tr>
+
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                        </div>
+                    </td>
+                    <td>598</td>
+                    <td>Server desarrollo</td>
+                    <td>Servicio de Colocation</td>
+                    <td><button id="btnCrear" style="background-color:#8FBE00" class="btn btn-primary" data-toggle="modal" data-target="#basicExampleModal">+</button></td>
+                </tr>
+                <tr>
+
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                        </div>
+                    </td>
+                    <td>475</td>
+                    <td>Servidor APP webCenterPortal QA Synapsis</td>
+                    <td>Software adicional para servidores</td>
+                    <td><button id="btnCrear" style="background-color:#8FBE00" class="btn btn-primary" data-toggle="modal" data-target="#basicExampleModal">+</button></td>
+                </tr>
+
+                <tr>
+
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                        </div>
+                    </td>
+                    <td>926</td>
+                    <td>Server BD</td>
+                    <td>Server virtual LPAR</td>
+                    <td><button id="btnCrear" style="background-color:#8FBE00" class="btn btn-primary" data-toggle="modal" data-target="#basicExampleModal">+</button></td>
+                </tr>
+                <tr>
+
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                        </div>
+                    </td>
+                    <td>598</td>
+                    <td>Server desarrollo</td>
+                    <td>Servicio de Colocation</td>
+                    <td><button id="btnCrear" style="background-color:#8FBE00" class="btn btn-primary" data-toggle="modal" data-target="#basicExampleModal">+</button></td>
+                </tr>
+                <tr>
+
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                        </div>
+                    </td>
+                    <td>475</td>
+                    <td>Servidor APP webCenterPortal QA Synapsis</td>
+                    <td>Software adicional para servidores</td>
+                    <td><button id="btnCrear" style="background-color:#8FBE00" class="btn btn-primary" data-toggle="modal" data-target="#basicExampleModal">+</button></td>
+                </tr>
+
+                <tr>
+
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                        </div>
+                    </td>
+                    <td>926</td>
+                    <td>Server BD</td>
+                    <td>Server virtual LPAR</td>
+                    <td><button id="btnCrear" style="background-color:#8FBE00" class="btn btn-primary" data-toggle="modal" data-target="#basicExampleModal">+</button></td>
+                </tr>
+
+
+            </tbody>
+
+        </table>
+        <div style="float:right">
+            <button onclick="espereUnmomento()" id="btn" style="background-color:#8FBE00" class="btn btn-primary ">Crear VMs Seleccionadas</button>
+        </div>
+
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="basicExampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">VM</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-3">
+                                    <h3 id="ttl">Especificaciones adicionales</h3>
+                                </div>
+                            </div>
+                            <div style="border-top:solid 2px #8FBE00;"></div>
+
+                            <div class="row">
+                                <div class="col-md-3 col-sm-3">
+                                    <h5 style="padding-top:2%;">Especificaciones técnicas</h5>
+                                </div>
+                            </div>
+
+                            <div class="row">
+
+                                <div class="form-group col-md-4">
+                                    <label for="inputState">Tipo</label>
+                                    <select id="cmb1" class="form-control">
+                                        <option selected="true" disabled="">Seleccione</option>
+                                        <option value="1">Base de datos</option>
+                                        <option value="2">Aplicación</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="row">
+
+                                <div id="divAmb" class="form-group col-md-4">
+                                    <label for="inputState">Ambiente</label>
+                                    <select id="cmb3" class="form-control">
+                                        <option selected="true" disabled="">Seleccione</option>
+                                        <option value="1">Productivo</option>
+                                        <option value="2">No-productivo</option>
+                                    </select>
+                                </div>
+
+                                <div id="divNeg" class="form-group col-md-4">
+                                    <label for="inputState">Negocio</label>
+                                    <select id="cmb4" class="form-control">
+                                        <option selected="true" disabled="">Seleccione</option>
+                                        <option value="1">Rankia</option>
+                                        <option value="2">Svs</option>
+                                        <option value="3">Cruz_Verde</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+
+                                <div id="divSO" class="form-group col-md-4">
+                                    <label for="inputState">Sistema Operativo</label>
+                                    <select id="cmb2" class="form-control">
+                                        <option selected="true" disabled="">Seleccione</option>
+                                    </select>
+
+                                </div>
+
+                                <div id="divVLA" class="form-group col-md-4">
+                                    <label for="inputState">VLAN</label>
+                                    <select id="cmb5" class="form-control">
+                                        <option selected="true" disabled="">Seleccione</option>
+                                    </select>
+                                </div>
+
+                                <div id="divRec" class="form-group col-md-4">
+                                    <label for="inputState">Recursos</label>
+                                    <select id="cmb6" class="form-control">
+                                        <option selected="true" disabled="">Seleccione</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button id="btn" style="background-color:#8FBE00" class="btn btn-primary">Agregar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

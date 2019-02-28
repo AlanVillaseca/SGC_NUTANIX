@@ -1,0 +1,181 @@
+﻿
+
+@using System.Web.Script.Serialization;
+@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Web.Script.Serialization;
+<link rel="stylesheet" type="text/css" href="~/Content/css/listarProyecto.css" />
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+<script src="~/Scripts/FileSaver.js"></script>
+<script src="~/Scripts/Blob.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var jsonEstados = @Html.Raw(jss.Serialize(Model.dtEstadosJson));
+        var jsonImplementadores = @Html.Raw(jss.Serialize(Model.dtImplementadorJson));
+        var jsonJefesProyectos = @Html.Raw(jss.Serialize(Model.dtJefeProyectoJson));
+        var idestado;
+        var implementador;
+        var jefeproyecto;
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+
+        _.each(jsonEstados, function(i) {
+
+            $('#cmb_estado').append('<option value="' + i.idestado + '">' + i.descripcion + '</option>');
+
+        });
+
+        _.each(jsonImplementadores, function(i) {
+
+            $('#cmb_implementador').append('<option value="' + i.User + '">' + i.Implementador + '</option>');
+
+        });
+
+        _.each(jsonJefesProyectos, function(i) {
+
+            $('#cmb_jefe_proyecto').append('<option value="' + i.User + '">' + i.JefeProyecto + '</option>');
+
+        });
+
+
+        $(document).on('click', '#btnEnviar', function () {
+
+            if ($("#divBtn").validar()) return;
+            $('#btnEnviar').prop('disabled', true);
+            $('#btnEnviar').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            idestado = $('#cmb_estado').val();
+            implementador = $('#cmb_implementador').val();
+            jefeproyecto = $('#cmb_jefe_proyecto').val();
+
+
+            $.ajax({
+                url: '@Html.Raw(Url.Action("FileXls", "Descarga"))',
+                type: 'POST',
+                data: {
+                    idestado: idestado,
+                    implementador : implementador,
+                    jefeproyecto : jefeproyecto
+                },
+                success: function (data) {
+                    
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoCotizaciones.csv");
+
+                    location.href = '@Url.Action("index", "Descarga")';
+                }
+            });
+
+
+
+
+
+        });
+    });
+
+</script>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 col-sm-6">
+            <h3 id="ttl">Descargar Listado de Cotizaciones por Estado</h3>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="form-group col-md-3 col-sm-3">
+
+            <ul>
+                <li>
+                    <label>Estado</label>
+                </li>
+
+                <li>
+                    <fieldset>
+                        <select id="cmb_estado" class="form-control">
+                            <option value="-1" selected>Todos</option>
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+
+        </div>
+
+        <div class="form-group col-md-3 col-sm-3">
+
+            <ul>
+                <li>
+                    <label>Implementador</label>
+                </li>
+
+                <li>
+                    <fieldset>
+                        <select id="cmb_implementador" class="form-control">
+                            <option value="-1" selected>Todos</option>
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+
+        </div>
+
+        <div class="form-group col-md-3 col-sm-3">
+
+            <ul>
+                <li>
+                    <label>Jefe Proyecto</label>
+                </li>
+
+                <li>
+                    <fieldset>
+                        <select id="cmb_jefe_proyecto" class="form-control">
+                            <option value="-1" selected>Todos</option>
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div id="divBtn" class="modal-footer">
+            <button id="btnEnviar" type="submit" class="btn btn-primary"><i class="fa fa-file-excel-o"></i> Exportar CSV</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+

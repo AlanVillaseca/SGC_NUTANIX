@@ -1,0 +1,471 @@
+﻿@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@using Microsoft.AspNet.Identity;
+
+
+
+@model SistemaGestionCotizaciones.Models.Componente
+@using System.Data
+@using System.Web.Script.Serialization;
+@using ExtensionMethods;
+@using System.Web.Script.Serialization;
+
+<style>
+    #frm_vriabl {
+        position: absolute;
+        top: 200px;
+        left: 90px;
+    }
+
+    #loadingDiv {
+        position: absolute;
+        top: 500px;
+        left: 30%;
+        background: rgba(255,255,255,0.7);
+    }
+
+    .modCustom {
+        right: 0;
+        left: auto;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        text-align: center;
+    }
+
+    .modDialog {
+        position: fixed;
+        bottom: 0px;
+        right: 0px;
+        top: auto;
+        left: auto;
+    }
+
+    #reemplazo {
+        text-align: center;
+    }
+
+    #reemplazo input {
+        margin: 0 auto;
+    }
+
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    .fila {
+        display: inline-table;
+        width: 180px;
+        height: 60px;
+    }
+
+    .input-sm {
+        *width: 150px;
+    }
+
+    textarea {
+        width: 450px;
+        height: 200px;
+        resize: none;
+        color: #555;
+        vertical-align: middle;
+        background-color: #FFF;
+        border: 1px solid #CCC;
+        border-radius: 4px;
+    }
+
+        textarea:focus {
+            border-color: #66AFE9;
+            outline: 0px none;
+            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(102, 175, 233, 0.6);
+        }
+</style>
+@if (ViewBag.Error == "")
+{
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var breadcrumbsJson = @Html.Raw(jss.Serialize(@Model.arbolJson));
+        var familiasJson = @Html.Raw(jss.Serialize(@Model.familiasJson));
+
+        $.ajaxSetup({'global':true});
+
+        _.each(_.sortBy(familiasJson,function (j) { return j.Familia.toLowerCase(); }), function(i){
+            if($('#cmbFamilia option[value='+i.idFamilia+']').length == 0){
+                $('#cmbFamilia').append('<option value="'+ i.idFamilia +'">'+i.Familia+'</option>');
+            }
+
+        });
+
+        var idCotizacion = '@Model.idCotizacion';
+        $("#hiddenCot").val(idCotizacion);
+
+        $('#loadingDiv').hide();
+
+        //$(document).ajaxStart(function () {
+
+        //    $('#modal-cargando').modal('show');   // show Loading Div
+
+        //}).ajaxStop(function () {
+
+        //    $('#modal-cargando').modal('hide'); // hide loading div
+
+        //});
+
+
+        $('#cmbSubfamilia').attr('disabled',true);
+        $('#cmbPlantilla').attr('disabled',true);
+        $('#cmbFamilia').click(function(){
+
+            //select: function (event, ui) {
+            var idFamilia = $(this).val();
+
+
+            $('#cmbSubfamilia').html('');
+            $('#cmbPlantilla').html('');
+
+
+
+            if (idFamilia == -1){
+                $('#cmbSubfamilia').attr('disabled',true);
+                $('#cmbPlantilla').attr('disabled',true);
+                return;
+            }
+
+
+
+            $('#cmbSubfamilia').append('<option value="-1"></option>');
+            _.each(_.sortBy(_.where(familiasJson, {idFamilia : idFamilia}), function (j) { return j.Subfamilia.toLowerCase(); }), function(i){
+
+                if($('#cmbSubfamilia option[value='+i.idSubFamilia+']').length == 0){
+                    $('#cmbSubfamilia').append('<option value="'+ i.idSubFamilia +'">'+i.Subfamilia+'</option>');
+                }
+                //$('select').selectmenu('refresh');
+            });
+            //$('select').selectmenu('refresh');
+            //}
+            $('#cmbSubfamilia').attr('disabled',false);
+            $('#cmbPlantilla').attr('disabled',true);
+        });
+
+        $('#cmbSubfamilia').click(function(){
+            //select: function (event, ui) {
+            var idSubfamilia = $(this).val();
+            //alert(idSubfamilia);
+            $('#cmbPlantilla').html('');
+            //$('select').selectmenu('refresh');
+            //console.log(JSON.stringify(familiasJson));
+            if (idSubfamilia == -1){
+                $('#cmbSubfamilia').attr('disabled',false);
+                $('#cmbPlantilla').attr('disabled',true);
+                return;
+            }
+
+            $('#cmbPlantilla').append('<option value="-1"></option>');
+            _.each(_.sortBy(_.where(familiasJson, {idSubFamilia : idSubfamilia}), function (j) { return j.Plantilla.toLowerCase(); }), function(i){
+                //if($('#cmbPlantilla option[value='+i.Idplantilla+']').length == 0){
+                $('#cmbPlantilla').append('<option value="'+ i.Idplantilla +'">'+i.Plantilla+'</option>');
+                //}
+                //$('select').selectmenu('refresh');
+            });
+            //$('select').selectmenu('refresh');
+            //}
+            $('#cmbPlantilla').attr('disabled',false);
+        });
+
+        $('#cmbPlantilla').click(function(){
+            //select: function (event, ui) {
+            var Idplantilla = $(this).val();
+            if (Idplantilla == -1){
+                return;
+            }
+            //var url = 'vpComponente/' + Idplantilla;
+            var url = '@Html.Raw(Url.Action("vpCotizador", "Componente"))'
+            url = url + '/' + Idplantilla;
+            //$('#dmc_cntdo').load(url);
+            $('#dmc_newArbol').load(url);
+            //$('#tblArbol').show();
+
+            //}
+        });
+        $('#modal').click(function () {
+            $('.config')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#config').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+
+            var url = '@Html.Raw(Url.Action("modCamposComponentes", "Componente", new {id = "reemplazo" }))'
+
+            url = url.replace("reemplazo", '1');
+
+            $('#vpmodal').load(url);
+        });
+
+        $('#val').click(function(){
+
+            var a = $('#render').validar();
+        });
+
+        /************************************************************************/
+        /*                           BOTON GUARDAR                              */
+        /************************************************************************/
+        $(document).on("click", "#btnGuardar", function () {
+            //$('#btnGuardar').prop('disabled', true);
+            $('.bsError').hide();
+            if ($('#idNvaCompo').validar()){
+                $('#errLabel').text('No se pudo realizar la acción. Existen campos con error');
+                $('.bsError').show();
+                $('#btnGuardar').prop('disabled', false);
+                return;
+            }
+
+            var validate = 0;
+            $.ajax({
+                type: 'POST',
+                data: {idcotizacion: '@Model.idCotizacion', id: $("#cmbPlantilla").val(), tipo: 'C'},
+                url: '@Url.Action("vpValidarServicioComponente", "Componente")',
+                async: false
+            }).done(function(response){
+                var valor = parseInt(response);
+                //El servicio que se quiere ingresar no tiene centro de costo
+                if(valor == 9){
+                    validate = 2;
+                }
+
+                //El nuevo servicio es del mismo centro de costo que los demas servicios
+                if(valor != 9 && valor != 1 && valor > 0){
+                    validate = 1;
+                }
+                //No se han ingresado servicio a la cotizacion, se prosigue
+                if(valor < 0){
+                    validate = 1;
+                }
+
+                if(valor == 0){
+                    validate = 0;
+                }
+                if(valor == 1){
+                    validate = 1;
+                }
+        });
+
+
+
+
+        if(validate == 0){
+             alert("No se pueden combinar componentes de gerencias diferentes.");
+             return;
+         }
+
+         if(validate == 2){
+             alert("El componente que quiere ingresar no tiene centro de costo asignado");
+             return;
+         }
+
+
+        //alert($("#cmbPlantilla").val());
+        /*
+        jsonArr = _.reject(jsonArr, { tipo: '2' });
+        jsonArr = _.reject(jsonArr, { tipo: '3' });
+        jsonArr = _.reject(jsonArr, { tipo: '4' });
+        jsonArr = _.reject(jsonArr, { tipo: '5' });
+        */
+        var jsonArr = [];
+        $("#tabSoftAdicional #listaBody .row").each(function(){
+            var saNombre = $(".nombre", this).text();
+            var saLicencias = $(".licencias", this).text();
+            var saMantencion = $(".mantencion", this).text();
+
+
+
+            jsonArr.push({
+                id: '-',
+                tipo: '2',
+                padre: '-',
+                nombre: saNombre,
+                licencias: saLicencias,
+                mantencion: saMantencion,
+                cotizacion: $("#hiddenCot").val(),
+                plantilla: $("#cmbPlantilla").val()
+            });
+        });
+        $(".ctrlVar").each(function(){
+            var tmpValor = $(this).val();
+            if($(this).hasClass('solo-numero-dec')){
+                tmpValor = tmpValor.replace(',','.');
+            }
+            //alert(tmpValor);
+            jsonArr.push({
+                id: $(this).attr("id").substr(1),
+                tipo: '4',
+                padre: '-',
+                nombre: tmpValor,
+                licencias: '-',
+                mantencion: '-',
+                cotizacion: $("#hiddenCot").val(),
+                plantilla: $("#cmbPlantilla").val()
+            });
+        });
+        var hdNombre = $('#hdtxtNombre').val();
+        var hdDescripcion = $('#hdtxtDescripcion').val();
+        var hdDolar = $('#hdtxtDolar').val();
+        var hdUf = $('#hdtxtUf').val();
+        var hdDepSW = $('#hiddenDEPSW').val();
+        var hdDepHW = $('#hiddenDEPHW').val();
+        jsonArr.push({
+            id: 0,
+            tipo: '5',
+            padre: hdNombre, //Nombre
+            nombre: hdDolar, //valor dolar
+            licencias: hdUf, //valor uf
+            mantencion: hdDepSW, //annos sw
+            cotizacion: hdDepHW, // annos hw
+            plantilla: hdDescripcion //Descripcion
+        });
+
+        var dirUrl = $('#urlCoti').attr('href');
+
+        $('#modal-cargando').modal('show');
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("jsonReceiver")',
+            data: JSON.stringify(jsonArr),
+            async: false,
+            contentType: "application/json; charset=utf-8"//,
+            //dataType: "json"
+        }).done(function(resp){
+            if (resp.length > 0){
+                c_alert('Error', resp, 'Aceptar');
+                $('#btnGuardar').prop('disabled', false);
+            }
+            else
+            {
+                window.location.href = dirUrl;
+            }
+            $('#modal-cargando').modal('hide');
+
+           
+            
+
+
+        });
+    });
+
+    });
+
+
+
+
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+
+    <div id="idNvaCompo" class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <h3 id="ttl">Nueva Componente</h3>
+            </div>
+
+            <div class="col-md-9 text-right">
+                <ol class="breadcrumb">
+                    <li><a href="@Url.Action("Listar","Proyecto")">Inicio</a></li>
+                    <li><a href="@Url.Action("Detalle", "Proyecto", new { id = Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(0) })">Proyecto: @Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(1)</a></li>
+                    <li><a id="urlCoti" href="@Url.Action("Detalle", "Cotizacion", new { id = Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(2) })">Cotizacion: @Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(3)</a></li>
+                    <li class="active">Nueva Componente</li>
+                </ol>
+            </div>
+        </div>        
+
+
+        <div id="config" class="modal fade modCustom">
+            <div class="modal-dialog modDialog">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <div id="vpmodal"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <label class="control-label">Familia</label>
+            <select id="cmbFamilia" class="form-control input-sm"><option value="-1"></option></select>
+        </div>
+        <div class="col-md-3">
+            <label class="control-label">Subfamilia</label>
+            <select id="cmbSubfamilia" class="form-control input-sm"></select>
+        </div>
+        <div class="col-md-3">
+            <label class="control-label">Plantilla</label>
+            <select id="cmbPlantilla" class="form-control input-sm"></select>
+        </div>
+        
+    </div>
+       
+
+
+
+    <input id="hiddenCot" type="hidden" />
+
+        <div id="dmc_newArbol"></div>
+        <div id='loadingDiv'>
+            <img src="~/Content/img/loading2.gif" />
+        </div>
+    </div> @**** FIN CONTENEDOR ****@
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal-cargando" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog" style="width:85px">
+
+            <div class="modal-content">
+                <div class="modal-body">
+                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+
+                    <label>Cargando...</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+   
+
+    </script>
+    <!-- Modal -->
+
+}
+else
+{
+    <script>
+
+        $(document).ready(function() {
+
+            error('@Html.Raw(ViewBag.Error)');
+
+        });
+
+    </script>
+
+    <div id="contenedorPagina">
+        <div id="msg_wrn" class=""><span></span></div>
+    </div>
+}
+

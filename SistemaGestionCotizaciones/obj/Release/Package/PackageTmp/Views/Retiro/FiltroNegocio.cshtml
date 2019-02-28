@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewBag.Title = "SilicitudRetiro";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.RetiroComponentes
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var Negocios = @Html.Raw(jss.Serialize(Model.negociosJson));
+        var InfraestructuraJson;
+        var idservicionegocio;
+        var ambiente;
+        var ncomponentes;
+
+        if('@ViewBag.Idnegocio' != '') {
+
+            _.each(Negocios, function(index){
+
+
+                if(index.Idnegocio == '@ViewBag.Idnegocio'){
+
+                    $('#cmb_negocios').append('<option value="' + index.Idnegocio + '" selected>' + index.Descripcion + '</option>');
+
+                } else {
+
+                    $('#cmb_negocios').append('<option value="' + index.Idnegocio + '">' + index.Descripcion + '</option>');
+
+                }
+
+            });
+
+            $('#tb_servicionegocio').load('@Url.Action("vpFiltroNegocio", "retiro")', {idnegocio: '@ViewBag.Idnegocio'});
+
+
+        } else {
+
+            _.each(Negocios, function(index){
+
+                $('#cmb_negocios').append('<option value="' + index.Idnegocio + '">' + index.Descripcion + '</option>');
+
+            });
+
+        }
+
+
+        $('#cmb_negocios').change(function() {
+
+
+            if($(this).val() != -1) {
+
+                $('#modal-cargando').modal('show');
+
+                $('#tb_servicionegocio').load('@Url.Action("vpFiltroNegocio", "Retiro")', {idnegocio: $('#cmb_negocios').val()});
+
+            }
+
+            $('#modal-cargando').modal('hide');
+
+        });
+
+
+        $(document).on('click','#tb_infraestructura tr', function() {
+
+
+            if($(this).attr('id') != '-1') {
+
+                var dir = '@Html.Raw(Url.Action("FiltroAmbiente", "Retiro", new { id = "reemplazo" }))';
+                dir = dir.replace("reemplazo", $(this).attr('id'));
+
+                window.location.href = dir;
+
+            }
+
+        });
+
+    });
+</script>
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-4 col-sm-4">
+            <h3 id="ttl">Solicitud de Retiro</h3>
+        </div>
+        <div class="col-md-8 col-sm-8 text-right">
+            <ol class="breadcrumb">
+                <li class="active">Inicio</li>
+            </ol>
+        </div>
+    </div>
+
+
+    <div class="row">
+
+        <div id="negocios" class="form-group col-md-3">
+            <ul>
+                <li>
+                    <label for="">Negocios</label>
+                </li>
+
+                <li>
+                    <fieldset>
+                        <select id="cmb_negocios" class="input-sm form-control">
+                            <option value="-1" selected>Seleccionar</option>
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div id="tb_servicionegocio"></div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal-cargando" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog" style="width:85px">
+
+            <div class="modal-content">
+                <div class="modal-body">
+                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+
+                    <label>Cargando...</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal -->
+
+</div>

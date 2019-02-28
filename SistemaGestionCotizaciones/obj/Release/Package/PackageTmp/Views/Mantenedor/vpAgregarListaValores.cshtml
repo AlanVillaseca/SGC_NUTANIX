@@ -1,0 +1,295 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+
+<style>
+    #panValores{
+        height: 350px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+</style>
+<script>
+ 
+    var Json = [];
+    var existeLista = false;
+    var contLista = 0;
+
+    $(document).ready(function () {
+        
+        var listaJson=[];
+
+        $("#lista").hide();
+
+        $('#selHeader').change(function () {
+
+                $('#listaElementos').empty();
+                $('#listaBody').empty();
+
+                if ($("#selHeader").val() > 0) {
+
+                    var URL = ' @Html.Raw(Url.Action("jsonListaValoresLV", "Mantenedor", new { id = "param-id" }))';
+
+                    URL = URL.replace("param-id", $("#selHeader").val());
+
+                    $.ajax({
+                        dataType: "json",
+                        url: URL,
+                        async: false,
+                    }).done(function (varJson) {
+
+                        listaJson = varJson;
+
+                        _.each(varJson, function (i) {
+
+                            $('#listaElementos').append("<div id=trx" + i.Idlistavalores +
+                             " class='row'>" + ''
+                             + "<div class='col-md-6 valor'>" +
+                             i.Valor + "</div><div class='col-md-6 descripcion'>" + i.Descripcion
+                             + "</div>");
+                        });
+                    });
+
+                    $("#lista").show();
+                }
+                else {
+                    $("#lista").hide();
+
+
+                }
+
+        });
+      
+        $('#btnEnviar').click(function () {
+
+            $('#btnEnviar').attr('disabled', true);
+
+            id = $('select#selHeader').val();
+            
+            var valores = new String("");
+            var i = 1;
+
+            $("#listaBody .row").each(function () {
+
+                var Nombre = $(".nombre", this).text();
+                var Descripcion = $(".descripcion", this).text();
+
+                valores += Nombre + ";" + Descripcion + '*';
+                i++;
+
+            });
+
+            if ($('#nvo_header').validar()) {
+
+                if (i < 2 && valores.trim().length <= 2) {
+
+                    alert('La lista  esta vacia.');
+
+                }
+
+                if ($('select#selHeader').val() == 0) {
+
+                    alert('Debe seleccionar un elemento.');
+
+                }
+
+                return;
+            }
+            
+            if (i > 1 && valores.trim().length && $('select #selHeader').val() != 0 && !existeLista) {
+
+                var URL = '@Url.Action("vpAgregarListaValores", "Mantenedor", new { id = "idR", cadena = "cadenaR" })';
+
+                URL = URL.replace('idR', id);
+                URL = URL.replace('cadenaR', valores);
+
+                $.ajax({
+
+                    type: "POST",
+                    url: URL,
+                    async: false
+
+                });
+
+                $(".modal").modal("toggle");
+
+                location.reload();
+            }
+            else {
+
+                if (i < 2 && valores.trim().length <= 2) {
+
+                    alert('La lista  esta vacia.');
+
+                }
+               
+                if ($('select#selHeader').val() == 0) {
+
+                    alert('Debe seleccionar un elemento.');
+
+                }
+
+            }
+            $('#btnEnviar').attr('disabled',false);
+            
+        });
+
+
+        $("#btnAgregar").click(function () {
+
+            existeLista = false;
+
+            var nombre = $("#txtNombre").val().trim();
+            var descripcion = $("#txtDescripcion").val().trim();
+
+            if ($('#selHeader').val() == 0) {
+
+                alert('Debe ' + $('#lbselHeader').text());
+
+                return;
+            }
+            else {
+                
+                _.each(listaJson, function (i) {
+
+                    var temp = i.Valor.toString();
+
+                    if (temp.toLowerCase().trim() == nombre.toLowerCase().trim()) {
+
+                        existeLista = true;
+
+                    }
+
+                });
+
+                if ($("#txtNombre").val().trim().length != 0 && $("#txtDescripcion").val().trim().length != 0 && !existeLista) {
+
+                    contLista = contLista + 1;
+
+                    $('#listaBody').append("<div id=trx" + contLista.toString() + " class='row'>\
+                                                <div class='col-md-6 nombre'>" + nombre + "</div>\
+                                                <div class='col-md-5 descripcion'>" + descripcion + "</div>\
+                                                <div class='col-md-1'>\
+                                                    <a class='btnEliminar' style='cursor:pointer;' id=x" + contLista.toString() + ">\
+                                                    <span class='glyphicon glyphicon-remove'></span>\
+                                                    </a>\
+                                                </div>\
+                                            </div>");
+
+                    $("#txtNombre").val('');
+
+                    $("#txtDescripcion").val('');
+
+                }
+                else {
+
+                    if ($("#txtNombre").val().trim().length == 0) {
+
+                        alert('Debe ingresar un nombre.');
+
+                        $("#txtNombre").focus();
+                    }
+
+                    if ($("#txtDescripcion").val().trim().length == 0) {
+
+                        alert('Debe ingresar una descripción.');
+
+                        $("#txtDescripcion").focus();
+                    }
+
+                    if (existeLista) {
+                    
+                        alert('El valor ya existe en esta lista.');
+
+                    }
+                }
+            }
+        
+        });
+
+        $(document).on("click", ".btnEliminar", function () {
+            var ide = $(this).attr("id");
+            
+            contLista--;
+
+            $("#tr" + ide).remove();
+        });
+
+    });
+</script>
+
+
+<div id="msg_wrn" class="row"><span></span></div>
+
+<div id="form_lista_val" role="form" class="container-fluid">    
+        <div id="nom_header" class="row">
+        <div class="col-md-6">
+            <label id="lbSelHeader" class="control-label">Selecione un elemento</label>
+            <select id="selHeader" class="form-control input-sm es-requerido" required>
+                <option value="0">Selecione un Elemento</option>
+                @foreach (DataRow col in Model.dtListHeader.Rows)
+                {
+                    <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                }
+            </select>
+
+        </div>
+    </div>
+    <div id="lista">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <label class="control-label">Valor</label>
+            </div>
+            <div class="col-md-6 col-sm-12 input-group ">
+                <label class="control-label">Descripción</label>
+            </div>
+        </div>
+        <div class="row form-group  ">
+            <div id="input1" class="col-md-6 col-sm-12">
+                <input type="text" required name="valor1" id="txtNombre" class="form-control input-sm  es-texto caracter-250" />
+            </div>
+            <div class="">
+                <div class="col-md-6 col-sm-12 input-group ">
+                    <input type="text" required name="descripcion1" id="txtDescripcion" class="form-control input-sm es-texto caracter-250" />
+                    <span class="input-group-btn">
+                        <button id="btnAgregar" class="btn btn-default btn-sm" type="button">Agregar</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div id="panValores" class="panel-body">
+                <div class="container-fluid">
+            <div class="row">
+                <label>Elementos de la lista</label>
+            </div>
+            <div class="row">
+                        <div class='col-md-6 Nombre'>
+                    <label>Nombre</label>
+                </div>
+                        <div class='col-md-6 descripcion'>
+                    <label>Descripción</label>
+                </div>
+            </div>
+            <div id="listaElementos" class="listaValores"></div>
+            <div class="row">
+                <label>Elementos nuevos</label>
+            </div>
+            <div class="row">
+
+                        <div class='col-md-6 Nombre'>
+                    <label>Nombre</label>
+                </div>
+                        <div class='col-md-6 descripcion'>
+                    <label>Descripción</label>
+                </div>
+            </div>
+            <div id="listaBody" class="listaValores"></div>
+
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+
+
+

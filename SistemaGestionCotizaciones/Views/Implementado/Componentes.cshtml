@@ -1,0 +1,393 @@
+﻿@{
+    ViewBag.Title = "Detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.ComponentesImplementado
+@using System.Data;
+@{string idcomponentes = "";}
+
+<link rel="stylesheet" type="text/css" href="~/Content/css/grilla.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/css/retiroComponentes.css" />
+
+<script>
+    $(document).ready(function () {
+
+        var url = '@Url.Action("vpGrillaComponentes", "Implementado", new { id = ViewBag.IdCotizacion })'
+        var idcomponentes = ';';
+        var arraytemp;
+
+        $('#tb_comp').load(url);
+
+        var cargacheck = function cargacheck() {
+
+            arraytemp = idcomponentes.split(';');
+            $.each(arraytemp, function (index, value) {
+
+                $('.check[value=' + value + ']').prop('checked', true);
+            });
+        }
+
+        function agregarid(id) {
+
+            idcomponentes = idcomponentes + id + ';';
+        }
+
+        function quitarid(id) {
+
+            idcomponentes = idcomponentes.replace(';' + id + ';', ';');
+        }
+
+        function cargacheck() {
+
+            arraytemp = idcomponentes.split(';');
+            $.each(arraytemp, function (index, value) {
+
+                $('.check[value=' + value + ']').prop('checked', true);
+            });
+        }
+
+        $(document).on('click', '.check', function () {
+
+            if ($(this).is(':checked')) {
+                agregarid($(this).val());
+
+                cargacheck();
+            }
+            else {
+                quitarid($(this).val());
+
+                cargacheck();
+            }
+
+        });
+
+        $('#btn_nvo_pry').click(function () {
+            $('.modal')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('.modal').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btn_lmp_frt').click(function () {
+
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Implementado", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+            dir = dir.replace("reemplazo2", pagina);
+
+            $('#tb_comp').load(dir);
+        });
+
+        $('#btn_pri_pag').click(function () {
+
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Implementado", new { id = "reemplazo", pagina = "1" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+
+            $('#tb_comp').load(dir, cargacheck);
+
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            var totalpaginas = $("#total_pag").text().slice(4);
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Implementado", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+                dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) - 1);
+
+                $('#tb_comp').load(dir, cargacheck);
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            var totalpaginas = $("#total_pag").text().slice(4);
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Implementado", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+                dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) + 1);
+
+                $('#tb_comp').load(dir, cargacheck);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var totalpaginas = $('#total_pag').text().slice(4);
+            var pagina = $('#txt_pag').val();
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Implementado", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+            dir = dir.replace("reemplazo2", totalpaginas);
+
+            $('#tb_comp').load(dir, cargacheck);
+        });
+
+        $('#retirar').click(function(){
+
+            idcomponentes = idcomponentes.slice(1,-1);
+            var pagina = $('#txt_pag').val();
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Implementado", new { id = "reemplazo", pagina = "1", retiro = "reemplazo2", motivo = "reemplazo3" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+            dir = dir.replace("reemplazo2", idcomponentes);
+            dir = dir.replace("reemplazo3", $('#motivo').val());
+
+            $('#tb_comp').load(dir, cargacheck);
+
+            idcomponentes = ';';
+            $('#motivo').val('');
+        });
+
+        $('#modal').click(function () {
+            $('.config')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#config').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+
+            var url = '@Html.Raw(Url.Action("modCamposComponentes", "Componente", new {id = "reemplazo" }))'
+
+            url = url.replace("reemplazo", '1');
+
+            $('#vpmodal').load(url);
+        });
+
+        $('#gestionar').click(function () {
+            $('#gestion')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#gestion').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#gestAceptar').click(function () {
+
+            var url = '@Html.Raw(Url.Action("modGestionCotizacion", "Componente", new { id = "reemplazo", accion = "7", motivo = "reemplazo2"}))'
+
+            url = url.replace("reemplazo", '1');
+            url = url.replace("reemplazo2", $('#gestion textarea').val());
+
+            $('#vpmodal').load(url);
+            $('#gestion').modal('hide');
+            alert(@ViewBag.sError);
+
+        });
+
+        $('#gestRechazar').click(function () {
+            if ($('#gestion textarea').val() != '') {
+
+                var url = '@Html.Raw(Url.Action("modGestionCotizacion", "Componente", new { id = "reemplazo", accion = "8", motivo = "reemplazo2"}))'
+
+                url = url.replace("reemplazo", '1');
+                url = url.replace("reemplazo2", $('#gestion textarea').val());
+
+                $('#vpmodal').load(url);
+                $('#gestion').modal('hide');
+            }
+            else {
+
+                $('#gestion textarea').addClass('alert-danger');
+                alert('Debe ingresar un motivo para el rechazo');
+            }
+        });
+
+    });
+</script>
+
+<style>
+
+#frm_vriabl {
+    position: absolute;
+    top: 200px;
+    left: 90px;
+}
+
+.breadcrumb {
+    position: absolute;
+    top: 60px;
+    left: 70%;
+    background-color: white;
+}
+
+#loadingDiv{
+    position:absolute;
+    top: 500px;
+    left: 30%;
+    background: rgba(255,255,255,0.7);
+}
+
+.modCustom {
+    right: 0;
+    left: auto;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    text-align: center;
+}
+
+.modDialog {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    top: auto;
+    left: auto;
+}
+
+textarea{
+    width: 450px;
+    height: 200px;
+    resize: none;
+    color: #555;
+    vertical-align: middle;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+}
+
+#gestionCont{
+    text-align: center;
+}
+</style>
+
+@if (ViewBag.Error == "")
+{
+    <div id="contenedorPagina">
+
+        <input id="gestionar" type="button" value="Gestionar" style="position:absolute;top:350px" />
+
+        <h3 id="ttl">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(2)</h3>
+
+        <div id="id_cot" class="form-group fila1 col1">
+            <label for="">Id Cotizacion</label>
+            <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(0)</p>
+        </div>
+
+        <div id="id_prct" class="form-group fila1 col2">
+            <label for="">Id Proyecto</label>
+            <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(0)</p>
+        </div>
+
+        <div id="usu_cr" class="form-group fila1 col3">
+            <label for="">Usuario Creador</label>
+            <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(7)</p>
+        </div>
+
+        <div id="fech_cr" class="form-group fila2 col1">
+            <label for="">Fecha de Cracion</label>
+            <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(3)</p>
+        </div>
+
+        <div id="fech_apr_int" class="form-group fila2 col2">
+            <label for="">Fecha de Aprobacion Interna</label>
+            <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(4)</p>
+        </div>
+
+        <div id="fech_apr_ext" class="form-group fila2 col3">
+            <label for="">Fecha de Aprobacion Externa</label>
+            <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(5)</p>
+        </div>
+
+        <div id="origen" class="form-group fila3 col1">
+            <label for="">Estado del Proyecto</label>
+            <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(6)</p>
+        </div>
+
+        <div style="left:50px;right:50px;margin-right:auto;margin-left:auto;position:absolute;top:310px;background-color:#E8F5C3;height:30px;">
+
+            <label style="position:absolute;top:10px;left:45%">Componentes</label>
+
+            <div id="btn_Func_Tools" class="btn-toolbar btn_shortcut" role="toolbar">
+                <div class="btn-group btn-group-xs" role="group">
+                    <button id="btn_lmp_frt" type="button" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button>
+                    <button id="btn_nvo_pry" type="button" class="btn btn-default" title="Nuevo Proyecto"><span class="glyphicon glyphicon-asterisk"></span></button>
+                </div>
+            </div>
+            <div id="btn_Func_Tools" class="btn-toolbar btn_tools" role="toolbar">
+                <div class="btn-group btn-group-xs" role="group">
+                    <button id="btn_pri_pag" type="button" class="btn btn-default"><span class="glyphicon glyphicon-fast-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-backward"></span></button>
+                </div>
+                <div class="btn-group btn-group-xs" role="group">
+                    <button id="btn_pag_sig" type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-forward"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default"><span class="glyphicon glyphicon-fast-forward"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tb_comp" class="grilla"></div>
+
+        <!-- /.modal -->
+        <div class="modal fade" id="modCustom">
+            <div class="modal-dialog" id="modDialog">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Motivo del Retiro</h4>
+                    </div>
+                    <textarea></textarea>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button id="retirar" type="button" class="btn btn-primary">Retirar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal -->
+
+        <div id="gestion" class="modal fade modCustom">
+            <div class="modal-dialog modDialog">
+                <div id="gestionCont" class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Gestion de la Cotizacion</h4>
+                    </div>
+                    <textarea></textarea>
+                    <div class="modal-footer">
+                        <button id="gestAceptar" type="button" class="btn btn-primary">Aceptar</button>
+                        <button id="gestRechazar" type="button" class="btn btn-primary">Rechazar</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+}
+else
+{
+    <script>
+        error('@ViewBag.Error');
+    </script>
+}
+
+
+
+

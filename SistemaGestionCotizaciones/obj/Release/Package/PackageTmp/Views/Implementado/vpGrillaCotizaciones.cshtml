@@ -1,0 +1,119 @@
+﻿@using System.Data;
+
+<script>
+    $(document).ready(function () {
+        var totalpaginas = '@Model.dtCotizaciones.Rows[0].ItemArray.GetValue(8)'
+        var pagina = '@ViewBag.Pagina'
+
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if ($(this).val() <= totalpaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaCotizaciones", "Implementado", new { id = ViewBag.IdCotizacion, pagina = "reemplazo" }))'
+
+                    dir = dir.replace("reemplazo", $('#txt_pag').val());
+
+                    $('#tb_proyectos').load(dir);
+                }
+
+            }
+        });
+
+        $("#tblListarCotizaciones tr").click(function () {
+
+            var idcotizacion = $(this).attr('id');
+            var dir = '@Url.Action("Componentes", "Implementado", new { id = "reemplazo" })';
+
+            dir = dir.replace("reemplazo", idcotizacion);
+
+            window.location.href = dir;
+        });
+    });
+
+</script>
+
+<style>
+    #paginacion {
+        position: absolute;
+        top: -46px;
+        width: 70px;
+        text-align: initial;
+        right: 20px;
+    }
+
+        #paginacion p {
+            position: absolute;
+            top: 4px;
+            left: 40px;
+            *vertical-align: middle;
+        }
+
+    .input-xs {
+        height: 22px;
+        padding: 5px 5px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+</style>
+
+<div id="tb_cot">
+    @if ((Model.dtCotizaciones.Rows[0].ItemArray.GetValue(8) + "") != "0")
+    {
+        <table id="tblListarCotizaciones" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Cod</th>
+                    <th>Nombre</th>
+                    <th>Creado</th>
+                    <th>Usuario Solicitante</th>
+                    <th>Usuario Asignado</th>
+                    <th>Servicio</th>
+                    <th>Negocio</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow col in Model.dtCotizaciones.Rows)
+                {
+                    <tr id="@col.ItemArray.GetValue(0)">
+                        <td>@col.ItemArray.GetValue(0)</td>
+                        <td>@col.ItemArray.GetValue(2)</td>
+                        <td>@col.ItemArray.GetValue(1)</td>
+                        <td>@col.ItemArray.GetValue(4)</td>
+                        <td>@col.ItemArray.GetValue(5)</td>
+                        <td>@col.ItemArray.GetValue(6)</td>
+                        <td>@col.ItemArray.GetValue(3)</td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div id="paginacion">
+
+            <div style="width:35px;display:inline-block;">
+                <input id="txt_pag" type="text" class="form-control input-xs solo-numero" title="Ir a" value="@ViewBag.Pagina" />
+            </div>
+
+            <p id="total_pag"> de @Model.dtCotizaciones.Rows[0].ItemArray.GetValue(8)</p>
+        </div>
+
+    }
+    else
+    {
+        <div class="row alert alert-warning text-center">
+            No se encontraron coincidencias.
+        </div>
+    }
+</div>
+

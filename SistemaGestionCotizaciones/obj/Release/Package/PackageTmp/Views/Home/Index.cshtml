@@ -1,0 +1,446 @@
+﻿@using Microsoft.AspNet.Identity
+@using ExtensionMethods;
+@using System.Data;
+@using System.Web.Script.Serialization;
+@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/css/mantenedorDetalle.css" rel="stylesheet" />
+
+<script>
+
+    var idHead;
+    var ascDesc;
+    var ascDescAct;
+    var totalPagina,nroRegistros,paginaActual;
+    var tPagina,pagActual;
+
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var jsonTareas = @Html.Raw(jss.Serialize(Model.TareasporUsuarioJson));
+        var jsonUsuarios = @Html.Raw(jss.Serialize(Model.UsuarioJson));
+        var jsonEstados = @Html.Raw(jss.Serialize(Model.EstadosJson));
+        var filasTareas ="";
+
+        $('#divSinPaginacion').hide();
+        $('#Filas').empty();
+
+
+        $('#txt_fecha_pendiente').datepicker({
+            dateFormat: 'dd-mm-yy',
+            maxDate: new Date()
+        });
+
+
+
+
+        $('#containerIndex').show();
+        $('#h4Subtitulo').text('Mis Tareas');
+
+        
+
+        if (jsonTareas.length==0) {
+            $('#divSinPaginacion').show(300);
+            $('#divPaginacion').hide();
+
+            $('#sinPaginacionAnuncio span').html('No tiene tareas pendientes.');
+            return;
+        }
+        _.each(jsonTareas, function (i) {
+
+
+            filasTareas +=  '<tr id="fila_'+i.Idcotizacion+'" idproyecto="' + i.Idproyecto + '" ide="' + i.Idcotizacion + '" tipo="' + i.tipo + '" class="tr">'+
+                            '<td>'+ i.FECHA + '</td>'+
+                            '<td>'+ i.NOMBRE + '</td>'+
+                            '<td>'+ i.Idcotizacion + '</td>'+
+                            '<td>'+ i.cotizacion + '</td>'+
+                            '<td>'+ i.usuario + '</td>'+
+                            '<td>'+ i.accion + '</td>'+
+                            ' </tr>' ;
+
+            totalPagina = i.totalPaginas;
+            nroRegistros = i.totalRegistros;
+            paginaActual = i.paginaActual;
+        });
+
+        _.uniq(jsonUsuarios, function(i) {
+
+            $('#cmb_ultimo_usuario').append('<option value="' + i.usuario + '">' + i.usuario + '</option>');
+
+        });
+
+        _.uniq(jsonEstados, function(i) {
+
+            $('#cmb_estado').append('<option value="' + i.idestado + '">' + i.descripcion + '</option>');
+
+        });
+
+
+
+        $('#txt_fecha_pendiente').val('@ViewBag.fecha');
+        $('#txt_nombre_proyecto').val('@ViewBag.nombreproyecto');
+        $('#txt_idcotizacion').val('@ViewBag.idcotizacion');
+        $('#txt_nombre_cotizacion').val('@ViewBag.nombrecotizacion');
+        $('#txt_fecha_pendiente').val('@ViewBag.fecha');
+        $('#txt_fecha_pendiente').val('@ViewBag.fecha');
+        $('#cmb_estado').val('@ViewBag.estado');
+
+
+        $('#cmb_estado').change(function() {
+
+
+            cargarPagina('0', '', '');
+
+        });
+
+        $('#txt_fecha_pendiente, #txt_nombre_proyecto, #txt_idcotizacion, #txt_nombre_cotizacion').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+
+                cargarPagina('0', '', '');
+
+            }
+
+        });
+
+
+        $('#Filas').append(filasTareas);
+        $('#pNumeroRegistros').text('Total de Registros '+nroRegistros+'.' );
+        $('#pTotalpaginas').append(
+            ' <p id="pTotalpaginas" class="control-label ">'
+                 +'Ir a '+
+                 '<input id="txt_pag" type="text" class="input-xs form-control solo-numero " style="width:25px" value="'+(parseInt(paginaActual)+1)+'" />'
+                 +'de '+totalPagina+' Pág.'
+             +'</p>');
+
+
+
+
+
+        //////////////////////////////////////////////////////////////
+        //  paginacion
+        //
+        //
+        //////////////////////////////////////////////////////////////
+
+
+        @if (ViewBag.ascDescAct == "a") {
+
+                @:$('<span class="glyphicon glyphicon-arrow-up" style="cursor: default;" aria-hidden="true"></span>').appendTo($('#tbMisPendientes thead tr [ide = @ViewBag.idHeadAct]'));
+                                                                }
+
+        @if (ViewBag.ascDescAct == "d") {
+
+                @:$('<span class="glyphicon glyphicon-arrow-down" style="cursor: default;" aria-hidden="true"></span>').appendTo($('#tbMisPendientes thead tr [ide = @ViewBag.idHeadAct]'));
+                                                                }
+
+        $("#tbMisPendientes thead tr th").click(function () {
+
+            idHead = $(this).attr("ide");
+            ascDesc = 'a';
+
+            if(editando == false)
+            {
+
+                if (ascDesc == 'a' && ascDescAct == 'a'  ) {
+                    cargarPagina(parseInt($('#txt_pag').val()-1), idHead, 'd');
+
+                } else {
+                    if (ascDescAct == 'd') {
+                        cargarPagina(parseInt($('#txt_pag').val()-1), idHead, 'a');
+                    } else {
+                        cargarPagina(parseInt($('#txt_pag').val()-1), idHead, 'a');
+                    }
+                }
+            }
+        });
+
+
+        tPagina = totalPagina ;
+
+        pagActual = 0;
+        ascDescAct=ascDesc;
+
+
+        function cargarPagina(id,idHead, ascDesc) {
+
+            var Fecha;
+            var NombreProyecto;
+            var Idcotizacion;
+            var NombreCotizacion;
+            var UsuarioCambio;
+            var Estado;
+
+            Fecha               = $('#txt_fecha_pendiente').val();
+            NombreProyecto      = $('#txt_nombre_proyecto').val();
+            Idcotizacion        = $('#txt_idcotizacion').val();
+            NombreCotizacion    = $('#txt_nombre_cotizacion').val();
+            UsuarioCambio       = $('#cmb_ultimo_usuario').val();
+            Estado              = $('#cmb_estado').val();
+
+
+
+            var url = '@Html.Raw(Url.Action("Index", "Home", new {
+                      id                = "temp-id",
+                      fecha             = "temp-fecha",
+                      nombreproyecto    = "temp-nombreproyecto",
+                      idcotizacion      = "temp-idcotizacion",
+                      nombrecotizacion  = "temp-nombrecotizacion",
+                      usuariocambio     = "temp-usuariocambio",
+                      estado            = "temp-estado"
+                  }))';
+
+            url = url.replace("temp-id", id)
+                     .replace("temp-fecha", Fecha)
+                     .replace("temp-nombreproyecto", NombreProyecto)
+                     .replace("temp-idcotizacion", Idcotizacion)
+                     .replace("temp-nombrecotizacion", NombreCotizacion)
+                     .replace("temp-usuariocambio", UsuarioCambio)
+                     .replace("temp-estado", Estado);
+
+
+            window.location.replace(url);
+        }
+
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+            var key = e.which;
+            if (key == 13) {
+                var valor = parseInt($(this).val() -1);
+
+
+                if (valor >= 0 && valor <= parseInt(tPagina - 1)) {
+                    cargarPagina(valor,idHead,ascDescAct);
+                }
+            }
+        });
+        $('#txt_pag').focus(function () {
+
+            pagActual = $.trim($(this).val());
+            $(this).val($.trim($(this).val()));
+
+        });
+        $('#txt_pag').focusout(function () {
+
+            $(this).val(pagActual);
+
+        });
+        $('#btn_pag_sig').click(function () {
+
+            pagina = parseInt($('#txt_pag').val());
+
+            if (pagina < parseInt(tPagina)) {
+
+                pagina--;
+                cargarPagina(pagina + 1,idHead,ascDescAct);
+
+            }
+
+        });
+        $('#btn_ult_pag').click(function () {
+
+            cargarPagina(tPagina - 1,idHead,ascDescAct);
+
+        });
+
+        $('#btn_pri_pag').click(function () {
+
+            cargarPagina("0",idHead,ascDescAct);
+
+        });
+        $('#btn_pag_ant').click(function () {
+
+            if (parseInt(($('#txt_pag').val())) == 1) {
+
+            } else {
+
+                if (parseInt($('#txt_pag').val()) > parseInt(tPagina)) {
+
+                    pagina = parseInt(tPagina);
+
+
+                } else {
+
+                    pagina = (parseInt($('#txt_pag').val()));
+                    pagina -= 2;
+
+                }
+
+                cargarPagina(pagina,idHead,ascDescAct);
+
+            }
+        });
+        //////////////////////////-----------------------------------------------------------------------------///////////////////
+
+        $("#tbMisPendientes tbody tr").click(function () {
+
+            var identity= $(this).attr("ide");
+            var tipo = $(this).attr("tipo");
+            var idproyecto = $(this).attr('idproyecto');
+
+
+            if (tipo == 'PRO') {
+
+                var dir = '@Html.Raw(Url.Action("Detalle", "Proyecto", new { id =  "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", idproyecto);
+                window.location.href = dir;
+
+            }
+            if (tipo == 'COT') {
+
+                var dir = '@Html.Raw(Url.Action("Detalle", "Cotizacion", new { id =  "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", identity);
+                window.location.href = dir;
+
+            }
+
+            if (tipo == 'RET') {
+
+                var dir = '@Html.Raw(Url.Action("DetalleRetiro", "Retiro", new { id =  "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", identity);
+                window.location.href = dir;
+
+            }
+
+
+        });
+    });
+</script>
+
+
+    <h4 id="h4Subtitulo"></h4>
+
+    <div hidden id="containerIndex" class="container">
+
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                <h5 style="padding-top:2%;">Filtros de Búsqueda</h5>
+            </div>
+        </div>
+
+        <div id="borde" class="row">
+            <div style="border-top:solid 1px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;padding-bottom:2%;"></div>
+        </div>
+
+        <div class="row">
+
+            <div class="form-group col-md-2">
+                <label>Fecha Pendiente</label>
+                <input id="txt_fecha_pendiente" name="txt_fecha_pendiente" type="text" size="10" class="form-control datepicker input-sm" placeholder="Fecha">
+            </div>
+
+            <div class="form-group col-md-3">
+                <label>Nombre Proyecto</label>
+                <input id="txt_nombre_proyecto" type="text" class="form-control input-sm" placeholder="Nombre Proyecto">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label>Idcotización</label>
+                <input id="txt_idcotizacion" type="text" class="form-control input-sm" placeholder="Cód. Cotización">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label>Nombre Cotización</label>
+                <input id="txt_nombre_cotizacion" type="text" class="form-control input-sm" placeholder="Nombre Cotización">
+            </div>
+
+            <div class="form-group col-md-3">
+
+                <ul>
+                    <li>
+                        <label>Estado Cotización</label>
+                    </li>
+
+                    <li>
+                        <fieldset>
+                            <select id="cmb_estado" class="input-sm form-control">
+                                <option value="0" selected>Todos</option>
+                            </select>
+                        </fieldset>
+                    </li>
+                </ul>
+
+            </div>
+
+
+
+        </div>
+
+
+        <div class="row">
+            <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;"></div>
+        </div>
+
+
+        <div class="row">
+
+            <table id="tbMisPendientes" class="grilla table table-responsive table-hover table-striped">
+                <thead>
+
+                    <tr>
+                        <th class="col-md-1">Fecha</th>
+                        <th class="col-md-3">Proyecto</th>
+                        <th class="col-md-1">Idcotización</th>
+                        <th class="col-md-2">Cotización</th>
+                        <th class="col-md-3">Usuario cambio anterior</th>
+                        <th class="col-md-2">Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="Filas" class="tr text-left"></tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div id="divSinPaginacion"  class="container">
+
+            <div class=" row">
+                <div id="sinPaginacionAnuncio" class="row">
+                    <div class="alert alert-success" style="text-align:center" role=" alert">
+                        <span></span>
+                    </div>
+
+                </div>
+               </div>
+
+         </div>
+
+            <div id="divPaginacion" class=" pagination col-md-12 col-sm-12   " style="background-color:#F9F9F9;height:28px;">
+                <div  class=" form-inline " role="form">
+                    <div class="col-md-2 col-sm-2 col-md-offset-1 col-sm-offset-1">
+                        <p id="pNumeroRegistros" class="control-label">Total de Registros </p>
+                    </div>
+                    <div id="pTotalpaginas" class="col-md-2 col-sm-3 col-md-offset-2 col-sm-offset-2 ">
+
+                    </div>
+                </div>
+                <!-- /.btn-toolbar -->
+                <div class="col-md-offset-9 col-sm-offset-9">
+                    <div id="btn_Func_Tools" class="" role="toolbar">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                            <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                            <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                            <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.btn-toolbar -->
+            </div>
+        </div>
+    </div>
+
+
+

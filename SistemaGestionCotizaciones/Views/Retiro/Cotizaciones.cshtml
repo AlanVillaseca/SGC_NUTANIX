@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "Detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.CotizacionesRetiro
+@using System.Data;
+
+<link rel="stylesheet" type="text/css" href="~/Content/css/retiroCotizaciones.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/css/grilla.css" />
+
+<script type="text/javascript" src="~/Scripts/js/proyectoDetalle.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var url = '@Url.Action("vpGrillaCotizaciones", "Retiro", new { id = ViewBag.IdCotizacion })'
+        '@Url.Action("vpAgregarCotizacion", "Proyecto")'
+
+        $('#agr_cot').click(function () {
+            if ($('#agr_cot_popup').is(':hidden'))
+                $('#agr_cot_popup').show();
+            else
+                $('#agr_cot_popup').hide();
+        });
+
+        $('#tb_cot').load(url);
+
+        $('#btn_lmp_frt').click(function () {
+
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaCotizaciones", "Retiro", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+            dir = dir.replace("reemplazo2", pagina);
+
+            $('#tb_cot').load(dir);
+        });
+
+        $('#btn_pri_pag').on('click', function () {
+
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaCotizaciones", "Retiro", new { id = "reemplazo", pagina = "1" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+
+            $('#tb_cot').load(dir);
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            var totalpaginas = $("#total_pag").text().slice(4);
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaCotizaciones", "Retiro", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+                dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) - 1);
+
+                $('#tb_cot').load(dir);
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            var totalpaginas = $("#total_pag").text().slice(4);
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaCotizaciones", "Retiro", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+                dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) + 1);
+
+                $('#tb_cot').load(dir);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var totalpaginas = $('#total_pag').text().slice(4);
+            var pagina = $('#txt_pag').val();
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaCotizaciones", "Retiro", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+            dir = dir.replace("reemplazo2", totalpaginas);
+
+            $('#tb_cot').load(dir);
+        });
+    });
+</script>
+
+@if (ViewBag.Error == "")
+{
+    <div>
+        <h3 id="ttl">Retiro : @Model.dtProyecto.Rows[0].ItemArray.GetValue(0)</h3>
+
+        <div class="row">
+            <div id="desc" class="form-group col-md-3">
+                <label for="">Descripción</label>
+                <p class="form-control-static">@Model.dtProyecto.Rows[0].ItemArray.GetValue(7)</p>
+            </div>
+
+            <div id="fech_cr" class="form-group col-md-3">
+                <label for="">Fecha Solicitud</label>
+                <p class="form-control-static">@Model.dtProyecto.Rows[0].ItemArray.GetValue(1)</p>
+            </div>
+
+            <div id="pyct_est" class="form-group col-md-3">
+                <label for="">Estado del Proyecto</label>
+                <p class="form-control-static">@Model.dtProyecto.Rows[0].ItemArray.GetValue(2)</p>
+            </div>
+
+            <div id="usu_cr" class="form-group col-md-3">
+                <label for="">Creado por</label>
+                <p class="form-control-static">@Model.dtProyecto.Rows[0].ItemArray.GetValue(4)</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="usu_asig" class="form-group col-md-3">
+                <label for="">Asignado a</label>
+                <p class="form-control-static">@Model.dtProyecto.Rows[0].ItemArray.GetValue(6)</p>
+            </div>
+
+            <div id="pyct_serv" class="form-group col-md-3">
+                <label for="">Servicios del Proyecto</label>
+                <p class="form-control-static">@Model.dtProyecto.Rows[0].ItemArray.GetValue(8)</p>
+            </div>
+        </div>
+
+        <div id="tb_cot" class="grilla"></div>
+
+        <div id="agr_cot_popup" class="popup"></div>
+    </div>
+
+}
+else
+{
+    <script>
+        error('@ViewBag.Error');
+    </script>
+}
+
+
+

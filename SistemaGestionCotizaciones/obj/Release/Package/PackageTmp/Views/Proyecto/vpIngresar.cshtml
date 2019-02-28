@@ -1,0 +1,303 @@
+﻿
+@model SistemaGestionCotizaciones.Models.Proyecto
+@using System.Data
+@using System.Net
+
+
+@*<link rel="stylesheet" type="text/css" href="~/Content/css/ingresoProyecto.css" />*@
+<script src="~/Scripts/js/ingresoProyecto.js"></script>
+@*<script src="~/Scripts/js/selectMenu.js"></script>*@
+<script src="~/Scripts/js/validador.js"></script>
+<div id="msg_wrn" class=""><span></span></div>
+
+<style>
+    .ui-selectmenu-menu {
+        z-index:100;
+    }
+
+    .overflow {
+        height: 150px;
+    }
+    #gProrrateo {    
+        height: 180px;
+    overflow-y: scroll;
+    overflow-x:hidden;
+}
+    
+</style>
+
+<script>
+    $(document).ready(function () {
+        var arrClientes = [];
+        var arrSerNegocio = [];
+        var arrCentroCostos = [];
+        var arrNegocios = [];	
+        @foreach (DataRow col in Model.dtServicios.Rows)
+        {
+            <text>
+                arrSerNegocio.push({
+                    idServicioNegocio: '@col.ItemArray.GetValue(0)',
+                    nombre: '@col.ItemArray.GetValue(1)',
+                    descripcion: '@col.ItemArray.GetValue(2)',
+                    idNegocio: '@col.ItemArray.GetValue(3)',
+            idPais: '@col.ItemArray.GetValue(4)',
+            facturable: '@col.ItemArray.GetValue(4)'
+                });
+            </text>
+        }
+        @foreach (DataRow col in Model.dtUsuario.Rows)
+        {
+             <text>
+                arrClientes.push({
+                    Idlistavalores: '@col.ItemArray.GetValue(0)',
+                    idCatalogoElemento: '@col.ItemArray.GetValue(1)',
+                    Valor: '@col.ItemArray.GetValue(2)',                    
+                });
+            </text>
+    }
+        @foreach (DataRow col in Model.dtCentroCostos.Rows)
+        {
+             <text>
+        arrCentroCostos.push({
+            idCentroCostos: '@col.ItemArray.GetValue(0)',
+            gerencia: '@col.ItemArray.GetValue(1)',
+            codigo: '@col.ItemArray.GetValue(2)',
+            facturable: '@col.ItemArray.GetValue(3)'
+        });
+        </text>
+    }
+    @foreach (DataRow col in Model.dtNegocios.Rows)
+        {
+             <text>
+        arrNegocios.push({
+            idPais: '@col.ItemArray.GetValue(0)',
+            pais: '@col.ItemArray.GetValue(1)',
+            idNegocio: '@col.ItemArray.GetValue(2)',
+            negocio: '@col.ItemArray.GetValue(3)',
+            facturable: '@col.ItemArray.GetValue(4)'
+        });
+        </text>
+    }
+        $('#cmbUsuario').empty();
+        $('#cmbUsuario').append('<option value=""></option>');
+        if (arrClientes.length > 0) {
+            _.each(arrClientes, function (i) {
+                $('#cmbUsuario').append('<option value="' + i.Idlistavalores + '">' + i.Valor + '</option>');
+            });
+        }
+        $('#cmbNegocioPais').click(function () {
+            if ($(this).val() == '') {
+                return;
+            }
+            var wServicio = _.where(arrSerNegocio, { idPais: $('option:selected', this).attr('groupid'), idNegocio: $(this).val() });
+            //var wUsuarios = _.where(arrClientes, { idPais: $('option:selected', this).attr('groupid'), idNegocio: $(this).val() });
+            $('#cmbServicio').empty();
+
+            if (wServicio.length > 0) {
+                _.each(wServicio, function (i) {
+                    $('#cmbServicio').append('<option value="' + i.idServicioNegocio + '">' + i.nombre + '</option>');
+                });
+            }
+            else {
+                $('#cmbServicio').append('<option value="">sin servicios</option>');
+            }
+
+
+        });
+        var procont = 2;
+        $('#btnNuevoProrrata').click(function () {
+            $('#gProrrateo').append('<div id="pro' + procont + '" class="row filaPR">\
+                                        <div class="col-xs-3">\
+                                             <select id="aaa" class="form-control input-sm es-requerido"><option value="0">Seleccione</option><option value="1">Centro Costo</option><option value="2">Negocio</option></select>\
+                                        </div>\
+                                        <div class="col-xs-6">\
+                                            <select id="bbb" class="form-control input-sm es-requerido"><option value="0">Seleccione</option></select>\
+                                        </div>\
+                                        <div class="col-xs-2">\
+                                            <input id="ccc" class="form-control input-sm es-requerido solo-numero-dec" type="text" />\
+                                        </div>\
+                                        <div class="col-xs-1">\
+                                            <button id="btn_eli_entidad" type="button" class="btn btn-default" title="Quitar Entidad" style="border:none;"><span class="glyphicon glyphicon-trash"></span></button>\
+                                        </div>\
+                                    </div>');
+            procont = procont + 1;
+        });
+        $(document).on('click', '#gProrrateo #btn_eli_entidad', function () {
+            var idFila = $(this).closest('.row').attr('id');
+            $('#' + idFila).remove();
+        });
+        $(document).on('change','#gProrrateo #aaa',function () {
+            var idTipo = $(this).val();
+            var idFila = $(this).closest('.row').attr('id');
+            $('#' + idFila + ' #bbb').empty();
+            if (idTipo == 1) {
+                $('#' + idFila + ' #bbb').append('<option value="">Seleccione</option>');
+                _.each(_.sortBy(arrCentroCostos,'gerencia'), function (i) {
+                    $('#' + idFila + ' #bbb').append('<option value="' + i.idCentroCostos + '">' + i.gerencia + '</option>');
+                });
+            }
+            if (idTipo == 2) {
+                $('#' + idFila + ' #bbb').append('<option value="">Seleccione</option>');
+                _.each(_.sortBy(_.where(arrNegocios, { facturable: 'True' }), 'pais'), function (i) {
+                    $('#' + idFila + ' #bbb').append('<option groupid="'+ i.idPais +'" value="' + i.idNegocio + '">' + i.pais + ' - ' + i.negocio + '</option>');
+                });
+            }
+        });
+        /*
+        $('#archivo_word').change(function (e) {
+            var files = e.target.files;
+            var file = files[0];
+            
+            if (files && file) {
+                var reader = new FileReader();
+                
+                reader.onload = function (readerEvt) {
+                    
+                    var binaryString = readerEvt.target.result;
+                    $("#ruta").val(btoa(binaryString));
+                    $("#extension").val($('#archivo_word').val());
+                };
+                alert('oe zi');
+                reader.readAsBinaryString(file);
+            }
+        });
+        */
+        $('#archivo_word').change(function (e) {
+            var files = e.target.files;
+            var file = files[0];
+
+            if (files && file) {
+                var reader = new FileReader();
+
+                reader.onload = function (readerEvt) {
+
+                    var chars = new Uint8Array(readerEvt.target.result);
+                    var CHUNK_SIZE = 0x8000;
+                    var index = 0;
+                    var length = chars.length;
+                    var result = '';
+                    var slice;
+
+                    while (index < length) {
+                        slice = chars.subarray(index, Math.min(index + CHUNK_SIZE, length));
+                        result += String.fromCharCode.apply(null, slice);
+                        index += CHUNK_SIZE;
+                    }
+
+                    $("#ruta").val(btoa(result));
+                    $("#extension").val($('#archivo_word').val());
+                };
+
+                reader.readAsArrayBuffer(file);
+            }
+
+        });
+
+    });
+</script>
+
+
+<div id="m_nuevoProy" class="container-fluid">
+
+    @using (Ajax.BeginForm("vpIngresar", "Proyecto", new AjaxOptions { HttpMethod = "POST" }, new { enctype = "multipart/form-data" }))
+    {
+        <input type="hidden" name="hddProrrata" id="hddProrrateo" />
+        <div class="row">            
+            <div id="neg" class="form-group col-xs-4">
+                <label class="control-label">Código PMO</label>
+                <input type="text" name="codigo" class="form-control input-sm" placeholder="Código Proyecto" value="" />
+            </div>     
+
+            <div id="nom_pyct_mdl" class="form-group col-xs-4">
+                <label class="control-label">Nombre del Proyecto</label>
+                <input type="text" name="nombre" class="form-control input-sm es-requerido" placeholder="Nombre Proyecto" value="" />
+                
+            </div>
+            <div id="desc" class="form-group col-xs-4">
+                <label for="">Descripcion del Proyecto</label>
+                @*<input class="form-control input-sm" name="descripcion" />*@
+                <input name="descripcion" class="form-control input-sm" />
+            </div>
+
+
+        </div>
+
+        <div class="row">
+
+            <div id="serv_neg" class="form-group col-xs-4">
+
+                <label class="control-label">Jefe de Proyectos Cliente</label>
+                <input name="cliente" type="text" class="form-control input-sm es-requerido" />
+            </div>
+            <div id="fech_sol_mdl" class="form-group col-xs-4">
+                <label for="">Fecha Solicitud</label>
+                <input type="text" name="fecha" style="resize:horizontal; width:144px;" class="form-control datepicker input-sm" id="fech_cld" placeholder="Ingresar Fecha" readonly>
+            </div>
+            <div id="adj_arch_mdl" class="form-group col-xs-4">
+                <label for="archivo_word">Adjuntar documento</label>
+                <input type="file" id="archivo_word" name="rutaFEP">
+                <input type="hidden" id="ruta" name="ruta" />
+                <input type="hidden" id="extension" name="extension"/>
+
+            </div>
+            <input id="hidePais" name="pais" type="hidden" />
+            <input id="hideProrrateo" name="hideProrrateo" type="hidden" />
+        </div>
+        <div class="row">
+            <div id="neg" class="col-xs-4">
+                <label class="control-label">Negocio</label>
+                <select id="cmbNegocioPais" name="negocio" class="form-control input-sm es-requerido">
+                    <option value="" selected>Seleccione</option>
+                    @foreach (DataRow col in Model.dtNegocios.Rows)
+                    {                       
+                        <option groupid="@col.ItemArray.GetValue(0)" value="@col.ItemArray.GetValue(2)">@col.ItemArray.GetValue(1) - @col.ItemArray.GetValue(3)</option>                        
+                    }
+                    </select>
+            </div>
+            <div id="serv_neg" class="form-group col-xs-4">
+                <label class="control-label">Servicio de Negocio</label>  
+                    <select id="cmbServicio" name="servicio" class="form-control input-sm es-requerido">
+                        <option value="">debe seleccionar negocio</option>
+                    </select>
+            </div>
+            <div id="usu_sol" class="form-group col-xs-4">
+                <label class="control-label">Gerencia Solicitante</label>
+                <select id="cmbUsuario" name="usuario" class="form-control input-sm es-requerido">
+                    <option value="">debe seleccionar negocio</option>
+                </select>
+            </div>
+        </div>
+    }
+    <div class="panel panel-default">
+        <div class="panel-heading">A quienes se factura <a title="Agregar" id="btnNuevoProrrata" href="#"><span class="text-right pull-right glyphicon glyphicon-plus"></span></a></div>
+        <div id="gProrrateo" class="panel-body">
+            <div class="row">
+                <div class="col-xs-3">
+                    <label>Tipo Entidad</label>
+                </div>
+                <div class="col-xs-6">
+                    <label>Entidad</label>
+</div>
+                <div class="col-xs-2">
+                    <label>Prorrata (%)</label>
+                </div>
+            </div>
+            <div id="pro1" class="row filaPR">
+                <div class="col-xs-3">
+                    <select id="aaa" class="form-control input-sm es-requerido"><option value="">Seleccione</option><option value="1">Centro Costo</option><option value="2">Negocio</option></select>
+                </div>
+                <div class="col-xs-6">
+                    <select id="bbb" class="form-control input-sm es-requerido"><option value="">Seleccione</option></select>
+                </div>
+                <div class="col-xs-2">
+                    <input id="ccc" class="form-control input-sm es-requerido solo-numero-dec" type="text" />
+                </div>
+                <div class="col-xs-1">
+                    <button id="btn_eli_entidad" type="button" class="btn btn-default" title="Quitar Entidad" style="border:none;"><span class="glyphicon glyphicon-trash"></span></button>
+                </div>                
+            </div>
+        </div>        
+    </div>
+    </div>
+
+

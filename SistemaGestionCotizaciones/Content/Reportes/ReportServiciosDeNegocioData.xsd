@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ReportServiciosDeNegocioData" targetNamespace="http://tempuri.org/ReportServiciosDeNegocioData.xsd" xmlns:mstns="http://tempuri.org/ReportServiciosDeNegocioData.xsd" xmlns="http://tempuri.org/ReportServiciosDeNegocioData.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="ReportServiciosDeNegocioData" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="ReportServiciosDeNegocioData" msprop:Generator_UserDSName="ReportServiciosDeNegocioData">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="REPORTE_SERVICIOSNEGOCIOS_00" msprop:Generator_TableClassName="REPORTE_SERVICIOSNEGOCIOS_00DataTable" msprop:Generator_TableVarName="tableREPORTE_SERVICIOSNEGOCIOS_00" msprop:Generator_TablePropName="REPORTE_SERVICIOSNEGOCIOS_00" msprop:Generator_RowDeletingName="REPORTE_SERVICIOSNEGOCIOS_00RowDeleting" msprop:Generator_RowChangingName="REPORTE_SERVICIOSNEGOCIOS_00RowChanging" msprop:Generator_RowEvHandlerName="REPORTE_SERVICIOSNEGOCIOS_00RowChangeEventHandler" msprop:Generator_RowDeletedName="REPORTE_SERVICIOSNEGOCIOS_00RowDeleted" msprop:Generator_UserTableName="REPORTE_SERVICIOSNEGOCIOS_00" msprop:Generator_RowChangedName="REPORTE_SERVICIOSNEGOCIOS_00RowChanged" msprop:Generator_RowEvArgName="REPORTE_SERVICIOSNEGOCIOS_00RowChangeEvent" msprop:Generator_RowClassName="REPORTE_SERVICIOSNEGOCIOS_00Row">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="idNegocio" msprop:Generator_ColumnVarNameInTable="columnidNegocio" msprop:Generator_ColumnPropNameInRow="idNegocio" msprop:Generator_ColumnPropNameInTable="idNegocioColumn" msprop:Generator_UserColumnName="idNegocio" type="xs:string" minOccurs="0" />
+              <xs:element name="idPais" msprop:Generator_ColumnVarNameInTable="columnidPais" msprop:Generator_ColumnPropNameInRow="idPais" msprop:Generator_ColumnPropNameInTable="idPaisColumn" msprop:Generator_UserColumnName="idPais" type="xs:string" minOccurs="0" />
+              <xs:element name="Idserviciodenegocio" msprop:Generator_ColumnVarNameInTable="columnIdserviciodenegocio" msprop:Generator_ColumnPropNameInRow="Idserviciodenegocio" msprop:Generator_ColumnPropNameInTable="IdserviciodenegocioColumn" msprop:Generator_UserColumnName="Idserviciodenegocio" type="xs:string" minOccurs="0" />
+              <xs:element name="Nombre" msprop:Generator_ColumnVarNameInTable="columnNombre" msprop:Generator_ColumnPropNameInRow="Nombre" msprop:Generator_ColumnPropNameInTable="NombreColumn" msprop:Generator_UserColumnName="Nombre" type="xs:string" minOccurs="0" />
+              <xs:element name="Descripcion" msprop:Generator_ColumnVarNameInTable="columnDescripcion" msprop:Generator_ColumnPropNameInRow="Descripcion" msprop:Generator_ColumnPropNameInTable="DescripcionColumn" msprop:Generator_UserColumnName="Descripcion" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

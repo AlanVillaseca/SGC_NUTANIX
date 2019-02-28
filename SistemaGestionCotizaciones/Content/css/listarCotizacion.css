@@ -1,0 +1,51 @@
+﻿body{
+    margin-top: 900px;
+}
+
+div{
+    list-style: none;
+}
+
+ul{
+    list-style-type: none;
+    padding: 0px;
+}
+
+#pyct_aso{
+    position: absolute;
+}
+
+#jef_pyct{
+    position: absolute;
+    width: 200px;
+}
+
+#fech_cr{
+    position: absolute;
+    list-style: none;
+}
+
+.datepicker{
+    width: 90px;
+    padding: 6px 12px;
+    line-height: 1.42857;
+    color: #555;
+    vertical-align: middle;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+}
+
+#est_pyct{
+    position: absolute;
+}
+
+#btn_buscar{
+    position: absolute;
+    top: 220px;
+    left: 82%;
+}
+
+#tb_ctn{
+    position: absolute;
+    top: 290px;
+}

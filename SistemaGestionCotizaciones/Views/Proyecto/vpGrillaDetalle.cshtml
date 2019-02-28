@@ -1,0 +1,853 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleProyecto
+@using System.Data;
+@using Microsoft.AspNet.Identity
+@using ExtensionMethods;
+@using System.Web.Script.Serialization;
+
+<style>
+    #paginacion {
+        position: absolute;
+        top: 380px;
+        width: 100px;
+        text-align: initial;
+        right: 400px;
+    }
+
+    #paginacion p {
+        position: absolute;
+        top: 4px;
+        left: 40px;
+        *vertical-align: middle;
+    }
+
+    .input-xs {
+        height: 22px;
+        padding: 5px;
+        font-size: 10px;
+        line-height: 1.5;
+        border-radius: 3px;
+        text-align: center;
+    }
+
+    #txt_leyend {
+        font-size: 10px;
+        position: absolute;
+        left: -20px;
+    }
+
+    #gProrrateo {    
+            height: 150px;
+        overflow-y: scroll;
+        overflow-x:hidden;
+    }
+
+</style>
+
+<script>
+    $(document).ready(function () {
+
+
+        var totalpaginas;
+        @if (@Model.dtCotizaciones.Rows.Count > 0)
+      {
+          @:totalpaginas = '@Model.dtCotizaciones.Rows[0].ItemArray.GetValue(8)';
+                      }
+      else
+      {
+          @:totalpaginas = 0;
+                                                                                                                              }
+
+        /************************************************************************/
+        /*                          OBTENEMOS LOS JSON                          */
+        /************************************************************************/
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var solicitanteCombo = @Html.Raw(jss.Serialize(@Model.solicitanteCombo));
+        var negocioCombo = @Html.Raw(jss.Serialize(@Model.negocioCombo));
+        var servicioNegocioCombo = @Html.Raw(jss.Serialize(Model.servicioNegocioCombo));
+
+        var idcotizacion = '@ViewBag.IdCotizacion'
+        var pagina = '@ViewBag.Pagina'
+
+        var url2 = '@Url.Action("vpAgregarCotizacion", "Proyecto")'
+
+        var arrCentroCostos = [];
+        var arrNegocios = [];
+        var arrProrrata = [];
+        var arrGerencias = [];
+        @foreach (DataRow col in Model.dtCentroCostos.Rows)
+        {
+             <text>
+        arrCentroCostos.push({
+            idCentroCostos: '@col.ItemArray.GetValue(0)',
+            gerencia: '@col.ItemArray.GetValue(1)',
+            codigo: '@col.ItemArray.GetValue(2)',
+            facturable: '@col.ItemArray.GetValue(3)'
+        });
+        </text>
+    }
+        @foreach (DataRow col in Model.dtNegocios.Rows)
+        {
+            <text>
+        arrNegocios.push({
+            idPais: '@col.ItemArray.GetValue(0)',
+            pais: '@col.ItemArray.GetValue(1)',
+            idNegocio: '@col.ItemArray.GetValue(2)',
+            negocio: '@col.ItemArray.GetValue(3)'
+        });
+        </text>
+        }
+        @foreach (DataRow col in Model.dtProrrata.Rows)
+        {
+                 <text>
+        arrProrrata.push({
+            tipo: '@col.ItemArray.GetValue(0)',
+            data: '@col.ItemArray.GetValue(1)',
+            idProyecto: '@col.ItemArray.GetValue(2)',
+            idPais: '@col.ItemArray.GetValue(3)',
+            porcentaje: '@col.ItemArray.GetValue(4)'
+        });
+        </text>
+        }
+        @foreach (DataRow col in Model.dtGerencias.Rows)
+        {
+        <text>
+        arrGerencias.push({
+            Idlistavalores: '@col.ItemArray.GetValue(0)',
+            idCatalogoElemento: '@col.ItemArray.GetValue(1)',
+            Valor: '@col.ItemArray.GetValue(2)',
+        });
+        </text>
+    }
+
+        $('#archivo_word').change(function (e) {
+            var files = e.target.files;
+            var file = files[0];
+
+            if (files && file) {
+                var reader = new FileReader();
+
+                reader.onload = function (readerEvt) {
+
+                    var chars = new Uint8Array(readerEvt.target.result);
+                    var CHUNK_SIZE = 0x8000;
+                    var index = 0;
+                    var length = chars.length;
+                    var result = '';
+                    var slice;
+
+                    while (index < length) {
+                        slice = chars.subarray(index, Math.min(index + CHUNK_SIZE, length));
+                        result += String.fromCharCode.apply(null, slice);
+                        index += CHUNK_SIZE;
+                    }
+
+                    $("#ruta").val(btoa(result));
+                    $("#extension").val($('#archivo_word').val());
+                };
+
+                reader.readAsArrayBuffer(file);
+            }
+
+        });
+
+        $('#sltGerencia').empty();
+        if (arrGerencias.length > 0) {
+            _.each(arrGerencias, function (i) {
+                $('#sltGerencia').append('<option value="' + i.Idlistavalores + '">' + i.Valor + '</option>');
+            });
+        }
+        else
+        {
+            $('#sltGerencia').append('<option value=""></option>');
+        }
+        var procont = 2;
+        _.each(arrProrrata, function(i){
+            $('#gProrrateo').append('<div id="pro' + procont + '" class="row filaPR">\
+                                        <div class="col-xs-3">\
+                                             <select id="aaa" class="form-control input-sm es-requerido"><option value="">Seleccione</option><option value="1">Centro Costo</option><option value="2">Negocio</option></select>\
+                                        </div>\
+                                        <div class="col-xs-6">\
+                                            <select id="bbb" class="form-control input-sm es-requerido"><option value="">Seleccione</option></select>\
+                                        </div>\
+                                        <div class="col-xs-2">\
+                                            <input id="ccc" class="form-control input-sm es-requerido solo-numero-dec" type="text" />\
+                                        </div>\
+                                        <div class="col-xs-1">\
+                                            <button id="btn_eli_entidad" type="button" class="btn btn-default" title="Quitar Entidad" style="border:none;"><span class="glyphicon glyphicon-trash"></span></button>\
+                                        </div>\
+                                    </div>');
+            $('#pro'+procont+ ' #aaa').val(i.tipo);
+            if (i.tipo == 1) {
+                _.each(_.sortBy(arrCentroCostos,'gerencia'), function (i) {
+                    $('#pro' + procont + ' #bbb').append('<option value="' + i.idCentroCostos + '">' + i.gerencia + '</option>');
+                });
+                $('#pro'+procont+ ' #bbb').val(i.data);
+                $('#pro'+procont+ ' #ccc').val(i.porcentaje);
+            }
+            if (i.tipo == 2) {
+                _.each(_.sortBy(arrNegocios,'pais'), function (i) {
+                    $('#pro' + procont + ' #bbb').append('<option groupid="'+ i.idPais +'" value="' + i.idNegocio + '">' + i.pais + ' - ' + i.negocio + '</option>');
+                });
+                $('#pro'+procont+ ' #bbb option[value='+ i.data +'][groupid='+ i.idPais +']').attr('selected',true);
+                $('#pro'+procont+ ' #ccc').val(i.porcentaje);
+            }
+            procont = procont + 1;
+        });
+        $(document).on('change','#gProrrateo #aaa',function () {
+            var idTipo = $(this).val();
+            var idFila = $(this).closest('.row').attr('id');
+            $('#' + idFila + ' #bbb').empty();
+            if (idTipo == 1) {
+                _.each(_.sortBy(arrCentroCostos,'gerencia'), function (i) {
+                    $('#' + idFila + ' #bbb').append('<option value="' + i.idCentroCostos + '">' + i.gerencia + '</option>');
+                });
+            }
+            if (idTipo == 2) {
+                _.each(_.sortBy(arrNegocios,'pais'), function (i) {
+                    $('#' + idFila + ' #bbb').append('<option groupid="'+ i.idPais +'" value="' + i.idNegocio + '">' + i.pais + ' - ' + i.negocio + '</option>');
+                });
+            }
+        });
+        $(document).on('click', '#gProrrateo #btn_eli_entidad', function () {
+            var idFila = $(this).closest('.row').attr('id');
+            $('#' + idFila).remove();
+        });
+        $('#btnNuevoProrrata').click(function () {
+            $('#gProrrateo').append('<div id="pro' + procont + '" class="row filaPR">\
+                                        <div class="col-xs-3">\
+                                             <select id="aaa" class="form-control input-sm es-requerido"><option value="">Seleccione</option><option value="1">Centro Costo</option><option value="2">Negocio</option></select>\
+                                        </div>\
+                                        <div class="col-xs-6">\
+                                            <select id="bbb" class="form-control input-sm es-requerido"><option value="">Seleccione</option></select>\
+                                        </div>\
+                                        <div class="col-xs-2">\
+                                            <input id="ccc" class="form-control input-sm es-requerido solo-numero-dec" type="text" />\
+                                        </div>\
+                                        <div class="col-xs-1">\
+                                            <button id="btn_eli_entidad" type="button" class="btn btn-default" title="Quitar Entidad" style="border:none;"><span class="glyphicon glyphicon-trash"></span></button>\
+                                        </div>\
+                                    </div>');
+            procont = procont + 1;
+        });
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if ($(this).val() <= totalpaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Proyecto", new { id = "reemplazo", idproyecto = ViewBag.Idproyecto, pagina = "reemplazo2"}))'
+
+                    dir = dir.replace("reemplazo", idcotizacion);
+                    dir = dir.replace("reemplazo2", $('#txt_pag').val());
+
+                    $('#tb_cot').load(dir);
+                }
+
+            }
+        });
+
+        $("#tblListarCotizaciones tbody tr").click(function () {
+            var idProyecto = $(this).attr("ide");
+            var dir = '@Url.Action("Detalle", "Cotizacion", new { id =  "reemplazo" })';
+            dir = dir.replace("reemplazo", idProyecto);
+
+            window.location.href = dir;
+        });
+
+        $('#btn_lmp_frt').click(function () {
+
+            var idcotizacion = '@ViewBag.IdCotizacion'
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Proyecto", new { id = "reemplazo", idproyecto = ViewBag.Idproyecto, pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", idcotizacion);
+            dir = dir.replace("reemplazo2", pagina);
+
+            $('#tb_cot').load(dir);
+        });
+
+        $('#btn_pri_pag').on('click', function () {
+
+            var idcotizacion = '@ViewBag.IdCotizacion'
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Proyecto", new { id = "reemplazo", idproyecto = ViewBag.Idproyecto, pagina = "1" }))'
+
+            dir = dir.replace("reemplazo", idcotizacion);
+
+            $('#tb_cot').load(dir);
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            var totalpaginas = $("#total_pag").text();
+            var idcotizacion = '@ViewBag.IdCotizacion'
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Proyecto", new { id = "reemplazo", idproyecto = ViewBag.Idproyecto, pagina = "reemplazo2" }))'
+
+                dir = dir.replace("reemplazo", idcotizacion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) - 1);
+
+                $('#tb_cot').load(dir);
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            var totalpaginas = $("#total_pag").text();
+            var idcotizacion = '@ViewBag.IdCotizacion'
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Proyecto", new { id = "reemplazo", idproyecto = ViewBag.Idproyecto, pagina = "reemplazo2" }))'
+
+                dir = dir.replace("reemplazo", idcotizacion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) + 1);
+
+                $('#tb_cot').load(dir);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var totalpaginas = $("#total_pag").text();
+            var idcotizacion = '@ViewBag.IdCotizacion'
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaDetalle", "Proyecto", new { id = "reemplazo", idproyecto = ViewBag.Idproyecto, pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", idcotizacion);
+            dir = dir.replace("reemplazo2", parseInt(totalpaginas));
+
+            $('#tb_cot').load(dir);
+        });
+        $('#btn_bloquear').click(function () {
+            confirmar = confirm("Bloquear proyecto", "¿Seguro que desea bloquear el proyecto?.", "Cerrar", "Bloquear", function () {
+                var idcotizacion = '@ViewBag.IdCotizacion';
+                var url = '@Url.Action("BloquearProyecto", "Proyecto", new { id = "reemplazo" })'
+                url = url.replace("reemplazo", @ViewBag.Idproyecto);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    async: false
+                }).done(function (err) {
+                    if (err != 'True') {
+                        c_alert('Error al Borrar', err, 'Aceptar');
+                    } else {
+                        window.location.href = '@Url.Action("Listar", "Proyecto")';
+                    }
+                });
+            });
+        });
+        $('#btn_desbloquear').click(function () {
+            confirmar = confirm("Desbloquear proyecto", "¿Seguro que desea desbloquear el proyecto?.", "Cerrar", "Desbloquear", function () {
+                var idcotizacion = '@ViewBag.IdCotizacion';
+                var url = '@Url.Action("DesbloquearProyecto", "Proyecto", new { id = "reemplazo" })'
+                url = url.replace("reemplazo", @ViewBag.Idproyecto);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    async: false
+                }).done(function (err) {
+                    if (err != 'True') {
+                        c_alert('Error al Borrar', err, 'Aceptar');
+                    } else {
+                        window.location.href = '@Url.Action("Listar", "Proyecto")';
+                    }
+                });
+            });
+
+        });
+
+        $('#btn_nvo_pry').click(function () {
+            $('#modNuevoProy')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modNuevoProy').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+            $('#nvo_cot').load(url2);
+        });
+
+        $('#btn_asig_jdp').click(function () {
+            $('#modAsignJDP')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modAsignJDP').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btn_eliminar').click(function () {
+            confirmar = confirm("Eliminar proyecto", "¿Seguro que desea eliminar el proyecto migrado?.", "Cerrar", "eliminar", function () {
+                var idcotizacion = '@ViewBag.IdCotizacion';
+                var url = '@Url.Action("EliminarProyecto", "Proyecto", new { id = "reemplazo" })'
+                url = url.replace("reemplazo", @ViewBag.Idproyecto);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    async: false
+                }).done(function (err) {
+                    if (err != 'True') {
+                        c_alert('Error al Borrar', err, 'Aceptar');
+                    } else {
+                        window.location.href = '@Url.Action("Listar", "Proyecto")';
+                    }
+                });
+            });
+
+        });
+
+        $('#btnGuardarJDP').click(function () {
+            //string id, string idAplicacion, string idAccion, string motivo)
+            var repURL;
+            repURL = '@Html.Raw(Url.Action("AsignarJDPProyecto", "Proyecto", new { id = "param-id", idjefedeproyecto = "param-idjefedeproyecto" }))';
+            repURL = repURL.replace("param-id", $('#hiddenIDProy').val());
+            repURL = repURL.replace("param-idjefedeproyecto", $('#modJDPSel').val());
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function (resp) {
+                if (resp.length > 0) {
+                    alert(resp);
+                }
+                else {
+                    $('#modAsignJDP').modal('toggle');
+                    var heading = 'Acción Exitosa';
+                    var question = 'Se ha asignado correctamente el Jefe de Proyectos';
+                    var cancelButtonTxt = '0';
+                    var okButtonTxt = 'OK';
+                    var callback = function () {
+                        location.reload();
+                    };
+                    confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+                }
+            });
+        });
+
+        $(document).on('click','#btnEditAction',function () {
+            var fNegocio = 0;
+            $('#modEditPry').modal('show');
+
+            $('#sltNeg').html('');
+            $('#sltSng').html('');
+            $('#sltClt').html('');
+
+            $('#txtCod').val('@Html.Raw(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(9))');
+            $('#txtNom').val('@Html.Raw(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(0))');
+            $('#txtDes').val('@Html.Raw(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(7))');
+            $('#txtClt').val('@Html.Raw(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(11))');
+            $('#sltGerencia').val('@Html.Raw(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(16))');
+
+            //alert('@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(16)');
+            _.each(_.uniq(_.pluck(_.flatten(negocioCombo), 'Nombre')), function(value){
+                var eleSel = $('#sltNeg').append('<optgroup label="' + value + '"></optgroup>');
+                _.each(negocioCombo, function(i){
+                    if(i.Nombre == value){
+                        if(i.Idpais == '@Html.Raw(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(14))' && i.Idnegocio == '@Html.Raw(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(12))'){
+                            eleSel.append('<option idpais="' + i.Idpais + '" value="' + i.Idnegocio + '" selected>' + i.Descripcion + '</option>');
+                            fNegocio = 1;
+                        }else{
+                            eleSel.append('<option idpais="' + i.Idpais + '" value="' + i.Idnegocio + '">' + i.Descripcion + '</option>');
+                        }
+                    }
+                });
+            });
+
+            if (fNegocio == 0)
+            {
+                $('#sltNeg').prepend('<option idpais="" value="" selected> </option>');
+            }
+            var oPais;
+            oPais = $('#sltNeg option:selected').attr('idpais');
+            if (_.where(servicioNegocioCombo,{idPais:oPais, idNegocio:$('#sltNeg').val()}).length > 0)
+            {
+                _.each(_.where(servicioNegocioCombo,{idPais:oPais, idNegocio:$('#sltNeg').val()}), function(i){
+                    if(i.Idserviciodenegocio == '@Html.Raw(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(10))'){
+                        $('#sltSng').append('<option value="' + i.Idserviciodenegocio + '" selected>' + i.Nombre + '</option>');
+                    }else{
+                        $('#sltSng').append('<option value="' + i.Idserviciodenegocio + '">' + i.Nombre + '</option>');
+                    }
+                });
+            }
+            else
+            {
+                $('#sltSng').append('<option value="" selected>Sin servicios de negocios asociados</option>');
+            }
+
+            /*
+            var conError = $('#dataEdit').validar();
+
+            if(conError){
+                return;
+            }
+            */
+        });
+
+        $('#sltNeg').click(function(){
+            var oPais;
+            oPais = $('#sltNeg option:selected').attr('idpais');
+            $('#sltSng').html('');
+            if (_.where(servicioNegocioCombo,{idPais:oPais, idNegocio:$('#sltNeg').val()}).length > 0)
+            {
+                _.each(_.where(servicioNegocioCombo,{idPais:oPais, idNegocio:$('#sltNeg').val()}), function(i){
+                    if(i.Idserviciodenegocio == '@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(10)'){
+                        $('#sltSng').append('<option value="' + i.Idserviciodenegocio + '" selected>' + i.Nombre + '</option>');
+                    }else{
+                        $('#sltSng').append('<option value="' + i.Idserviciodenegocio + '">' + i.Nombre + '</option>');
+                    }
+                });
+            }
+            else
+            {
+                $('#sltSng').append('<option value="" selected>Sin servicios de negocios asociados</option>');
+            }
+        });
+
+        $('#modEditGuardar').click(function (){
+            var conError = $('#dataEdit').validar();
+
+            if(conError){
+                return;
+            }
+            var prSuma;
+            prSuma = 0;
+            $('#gProrrateo #ccc').each(function () {
+                prSuma = prSuma + parseFloat($(this).val());
+            });
+            if (prSuma != 100) {
+                alert('La suma de porcentajes debe ser 100');
+                return;
+            }
+            var xmlProrrata = '';
+            //alert($('#gProrrateo').length);
+            $('#gProrrateo .filaPR').each(function () {
+                xmlProrrata = xmlProrrata + '!**Fila**!';
+                xmlProrrata = xmlProrrata + '!**Tipo**!' + $('#aaa', this).val() + '!**/Tipo**!';
+                xmlProrrata = xmlProrrata + '!**Pais**!' + $('#bbb option:selected', this).attr('groupid') + '!**/Pais**!';
+                xmlProrrata = xmlProrrata + '!**Data**!' + $('#bbb', this).val() + '!**/Data**!';
+                xmlProrrata = xmlProrrata + '!**Porcentaje**!' + $('#ccc', this).val() + '!**/Porcentaje**!';
+                xmlProrrata = xmlProrrata + '!**/Fila**!';
+            });
+
+            /*----------------*/
+            $('#hddProrrata').val(xmlProrrata);
+            var repURL;
+            /*repURL = '@@Html.Raw(Url.Action("editarProyecto", "Proyecto", new {  id                  = "param-id",
+                                                                                codigo              = "param-codigo",
+                                                                                nombre              = "param-nombre",
+                                                                                descripcion         = "param-descripcion",
+                                                                                idSolicitante       = "param-idSolicitante",
+                                                                                idNegocio           = "param-idNegocio",
+                                                                                idPais              = "param-idPais",
+                                                                                idServicioNegocio   = "param-idServicioNegocio",
+                                                                                xmlProrrateo = "param-xmlProrrateo",
+                                                                                cliente = "param-cliente"
+                                                                            }))';
+
+            repURL = repURL.replace("param-id", $('#hiddenIDProy').val());
+            repURL = repURL.replace("param-codigo", $('#txtCod').val());
+            repURL = repURL.replace("param-nombre", $('#txtNom').val());
+            repURL = repURL.replace("param-descripcion", $('#txtDes').val());
+            repURL = repURL.replace("param-idSolicitante", $('#sltGerencia').val());
+            repURL = repURL.replace("param-idNegocio", $('#sltNeg option:selected').val());
+            repURL = repURL.replace("param-idPais", $('#sltNeg option:selected').attr('idpais'));
+            repURL = repURL.replace("param-idServicioNegocio", $('#sltSng option:selected').val());
+            repURL = repURL.replace("param-xmlProrrateo", xmlProrrata);
+            repURL = repURL.replace("param-cliente", $('#txtClt').val());*/
+
+            repURL = '@Html.Raw(Url.Action("editarProyecto", "Proyecto"))';
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                data: {
+                    id: $('#hiddenIDProy').val(),
+                    codigo: $('#txtCod').val(),
+                    nombre: $('#txtNom').val(),
+                    descripcion: $('#txtDes').val(),
+                    idSolicitante: $('#sltGerencia').val(),
+                    idNegocio: $('#sltNeg option:selected').val(),
+                    idPais: $('#sltNeg option:selected').attr('idpais'),
+                    idServicioNegocio: $('#sltSng option:selected').val(),
+                    xmlProrrateo: xmlProrrata,
+                    cliente: $('#txtClt').val(),
+                    ruta: $('#ruta').val(),
+                    extension: $('#extension').val()
+                },
+                async: false,
+            }).done(function (resp) {
+                if (resp.length > 0) {
+
+                    c_alert('Error', '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;' + resp, 'Cerrar');
+                }
+                else {
+                    $('#modEditPry').modal('toggle');
+                    var heading = 'Acción Exitosa';
+                    var question = 'Se ha editado el proyecto exitosamente.';
+                    var cancelButtonTxt = '0';
+                    var okButtonTxt = 'OK';
+                    var callback = function () {
+                        location.reload();
+                    };
+                    confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+                }
+            });
+        });
+
+        $('#btn_asigImp').click(function () {
+            $('#modAsignImp')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modAsignImp').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+        });
+
+        $('#btnGuardarImp').click(function () {
+            //string id, string idAplicacion, string idAccion, string motivo)
+            var repURL;
+            var idcotizacion = '@ViewBag.IdCotizacion';
+            repURL = '@Html.Raw(Url.Action("AsignarImplementador", "Proyecto", new { id = "param-id", idImp = "param-idimplementador" }))';
+            repURL = repURL.replace("param-id", idcotizacion);
+            repURL = repURL.replace("param-idimplementador", $('#modImpSel').val());
+            $.ajax({
+                type: 'POST',
+                url: repURL,
+                //data: JSON.stringify(jsonArr),
+                async: false,
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            }).done(function (resp) {
+                if (resp.length > 0) {
+                    alert(resp);
+                }
+                else {
+                    $('#modAsignImp').modal('toggle');
+                    var heading = 'Acción Exitosa';
+                    var question = 'Se ha asignado correctamente el Implementador';
+                    var cancelButtonTxt = '0';
+                    var okButtonTxt = 'OK';
+                    var callback = function () {
+                        location.reload();
+                    };
+                    confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+                }
+            });
+        });
+
+    });
+
+</script>
+
+
+<div id="tb_cotz" class="container-fluid">
+
+    @if (Model.dtCotizaciones.Rows.Count > 0)
+    {
+        <table id="tblListarCotizaciones" class="table table-responsive table-striped table-hover">
+            <caption class="titulo-tabla">Lista de Cotizaciones</caption>
+            <thead>
+                <tr>
+                    <th class="col-md-1">Código</th>
+                    <th class="col-md-1">Creado</th>
+                    <th class="col-md-3">Descripción</th>
+                    <th class="col-md-1">Monto Inicial UF</th>
+                    <th class="col-md-1">Monto Mensual UF</th>
+                    <th class="col-md-2">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (DataRow col in Model.dtCotizaciones.Rows)
+                {
+                    <tr ide="@col.ItemArray.GetValue(1)">
+                        <td>@col.ItemArray.GetValue(1)</td>
+                        <td>@col.ItemArray.GetValue(3)</td>
+                        <td>@col.ItemArray.GetValue(2)</td>
+                        <td>@col.ItemArray.GetValue(11)</td>
+                        <td>@col.ItemArray.GetValue(7)</td>
+                        <td>@col.ItemArray.GetValue(8)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="row" style="background-color:#F9F9F9;height:28px;">
+            <div class="col-md-4 form-inline">
+                <span class="btn-group btn-group-xs">
+                    <a id="btn_pri_pag" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-left fa-lg"></i></a>
+                    <a id="btn_pag_ant" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-left fa-lg"></i></a>
+                </span>
+                <span>Pág. <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:8%;" value="@ViewBag.Pagina" /> de <font id="total_pag">@Model.dtCotizaciones.Rows[0].ItemArray.GetValue(9)</font></span>
+                <span class="btn-group btn-group-xs">
+                    <a id="btn_pag_sig" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-right fa-lg"></i></a>
+                    <a id="btn_ult_pag" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-right fa-lg"></i></a>
+                </span>
+                (@Model.dtCotizaciones.Rows[0][10] items)
+            </div>
+            <div class="col-md-8">                
+                <div class="btn-group pull-right" role="group">
+                        @if (User.IsInRole("SUBG_PROY") && ViewBag.Estado != "4")
+                        {
+                            <button id="btn_bloquear" type="button" class="btn btn-default" title="Bloquear Proyecto" style="border:none;background-color:#F9F9F9;"><i class="fa fa-lock"></i></button>
+                        }
+                        @if (User.IsInRole("SUBG_PROY") && ViewBag.Estado == "4")
+                        {
+                            <button id="btn_desbloquear" type="button" class="btn btn-default" title="Desbloquear Proyecto" style="border:none;background-color:#F9F9F9;"><i class="fa fa-unlock"></i></button>
+                        }
+                @if (User.IsInRole("SUBG_PROY"))
+                {
+                    <button id="btn_asigImp" type="button" class="btn btn-default" title="Asignar Implementador" style="border:none;background-color:#F9F9F9;"><i class="fa fa-user"></i></button>
+                }
+                        @if (User.HasWriteAccess("PROYECTO") && ViewBag.Estado != "4")
+                        {
+                            <button id="btn_asig_jdp" type="button" class="btn btn-default" title="Asignar Jefe de Proyectos" style="border:none;background-color:#F9F9F9;"><i class="fa fa-user-plus"></i></button>
+                        }
+                        @if ((User.HasWriteAccess("PROYECTO") || User.IsInRole("SUBG_PROY")) && ViewBag.Estado != "4")
+                        {
+                            <button id="btnEditAction" type="button" class="btn btn-default" title="Editar Proyecto" style="border:none;background-color:#F9F9F9;"><i class="fa fa-edit edit-action"></i></button>
+                        }
+                        @if (User.HasWriteAccess("COTIZACION") && ViewBag.Estado != "4")
+                        {
+                            <button id="btn_nvo_pry" type="button" class="btn btn-default" title="Nueva Cotización" style="border:none;background-color:#F9F9F9;"><i class="fa fa-plus"></i></button>
+                        }
+                        @if (User.IsInRole("FACTURADOR") && ViewBag.Estado == "5" && ViewBag.Facturacion == "0")
+                        {
+                            <button id="btn_eliminar" type="button" class="btn btn-default" title="Eliminar Proyecto Migrado" style="border:none;background-color:#F9F9F9;"><i class="fa fa-trash"></i></button>
+                        }
+                </div>
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <div class="row alert alert-warning text-center">
+            No se encontraron cotizaciones. Tiene disponibles las siguientes acciones
+        <div class="btn-group btn-group-xs" role="group">
+            @if (User.HasWriteAccess("PROYECTO") && ViewBag.Estado != "4")
+            {
+                <button id="btn_asig_jdp" type="button" class="btn btn-default alert-warning" title="Asignar Jefe de Proyectos" style="border:none;"><i class="fa fa-user-plus"></i></button>
+            }
+            @if ((User.HasWriteAccess("PROYECTO") || User.IsInRole("SUBG_PROY")) && ViewBag.Estado != "4")
+            {
+                <button id="btnEditAction" type="button" class="btn btn-default alert-warning" title="Editar Proyecto" style="border:none;"><i class="fa fa-edit edit-action"></i></button>
+            }
+            @if (User.HasWriteAccess("COTIZACION") && ViewBag.Estado != "4")
+            {
+                <button id="btn_nvo_pry" type="button" class="btn btn-default alert-warning" title="Nueva Cotización" style="border:none;"><i class="fa fa-plus"></i></button>
+            }
+	        @if (User.IsInRole("SUBG_PROY") && ViewBag.Estado != "4")
+	        {
+            <button id="btn_bloquear" type="button" class="btn btn-default alert-warning" title="Bloquear Proyecto" style="border:none;"><i class="fa fa-lock"></i></button>
+	        }
+	        @if (User.IsInRole("SUBG_PROY") && ViewBag.Estado == "4")
+	        {
+            <button id="btn_desbloquear" type="button" class="btn btn-default alert-warning" title="Desbloquear Proyecto" style="border:none;"><i class="fa fa-unlock"></i></button>
+	        }@if (User.IsInRole("SUBG_PROY"))
+            {
+                <button id="btn_asigImp" type="button" class="btn btn-default" title="Asignar Implementador" style="border:none;background-color:#F9F9F9;"><i class="fa fa-user-plus"></i></button>
+            }
+        </div>
+    </div>
+    }
+</div>
+<!-- /.modal Edit -->
+<div class="modal fade" id="modEditPry">
+    <div class="modal-dialog" id="modDialog" style="width:700px;">
+        <div class="modal-content">
+            <div class="modal-header ttl_modal">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Edición</h4>
+            </div>
+            <div id="dataEdit" class="modal-body ui-front" style="height:500px;">
+                <div class="row">
+                    <input id="hddProrrata" type="hidden" />
+                    <div id="divCod" class="form-group col-sm-4">
+                        <label>Código</label>
+                        <input id="txtCod" type="text" class="form-control input-sm" />
+                    </div>
+                    <div id="divNom" class="form-group col-sm-4">
+                        <label for="">Nombre</label>
+                        <input id="txtNom" type="text" class="form-control input-sm es-requerido" />
+                    </div>
+                    <div id="divDes" class="form-group col-sm-4">
+                        <label for="">Descripción</label>
+                        <input id="txtDes" type="text" class="form-control input-sm" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="divAsi" class="form-group col-sm-4">
+                        <label for="">Jefe de Proyectos Solicitante</label>
+                        <input id="txtClt" type="text" class="form-control input-sm es-requerido" />
+                    </div>
+		    <div id="divCre" class="form-group col-sm-4">
+                        <label for="">Archivo</label>
+                        <input type="file" name="rutaFEP" id="archivo_word"/>
+                        <input type="hidden" name="ruta" id="ruta"/>
+                        <input type="hidden" name="extension" id="extension"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="divCre" class="form-group col-sm-4">
+                        <label for="">Negocio</label>
+                        <select id="sltNeg" class="form-control input-sm es-requerido"></select>
+                    </div>
+                    <div id="divSer" class="form-group col-sm-4">
+                        <label for="">Servicios de Negocio</label>
+                        <select id="sltSng" class="form-control input-sm es-requerido"></select>
+                    </div>
+                    <div id="divCre" class="form-group col-sm-4">
+                        <label for="">Gerencia Solicitante</label>
+                        <select id="sltGerencia" class="form-control input-sm es-requerido"></select>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">A quienes se factura <a title="Agregar" id="btnNuevoProrrata" href="#"><span class="text-right pull-right glyphicon glyphicon-plus"></span></a></div>
+                    <div id="gProrrateo" class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <label>Tipo Entidad</label>
+                            </div>
+                            <div class="col-xs-6">
+                                <label>Entidad</label>
+                            </div>
+                            <div class="col-xs-2">
+                                <label>Prorrata (%)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button type="button" id="modEditGuardar" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal end -->

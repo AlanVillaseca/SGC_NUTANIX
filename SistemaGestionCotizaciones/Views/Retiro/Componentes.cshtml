@@ -1,0 +1,335 @@
+﻿@{
+    ViewBag.Title = "Detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.ComponentesRetiro
+@using System.Data;
+
+<link rel="stylesheet" type="text/css" href="~/Content/css/grilla.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/css/retiroComponentes.css" />
+
+<style>
+    .glyp-amarillo {
+        color: #EDCF57;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        var url = '@Url.Action("vpGrillaComponentes", "Retiro", new { id = ViewBag.IdCotizacion })'
+        var idcomponentes = ';';
+        var idservicios = ';';
+        var arraytemp;
+        var arrayidretiro = ';';
+        var arrayidservicio = ';';
+
+        $('#tb_comp').load(url);
+
+        var cargacheck = function cargacheck() {
+
+            arraytemp = idcomponentes.split(';');
+            $.each(arraytemp, function (index, value) {
+
+                $('.check[value=' + value + ']').prop('checked', true);
+            });
+        }
+
+        function agregarid(id) {
+
+            idcomponentes = arrayidretiro + id + ';';
+            arrayidretiro += id + '-0;';
+        }
+
+        function quitarid(id) {
+
+            idcomponentes = idcomponentes.replace(';' + id + ';', ';');
+            arrayidretiro = arrayidretiro.replace(';' + id + '-0;', ';');
+        }
+
+        function agregaridservicio(id) {
+            idservicios = arrayidservicio + id + ';';
+            arrayidservicio += id + '-0;';
+        }
+        function quitaridservicio(id) {
+            idservicios = idservicios.replace(';' + id + ';', ';');
+            arrayidservicio = arrayidservicio.replace(';' + id + '-0;', ';');
+        }
+        function cargacheck() {
+
+            arraytemp = idcomponentes.split(';');
+            $.each(arraytemp, function (index, value) {
+
+                $('.check[value=' + value + ']').prop('checked', true);
+            });
+        }
+
+        $(document).on('click', '.check', function (e) {
+            if($($(this).parents('tr').children('td').eq(1)).text().trim() == 'Componente'){
+            
+            if ($(this).is(':checked')) {
+                agregarid($(this).val());
+
+                cargacheck();
+            }
+            else {
+                quitarid($(this).val());
+
+                cargacheck();
+            }
+            } else {
+                if ($(this).is(':checked')) {
+                    agregaridservicio($(this).val());
+
+                    cargacheck();
+                }
+                else {
+                    quitaridservicio($(this).val());
+                    cargacheck();
+                }
+            }
+        });
+
+        $(document).on('click', '#btn_prb_cos', function () {
+
+            if(idcomponentes == ';' && idservicios == ';'){
+                c_alert('Atención', '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;Debe seleccionar una componente o un servicio para el retiro.', 'Cerrar');
+            }else{
+                var pagina = $("#txt_pag").val();
+                var dir = '@Html.Raw(Url.Action("simprecio", "Retiro", new { id = "reemplazo", idservicio = "reemplazo2"}))'
+
+                $('#modretirar')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modretirar').modal('show');
+
+                dir = dir.replace("reemplazo", arrayidretiro);
+                dir = dir.replace("reemplazo2", arrayidservicio);
+
+                $('#precio_cot').load(dir);
+            }
+
+        });
+
+        $('#btn_lmp_frt').click(function () {
+
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Retiro", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+            dir = dir.replace("reemplazo2", pagina);
+
+            $('#tb_comp').load(dir);
+        });
+
+        $(document).on('click', '#btn_pri_pag', function () {
+
+            var pagina = $("#txt_pag").val();
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Retiro", new { id = "reemplazo", pagina = "1" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+
+            $('#tb_comp').load(dir, cargacheck);
+
+        });
+
+        $(document).on('click', '#btn_pag_ant', function () {
+
+            var totalpaginas = $("#total_pag").text();
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Retiro", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+                dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) - 1);
+
+                $('#tb_comp').load(dir, cargacheck);
+            }
+        });
+
+        $(document).on('click', '#btn_pag_sig', function () {
+
+            var totalpaginas = $("#total_pag").text();
+            var pagina = $("#txt_pag").val();
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Retiro", new { id = "reemplazo", pagina = "reemplazo2"}))'
+
+                dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+                dir = dir.replace("reemplazo2", parseInt(pagina) + 1);
+
+                $('#tb_comp').load(dir, cargacheck);
+            }
+        });
+
+        $(document).on('click', '#btn_ult_pag', function () {
+
+            var totalpaginas = $('#total_pag').text().slice(4);
+            var pagina = $('#txt_pag').val();
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Retiro", new { id = "reemplazo", pagina = "reemplazo2" }))'
+
+            dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+            dir = dir.replace("reemplazo2", totalpaginas);
+
+            $('#tb_comp').load(dir, cargacheck);
+        });
+        
+        $('#btn_modretirar').click(function(){
+
+            if(!$('#modretirar').validar()){
+
+                idcomponentes = idcomponentes.slice(1,-1);
+                idservicios = idservicios.slice(1,-1);
+                var pagina = $('#txt_pag').val();
+                var motivo = encodeURI( $('#motivo').val() ) ;
+
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaComponentes", "Retiro", new { id = "reemplazo", pagina = "1", retiro = "reemplazo2", retiroservicios = "reemplazo3", motivo = "reemplazo4" }))';
+
+                dir = dir.replace("reemplazo", @ViewBag.IdCotizacion);
+                dir = dir.replace("reemplazo2", idcomponentes);
+                dir = dir.replace("reemplazo3", idservicios);
+                dir = dir.replace("reemplazo4", motivo);
+
+                $('#tb_comp').load(dir, cargacheck);
+
+                idcomponentes = ';';
+                idservicios = ';';
+
+                $('#motivo').val('');
+
+                $('.modal').modal('hide');
+                $('#modretirar textarea').removeClass('alert-danger');
+
+            }
+        });
+
+    });
+</script>
+
+@if (Model.dtCotizacion != null)
+{
+    <div class="container-fluid">
+        <h3 id="ttl">Retiro de Componentes</h3>
+
+        <div class="row">
+            <div id="fech_cr" class="form-group col-md-4">
+                <label for="">Nombre del Proyecto</label>
+                <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(1)</p>
+            </div>
+            <div id="fech_apr_int" class="form-group col-md-4">
+                <label for="">Descripción de Cotización</label>
+                <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(2)</p>
+            </div>
+
+            <div id="fech_cr" class="form-group col-md-4">
+                <label for="">Fecha de Creación</label>
+                <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(3)</p>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div id="fech_apr_int" class="form-group col-md-4">
+                <label for="">Fecha de Aprobación Interna</label>
+                <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(4)</p>
+            </div>
+
+            <div id="fech_apr_ext" class="form-group col-md-4">
+                <label for="">Fecha de Aprobación Externa</label>
+                <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(5)</p>
+            </div>
+            @*
+            <div id="origen" class="form-group col-md-4">
+                <label for="">Estado del Proyecto</label>
+                <p class="form-control-static">@Model.dtCotizacion.Rows[0].ItemArray.GetValue(6)</p>
+            </div>*@
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div id="tb_comp" class="grilla"></div>
+            </div>
+        </div>
+
+        <!-- /.modal -->
+        <div class="modal fade" id="modretirar">
+            <div class="modal-dialog modDialog">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Retiro</h4>
+                    </div>
+                    <div class="modal-body container-fluid">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="control-label">Comentarios</label>
+                                <textarea id="motivo" class="form-control es-requerido"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button id="btn_modretirar" type="button" class="btn btn-primary">Retirar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal -->
+
+        <!-- /.modal -->
+        <div class="modal fade" id="simular">
+            <div class="modal-dialog modDialog">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Motivo del Retiro</h4>
+                    </div>
+                    @if (Model.dtPrecio != null)
+                    {
+
+                        string idcotizacion = Model.dtPrecio.Rows[0].ItemArray.GetValue(1).ToString();
+
+                        foreach (DataRow col in Model.dtPrecio.Rows)
+                        {
+                            string idcotizaciontemp = col.ItemArray.GetValue(1).ToString();
+
+                            if (idcotizacion != idcotizaciontemp)
+                            {
+
+                                <label>Cotizacion     : @col.ItemArray.GetValue(2)</label>
+                                <label>Actual Precio  : @col.ItemArray.GetValue(12)</label>
+                                <label>Cotizacion     : @col.ItemArray.GetValue(13)</label>
+                            }
+                        }
+                    }
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal -->
+
+    </div>
+
+}
+else
+{
+    <script>
+        error('@ViewBag.Error');
+    </script>
+}
+
+
+
+

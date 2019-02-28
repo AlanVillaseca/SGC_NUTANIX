@@ -1,0 +1,839 @@
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\cotizadorDAL.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\cotizadorDAL.pdb
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\cotizadorDAL.pdb
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+D:\NRR\Entrega\PRY\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+\\PCLCABELLO\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\cotizadorDAL.pdb
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+C:\Users\mmaraboli\Desktop\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\cotizadorDAL.pdb
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+C:\Users\mmaraboli\Desktop\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.cache
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.compiled
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsc
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsc
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsd
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xss
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsd
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xss
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsc
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsd
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xss
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaRpt.rdlc
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportFacturacion.rdlc
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportGenerico.rdlc
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_00.rdlc
+G:\AAA\Compartida_Proyectos\SGCTestRios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_01.rdlc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsd
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xss
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsd
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xss
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsd
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xss
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaRpt.rdlc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportFacturacion.rdlc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportGenerico.rdlc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_00.rdlc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_01.rdlc
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.Common.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.WebForms.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\cotizadorDAL.pdb
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.cache
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.compiled
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+C:\Users\jespinoza\Desktop\escritorioder\Carlos Rios\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsc
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsc
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsd
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xss
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsd
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xss
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsc
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsd
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xss
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaRpt.rdlc
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportFacturacion.rdlc
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportGenerico.rdlc
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_00.rdlc
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_01.rdlc
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.Common.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.WebForms.dll
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.cache
+D:\Proyectos\2015\Mayo\Falabella - Cotizador\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.compiled
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsc
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsc
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsd
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xss
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsd
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xss
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsc
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsd
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xss
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaRpt.rdlc
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportFacturacion.rdlc
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportGenerico.rdlc
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_00.rdlc
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_01.rdlc
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.Common.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.WebForms.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\cotizadorDAL.pdb
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.cache
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.compiled
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+C:\Users\npaez\Documents\proyectos\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsc
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsc
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsd
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xss
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsd
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xss
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsc
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsd
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xss
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaRpt.rdlc
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportFacturacion.rdlc
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\ReportGenerico.rdlc
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_00.rdlc
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_01.rdlc
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.Common.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.WebForms.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Owin.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\WebGrease.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\log4net.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.cache
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\RdlCompile.compiled
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+E:\sgc\SistemaGestionCotizaciones\SistemaGestionCotizaciones\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsc
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsc
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsd
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xss
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsd
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xss
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsc
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsd
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xss
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaRpt.rdlc
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\ReportFacturacion.rdlc
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\ReportGenerico.rdlc
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_00.rdlc
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_01.rdlc
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\EntityFramework.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\log4net.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.Common.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.WebForms.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Owin.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\WebGrease.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\log4net.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\EntityFramework.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\obj\Release\RdlCompile.cache
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\obj\Release\RdlCompile.compiled
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+D:\Compartida\Falabella\Fuentes\Version Testing\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsc
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsc
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsd
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xss
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsd
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xss
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsc
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsd
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xss
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaRpt.rdlc
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\ReportFacturacion.rdlc
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\ReportGenerico.rdlc
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_00.rdlc
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_01.rdlc
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Atech.DataAccessLayer.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\EntityFramework.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\log4net.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.Common.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.WebForms.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Owin.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\WebGrease.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\log4net.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\EntityFramework.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\obj\Release\RdlCompile.cache
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\obj\Release\RdlCompile.compiled
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb
+D:\Compartida\Falabella\Fuentes\Version 2019\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsc
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsc
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xsd
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaData.xss
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xsd
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\DataFacturacion.xss
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsc
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xsd
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\DataVersionesRptGen.xss
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\CotizaRpt.rdlc
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\ReportFacturacion.rdlc
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\ReportGenerico.rdlc
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_00.rdlc
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Content\Reportes\SubReportGenerico_01.rdlc
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll.config
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\SistemaGestionCotizaciones.pdb
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Antlr3.Runtime.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\EntityFramework.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\log4net.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.Common.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.ProcessingObjectModel.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.ReportViewer.WebForms.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Web.Infrastructure.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Newtonsoft.Json.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Owin.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.Helpers.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.Mvc.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.Optimization.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.Razor.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.WebPages.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\WebGrease.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\log4net.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.Helpers.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.Mvc.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.Optimization.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.Razor.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.WebPages.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.WebPages.Deployment.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\System.Web.WebPages.Razor.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Antlr3.Runtime.pdb
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Newtonsoft.Json.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\EntityFramework.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\EntityFramework.SqlServer.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Core.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.Owin.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Host.SystemWeb.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Facebook.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Cookies.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.OAuth.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Google.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.Twitter.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.csprojResolveAssemblyReference.cache
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.dll
+C:\Users\ext_avillaseca\Downloads\SGC Original_Modificado\SistemaGestionCotizaciones\obj\Release\SistemaGestionCotizaciones.pdb

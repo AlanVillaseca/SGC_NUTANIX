@@ -1,0 +1,213 @@
+﻿@{
+    ViewBag.Title = "RetiroSimplificado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.Retiro
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+<script src="~/Scripts/underscore-min.js"></script>
+<style>
+    input[readonly].form-control {
+        background-color: #fff;
+    }
+
+    .input-group-addon {
+        width: 200px;
+        text-align: left;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var aliasComponentes = @Html.Raw(jss.Serialize(@Model.aliasComponentes));
+
+        $('.flg-input').val('');
+
+        _.each(aliasComponentes, function(i){
+            $('#cmbAliasServ').append('<option value=' + i.idcomponente + '>' + i.alias + '</option>');
+        });
+
+        $(document).on('click', '#cmbAliasServ', function(){
+            var optSelect = $(this).val();
+
+            var url = '@Html.Raw(Url.Action("jsonDataComponentes", "Retiro"))';
+            $.ajax({
+                dataType: "json",
+                url: url,
+                type: 'POST',
+                data: {id: optSelect},
+                success: function (varJson) {
+                    //console.log(JSON.stringify(varJson));
+                    $('#txtProyecto').val(_.pluck(varJson, 'proyecto'));
+                    $('#txtServNegocio').val(_.pluck(varJson, 'servicionegocio'));
+                    $('#txtPais').val(_.pluck(varJson, 'pais'));
+                    $('#txtNegocio').val(_.pluck(varJson, 'negocio'));
+                    $('#txtIdCot').val(_.pluck(varJson, 'idcotizacion'));
+                    $('#txtCotizacion').val(_.pluck(varJson, 'cotizacion'));
+                    $('#txtSistOperativo').val(_.pluck(varJson, 'sistemaoperativo'));
+                    $('#txtBaseDatos').val(_.pluck(varJson, 'basededatos'));
+                    $('#txtIp').val(_.pluck(varJson, 'ip'));
+                    $('#txtTpoServ').val(_.pluck(varJson, 'tiposervidor'));
+
+                    $('#btnRetirar').removeClass('disabled');
+                }
+            });
+
+        });
+
+        $('#btnRetirar').click(function(){
+
+            var heading = 'Enviar Retiro';
+            var question = '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;¿Desea retirar la componente seleccionada?';
+            var cancelButtonTxt = 'Cancelar';
+            var okButtonTxt = 'Aceptar';
+
+            var callback = function() {
+
+                var idCompo = $('#cmbAliasServ').val();
+                var motivo  = $('#tatComent').val();
+                var url = '@Html.Raw(Url.Action("retiroComponentes", "Retiro"))';
+
+                $.ajax({
+                    type:'POST',
+                    url: url,
+                    data:{  id: idCompo,
+                        idServicios : '',
+                        motivo : motivo
+                    },
+                }).done(function(sError){
+                    if (sError.length > 0){
+                        c_alert('Error', 'Se ha producido un error al realizar el retiro. Por favor contáctese con su administrador.', 'Aceptar');
+                    }
+                    else
+                    {
+                        confirm('Acción Exitosa', 'Se ha enviado a aprobación.', '0', 'OK', function(){
+                            location.reload();
+                        });
+                    }
+
+                });
+
+            };
+
+            confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+        });
+
+
+    });
+</script>
+@if (ViewBag.Error == "")
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                <h3 id="ttl">Retiro</h3>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-12">
+                    <label style="border-top:solid 2px #8FBE00;"></label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-4 col-md-4">
+                <label for="">Nombre Servidor (Alias)</label>
+                <select id="cmbAliasServ" class="input-sm form-control"></select>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnProyecto">Nombre Proyecto</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnProyecto" id="txtProyecto">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnServNegocio">Servicio de Negocio</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnServNegocio" id="txtServNegocio">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnPais">País</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnPais" id="txtPais">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnNegocio">Negocio</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnNegocio" id="txtNegocio">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnIdCot">Número Cotización</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnIdCot" id="txtIdCot">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnCotizacion">Cotización</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnCotizacion" id="txtCotizacion">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnSistOperativo">Sistema Operativo</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnSistOperativo" id="txtSistOperativo">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnBaseDatos">Base de Datos</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnBaseDatos" id="txtBaseDatos">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnIp">IP</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnIp" id="txtIp">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-addon" id="spnTpoServ">Tipo de Servidor</span>
+                    <input type="text" class="form-control flg-input" readonly aria-describedby="spnTpoServ" id="txtTpoServ">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8 col-md-8">
+                <div class="form-group" style="padding-top:5%;">
+                    <label for="">Comentario (Opcional)</label>
+                    <textarea id="tatComent" class="form-control flg-input"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-6 col-sm-offset-6 col-sm-2 col-md-2">
+                @if(!User.IsInRole("OBSERVADOR"))
+                { 
+                <button id="btnRetirar" class="form-control btn btn-warning btn-xs disabled"><span class="glyphicon glyphicon-pencil"></span> Retirar</button>
+                }
+            </div>
+        </div>
+
+
+    </div>
+
+}
+else
+{
+    <script>error('@Html.Raw(ViewBag.Error)');</script>
+}
+

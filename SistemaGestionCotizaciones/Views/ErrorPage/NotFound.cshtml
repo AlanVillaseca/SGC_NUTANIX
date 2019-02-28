@@ -1,0 +1,9 @@
+﻿@{
+    ViewBag.Title = "Page not Found";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3 class="alert alert-danger text-danger">Página no se encuentra.</h3>
+
+<br />
+@Html.ActionLink("Volver a la pagina anterior", null, null, null, new { href = Request.UrlReferrer })

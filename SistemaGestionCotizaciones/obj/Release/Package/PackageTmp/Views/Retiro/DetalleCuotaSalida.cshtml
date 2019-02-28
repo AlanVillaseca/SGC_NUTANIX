@@ -1,0 +1,235 @@
+﻿
+@{
+    ViewBag.Title = "DetalleCuotaSalida";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        var htmlalerta = '<div id="mensaje" class="alert alert-success  alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                        '</div>';
+
+        $("#alerta").hide();
+        var jsonGrilla = JSON.parse('@Html.Raw(ViewBag.JsonListaComponentes)');
+
+        
+
+        _.each(jsonGrilla, function (index) {
+            $('#tb_lista_componentes tbody').append(
+                                            '<tr id="tr' + index.idComponente + '" idsolicitud="' + index.IdSolicitudRetiro + '">\
+                                                    <td id="tdidCotizacion">' + index.idCotizacion + '</td>\
+                                                    <td id="tdnomCotizacion">' + index.nomCotizacion + '</td>\
+                                                    <td id="tdidComponente">' + index.idComponente + '</td>\
+                                                    <td id="tdAlias">' + index.Alias + '</td>\
+                                                    <td id="tdMontoUF">' + index.MontoUF + '</td>\
+                                                    <td id="tdnumCuotas">' + index.NumCuota + '</td>\
+                                                    <td id="tdMontoCuota">' + index.MontoCuota + '</td>\
+                                                    <td id="tdmontoRetiro" class="hidden">' + index.CuotaCalculada + '</td>\
+                                                    <td><i id="btnCalcular" class="fa fa-calculator" style="cursor: pointer" title="Calcular Cuota"></i></td>\
+                                                </tr>');
+
+        }); //fin each
+        $(document).on('click', '#btnCalcular', function () {
+            $('#tb_calcular tbody').html('');
+            var idComponente = $(this).closest('tr').children('#tdidComponente').html();
+            var MontoComponente = $(this).closest('tr').children('#tdMontoUF').html();
+            var numCuota = $(this).closest('tr').children('#tdnumCuotas').html();
+            var MontoCalculado = $(this).closest('tr').children('#tdmontoRetiro').html();
+            var MontoRetiro = $(this).closest('tr').children('#tdMontoCuota').html();
+
+            if (MontoRetiro == '')
+                var MontoRetiro = 0;
+
+            $('#tb_calcular tbody').append(
+                                        '<tr>\
+                                                <td id="tdmodalidcomponente">' + idComponente + '</td>\
+                                                <td id="tdmodalMontoRetiro">' + MontoCalculado + '</td>\
+                                                <td id="tdmodalNumCuotas"><input type="number" min="0"class="form-control input-sm" id="valor_numcuota" value="1"' + numCuota + '"></td>\
+                                                <td id="tdmodalvalorcuota"><input type="number" min="0" class="form-control input-sm" id="valor_cuota" value="'+ MontoRetiro +'"' + MontoRetiro + '"></td>\
+                                                <td id="tdmodalMontoUF">' + MontoComponente + '</td>\
+                                            </tr>');
+
+            $("#calcular").modal();
+        });//boton calculadora
+
+
+        $("#btnCuota").click(function () {
+            var v_idcomponente = $("#tdmodalidcomponente").html();
+            var v_cuota = $("#valor_cuota").val();
+            var v_numcuota = $("#valor_numcuota").val();
+
+            /*********************************************************/
+            if (v_cuota == '') {
+                alert('Debes colocar la cuota'); return false;
+            }
+
+            else if (v_cuota < 0) {
+                alert('Debes colocar un monto de cuota valido'); return false;
+            }
+
+
+            /*---------------------------------------------------------*/
+            if (v_numcuota == '') {
+                alert('Debes colocar el numero de cuota'); return false;
+            }
+
+            else if (v_numcuota == 0) {
+                alert('Debes colocar al menos una cuota'); return false;
+            }
+
+            else if (v_numcuota < 0) {
+                alert('Debes colocar un numero de cuota valido'); return false;
+            }
+            /********************************************************/
+
+            $.ajax({
+                method: "POST",
+                url: '@Url.Action("GuardarCuotaSolicitud", "Retiro")',
+                data: { id: v_idcomponente, cuota: v_cuota, numcuota: v_numcuota },
+                async: false
+
+            })
+
+            .done(function (msg) {
+                $('#tr' + v_idcomponente + ' #tdMontoCuota').html(v_cuota);
+                $('#tr' + v_idcomponente + ' #tdnumCuotas').html(v_numcuota);
+            }); //fin done
+        });  //fin boton cuota
+
+        $("#btnVaciar").click(function () {
+            $('#tb_calcular tbody').html('');
+        });//fin boton vaciar
+
+
+        $("#btnEnviarAprobacion").click(function () {
+
+            var v_idsolicitud = $('#tb_lista_componentes tbody tr').attr('idsolicitud');
+
+            $.ajax({
+                method: "POST",
+                url: '@Url.Action("GuardarCuotaAgregada", "Retiro")',
+                data: { id: v_idsolicitud },
+                async: false
+
+            })
+
+                .done(function (msg) {
+                    
+                    $('#alerta').html('');
+                    $("#alerta").append(htmlalerta);                  
+
+                    if (msg.mensaje.length == 0) {
+                        @*$("#mensaje").removeClass('alert-danger');
+                        $("#mensaje").addClass('alert-success');
+                        $("#mensaje").append('Datos Guardados Correctamente!');
+                        $('#tb_lista_componentes tbody').html('');*@
+                        location.href = '@Url.Action("ListaEstadoSolicitudes", "Retiro")';
+                    }
+                    else {
+                        $("#mensaje").removeClass('alert-success');
+                        $("#mensaje").addClass('alert-danger');
+                        $("#mensaje").append(msg.mensaje);
+                        $("#alerta").show();
+                    }
+                    
+                }); //fin done
+
+            $('#tb_comentario tbody').html('');
+        });  //fin boton enviar
+
+        $("#btnVaciar").click(function () {
+            $('#tb_comentario tbody').html('');
+        });//fin boton vaciar
+
+
+    });
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div id="alerta" class="col-lg-12">
+            <div id="mensaje" class="alert alert-success  alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9 col-sm-9">
+            <h3 id="ttl">Solicitudes de Retiro</h3>
+        </div>
+        <div class="col-md-3 col-sm-3 text-right">
+            <ol class="breadcrumb">
+                <li><a href="@Url.Action("ListaEstadoSolicitudes", "Retiro")">Inicio</a></li>
+                <li class="active">Detalle Solicitud</li>
+            </ol>
+        </div>
+    </div>
+    <div class="row">
+        <div style="border-top:solid 1px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;padding-bottom:2%;"></div>
+    </div>
+
+
+        <div class="row">
+            <div id="tb_pytc"></div>
+        </div>
+        <div class="row grilla"> 
+            <table id="tb_lista_componentes" class="table table-responsive table-striped table-hover">
+                <caption class="titulo-tabla">Lista de Componentes</caption>
+                <thead>
+                    <tr>
+                        <th>Id Cotización</th>
+                        <th>Nombre Cotizacion</th>
+                        <th>Id Componente</th>
+                        <th>Alias</th>
+                        <th>Monto UF</th>
+                        <th>Cuotas</th>
+                        <th>Monto Cuota</th>
+                        <th>Calcular</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    <div class="row">
+        <div class="text-right col-md-12">
+            <div class="btn-group pull-right" role="group"><span class="glyphicons glyphicons-share"></span>
+                <button id="btnEnviarAprobacion" type="button" class="btn btn-default" title="Enviar a Aprobacion" style="border:none;background-color:#F9F9F9;"><i class="fa fa-share"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="calcular" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Calcular Cuota</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tb_calcular" class="table table-responsive table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Id Componente</th>
+                            <th>Monto Retiro Calculado</th>
+                            <th>Numero de Cuota</th>
+                            <th>Monto Retiro</th>
+                            <th>Monto UF Componente</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button id="btnVaciar" type="button" class="btn btn-default" data-dismiss="modal">Vaciar</button>
+                <button id="btnCuota" type="button" class="btn btn-success" data-dismiss="modal">Cuota Calculada</button>
+            </div>
+        </div>
+    </div>
+</div>

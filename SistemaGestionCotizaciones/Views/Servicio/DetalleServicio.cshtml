@@ -1,0 +1,482 @@
+﻿@{
+    ViewBag.Title = "listarCotizacion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.DetalleServicio
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var Componentes = @Html.Raw(jss.Serialize(Model.detalleinfraestructuraJson));
+        var paginaActual = '@ViewBag.PaginaActual';
+        var idservicionegocio = '@ViewBag.idservicionegocio';
+        var ambiente = '@ViewBag.ambiente';
+        var totalRegistros = _.pluck(Componentes, 'totalRegistros')[0];
+        var totalPaginas = _.pluck(Componentes, 'totalPaginas')[0];
+        var totalcomponente;
+
+        $('#txt_pag').val(paginaActual);
+        $('#total_pag').text(totalPaginas);
+        $('#registros').text('( ' + totalRegistros + ' items)');
+
+        function decodeGlosa(str)
+        {
+            if (!str) return "";
+
+            var strArr = str.split(/[\[.*\]]/);
+
+            for(i = 0; i < strArr.length; i++)
+            {
+                if (strArr[i].indexOf('idCatalogoElemento:') == 0 )
+                {
+                    var node = _.findWhere(Variables, {idCatalogoElemento : strArr[i].substring(19)});
+                    if (node)
+                        str = str.replace(strArr[i], node.Nombreatributo);
+                }
+            }
+            return str;
+        }
+
+        function float(item) {
+
+            if(typeof item === 'undefined') {
+
+                item = '0,00';
+
+            } else {
+
+                item = parseFloat(item.toString().replace(',', '.')).toFixed(2).replace('.', ',');
+
+            }
+
+            return item;
+
+        }
+
+        function addFloat(item1, item2) {
+
+
+            if(typeof item1 === 'undefined') {
+
+                item1 = '0';
+
+            } else {
+
+                item1 = item1.toString();
+
+                item1 = JSON.stringify(item1).replace(',', '.').replace(/\"/g, '');
+
+            }
+
+            if(typeof item2 === 'undefined') {
+
+                item2 = '0';
+
+            } else {
+
+                item2 = item2.toString();
+
+                item2 = JSON.stringify(item2).replace(',', '.').replace(/\"/g, '');
+
+            }
+
+            return (parseFloat(item1) + parseFloat(item2)).toFixed(2).replace('.', ',');
+
+        }
+
+
+        _.each(Componentes, function(index) {
+
+            $('#tb_infraestructura tbody').append('<tr id="' + index.Idcomponente + '">\
+                                                        <td>' + index.Alias + '</td>\
+                                                        <td>' + index.Tiposervidor + '</td>\
+                                                        <td>' + index.Pais + '</td>\
+                                                        <td>' + index.Componentedesc + '</td>\
+                                                        <td style="text-align:right">' + index.Total + '</td>\
+                                                    </tr>');
+
+        });
+
+
+        $('#btn_pri_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("DetalleServicio", "Servicio", new { id = "1", idservicionegocio = "reemplazo2", ambiente = "reemplazo3" }))';
+            dir = dir.replace("reemplazo2", idservicionegocio);
+            dir = dir.replace("reemplazo3", ambiente);
+
+            window.location.href = dir;
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if (parseInt(paginaActual) - 1 > 0 && parseInt(paginaActual) - 1 <= totalPaginas) {
+
+                var dir = '@Html.Raw(Url.Action("DetalleServicio", "Servicio", new { id = "reemplazo", idservicionegocio = "reemplazo2", ambiente = "reemplazo3" }))';
+                dir = dir.replace("reemplazo", parseInt(paginaActual) - 1);
+                dir = dir.replace("reemplazo2", idservicionegocio);
+                dir = dir.replace("reemplazo3", ambiente);
+
+                window.location.href = dir;
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            if (parseInt(paginaActual) + 1 > 1 && parseInt(paginaActual) + 1 <= totalPaginas) {
+
+                var dir = '@Html.Raw(Url.Action("DetalleServicio", "Servicio", new { id = "reemplazo", idservicionegocio = "reemplazo2", ambiente = "reemplazo3" }))';
+                dir = dir.replace("reemplazo", parseInt(paginaActual) + 1);
+                dir = dir.replace("reemplazo2", idservicionegocio);
+                dir = dir.replace("reemplazo3", ambiente);
+
+                window.location.href = dir;
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("DetalleServicio", "Servicio", new { id = "reemplazo", idservicionegocio = "reemplazo2", ambiente = "reemplazo3" }))';
+            dir = dir.replace("reemplazo", totalPaginas);
+            dir = dir.replace("reemplazo2", idservicionegocio);
+            dir = dir.replace("reemplazo3", ambiente);
+
+            window.location.href = dir;
+
+        });
+
+        $(document).on('keypress', '#txt_pag',function(e) {
+
+            var key = e.which;
+
+            carga_variables_paginacion();
+
+
+            if (key == 13) {
+
+
+                if ($(this).val() <= totalPaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("DetalleServicio", "Servicio", new
+                          {
+                              id = "reemplazo",
+                              idservicionegocio = "reemplazo2",
+                              ambiente = "reemplazo3" }))';
+
+                    dir = dir.replace("reemplazo", $(this).val());
+                    dir = dir.replace("reemplazo2", idservicionegocio);
+                    dir = dir.replace("reemplazo3", ambiente);
+
+                    window.location.href = dir;
+
+
+                }
+
+            }
+        });
+
+        $(document).on('click', '#tb_infraestructura tbody tr', function(){
+
+            $('#modal-cargando').modal('show');
+
+            $('#tblReporte').empty();
+
+            $('#modCustom')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+            $('#modCustom').modal('show');
+            
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DetalleCabecera", "Servicio")',
+                data: {idcomponente: $(this).attr('id')},
+                async: false
+            }).done(function(result){
+
+                CabeceraReporteJson = $.parseJSON(result);
+            });
+
+            $('#reporteestado').empty().append('<b>Estado :&nbsp;</b>');
+            $('#reportecreado').empty().append('<b>Fecha Creacion :&nbsp;</b>');;
+
+            $('#reporteestado').append(CabeceraReporteJson[0].estado);
+            $('#reportecreado').append(CabeceraReporteJson[0].creado);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DetalleCotizacion", "Servicio")',
+                data: {idcomponente: $(this).attr('id')},
+                async: false
+            }).done(function(result){
+
+                ReporteJson = $.parseJSON(result);
+            });
+
+            count = 0;
+            countcost = 0;
+            countcat = 0;
+            countcomp = 0;
+
+            if(ReporteJson != '[]') {
+                _.each(ReporteJson, function(i, row) {
+
+                    componenteActual = i.idComponente;
+                    categoriaActual  = (i.Categoria).replace(/ /g, '');
+                    costoActual      = i.idCosto;
+                    subcostoActual   = i.idSubcomponente;
+
+                    totalcomponente = addFloat(totalcomponente, i.costo);
+
+                    if(count == 0) {
+
+                        countcomp++;
+                        countcat++;
+                        countcost++;
+
+                        componenteAnterior = i.idComponente;
+                        categoriaAnterior  = (i.Categoria).replace(/ /g, '');
+                        costoAnterior      = i.idCosto;
+                        subcostoAnterior   = i.idSubcomponente;
+
+                        costo = float(i.costo);
+
+                        elemento = '<table id="tabla' + i.idComponente + '" class="table table-bordered table-responsive table-striped table-condensed" border="1" style="margin-bottom:0px">\
+                                <tr style="background:#E6E6E6">\
+                                    <td class="col-md-3 centrado negrita">Descripcion Componente</td>\
+                                    <td class="col-md-2 centrado negrita">Categoría Costo</td>\
+                                    <td class="col-md-6 centrado negrita">Glosa Costo</td>\
+                                    <td class="col-md-1 centrado negrita">Costo UF</td>\
+                                </tr>\
+                                <tr>\
+                                    <td id="componente' + componenteActual + '" rowspan="' + countcat + '">' + i.Descripcion + '</td>\
+                                    <td id="categoria' + categoriaActual + '" rowspan="' + countcost + '">' + i.Categoria + '</td>\
+                                    <td id="glosa' + componenteActual + categoriaActual + costoActual + '">' + i.Glosa + '</td>\
+                                    <td id="costo' + componenteActual + categoriaActual + costoActual + '" class="derecha">' + float(i.costo) + '</td>\
+                                </tr>\
+                            </table>';
+
+                        count++;
+
+                        $('#tblReporte').append(elemento);
+
+                    } else {
+
+                        if(componenteAnterior == componenteActual) {
+
+                            costo = addFloat(costo, i.costo);
+
+                            if(categoriaAnterior == categoriaActual) {
+
+                                if(costoAnterior == costoActual) {
+
+                                    if(float(i.costo) != '0,00') {
+
+                                        temp = $('#costo' + componenteActual + categoriaActual + costoActual).text().trim();
+
+                                        $('#costo' + componenteActual + categoriaActual + costoActual).text(addFloat(temp, i.costo));
+
+                                    }
+
+                                } else {
+
+                                    if(float(i.costo) != '0,00') {
+
+                                        countcat++;
+                                        countcost++;
+
+                                        elemento = '<tr>\
+                                                <td id="glosa' + componenteActual + categoriaActual + costoActual + '">' + i.Glosa + '</td>\
+                                                <td id="costo' + componenteActual + categoriaActual + costoActual + '" class="derecha">' + float(i.costo) + '</td>\
+                                            </tr>';
+
+                                        $('#tabla' + componenteActual).append(elemento);
+
+                                        $('#componente' + componenteActual).attr('rowspan', countcat);
+                                        $('#categoria' + categoriaActual).attr('rowspan', countcost);
+
+                                    }
+
+                                }
+
+                            } else {
+
+                                if(float(i.costo) != '0,00') {
+
+                                    countcat++;
+                                    countcost = 1;
+
+                                    elemento = '<tr>\
+                                        <td id="categoria' + categoriaActual + '" rowspan="' + countcost + '">' + i.Categoria + '</td>\
+                                        <td id="glosa' + componenteActual + categoriaActual + costoActual + '">' + i.Glosa + '</td>\
+                                        <td id="costo' + componenteActual + categoriaActual + costoActual + '" class="derecha">' + float(i.costo) + '</td>\
+                                    </tr>';
+
+                                    $('#componente' + componenteActual).attr('rowspan', countcat);
+
+                                    $('#tabla' + componenteActual).append(elemento);
+
+                                }
+
+                            }
+
+                        } else {
+
+                            if(float(i.costo) != '0,00') {
+
+                                countcost = 1;
+                                countcat = 1;
+                                countcomp++;
+
+                                costo = float(i.costo);
+
+                                elemento = '<table class="table table-responsive table-condensed">\
+                                    <tr class="marco-none">\
+                                        <td class="col-md-11" style="border-top:none"></td>\
+                                        <td class="col-md-1 derecha marco-full" style="background:#E6E6E6">' + totalcomponente + '</td>\
+                                    </tr>\
+                                </table>\
+                                <table id="tabla' + i.idComponente + '" class="table table-bordered table-responsive table-condensed" border="1" style="margin-bottom:0px">\
+                                    <tr>\
+                                        <td id="componente' + componenteActual + '" class="col-md-3" rowspan="' + countcat + '">' + i.Descripcion + '</td>\
+                                        <td id="categoria' + categoriaActual + '" class="col-md-2" rowspan="' + countcost + '">' + i.Categoria + '</td>\
+                                        <td id="glosa' + componenteActual + categoriaActual + costoActual + '" class="col-md-6">' + i.Glosa + '</td>\
+                                        <td id="costo' + componenteActual + categoriaActual + costoActual + '" class="col-md-1 derecha">' + float(i.costo) + '</td>\
+                                    </tr>\
+                                </table>';
+
+                                $('#tblReporte').append(elemento);
+
+                                totalcotizacion = addFloat(totalcotizacion, totalcomponente);
+                                totalcomponente = 0;
+                                totalcomponente = 0;
+                                costo = float(i.costo);
+
+                            }
+
+                        }
+
+                    }
+
+                    if(float(i.costo) != '0,00') {
+
+                        componenteAnterior = i.idComponente;
+                        categoriaAnterior  = (i.Categoria).replace(/ /g, '');
+                        costoAnterior      = i.idCosto;
+                        subcostoAnterior   = i.idSubcomponente;
+
+                    }
+
+                });
+
+            } else {
+                $('#tblReporte').append('No se han encontrado componentes');
+            }
+
+            $('#modal-cargando').modal('hide');
+
+        });
+
+    });
+</script>
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-5 col-sm-5">
+            <h3 id="ttl">Detalle Infraestructura de Servicios</h3>
+        </div>
+        <div class="col-md-7 col-sm-7 text-right">
+            <ol class="breadcrumb">
+                <li><a href="@Url.Action("FiltroServicio", "Servicio", new { id = ViewBag.IdServicioNegocio })">Inicio</a></li>
+                <li><a href="@Url.Action("Ver", "Servicio", new { id = ViewBag.IdServicioNegocio })">Servicio de Negocio: '@ViewBag.ServicioNegocio'</a></li>
+                <li class="active">Ambiente de Uso: '@ViewBag.ambiente'</li>
+            </ol>
+        </div>
+    </div>
+
+
+    <div class="row grilla">
+        <table id="tb_infraestructura" class="table table-responsive table-striped table-hover">
+            <caption class="titulo-tabla">Lista de Componentes</caption>
+            <thead>
+                <tr>
+                    <th class="col-md-2">Alias</th>
+                    <th class="col-md-2">Tipo de Servidor</th>
+                    <th class="col-md-2">Pais</th>
+                    <th class="col-md-4">Descripcion</th>
+                    <th class="col-md-2">Total Componente UF</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-4 form-inline">
+            <span class="btn-group btn-group-xs">
+                <a id="btn_pri_pag" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-left fa-lg"></i></a>
+                <a id="btn_pag_ant" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-left fa-lg"></i></a>
+            </span>
+            <span>Pág. <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:8%; display:initial;" value="" /> de <font id="total_pag"></font></span>
+            <span class="btn-group btn-group-xs">
+                <a id="btn_pag_sig" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-right fa-lg"></i></a>
+                <a id="btn_ult_pag" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-right fa-lg"></i></a>
+            </span>
+            <font id="registros"></font>
+        </div>
+    </div>
+
+    <!-- /.modal -->
+    <div class="modal fade" id="modCustom">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Detalle Componente</h4>
+                </div>
+                <div id="nvo_pryct" class="modal-body ui-front">
+
+                    <div id="modcabecera" class="row">
+
+                        <div class="row" style="text-align:center">
+                            <div id="reporteestado" class="col-md-6"><b>Estado :&nbsp;</b></div>
+                            <div id="reportecreado" class="col-md-6"><b>Fecha Creacion :&nbsp;</b></div>
+                        </div>
+                    </div>
+
+                    <div id="tblReporte"></div>
+
+                </div>
+                <div class="modal-footer">
+                    <button id="reporte_cerrar" type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal-cargando" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog" style="width:85px">
+
+            <div class="modal-content">
+                <div class="modal-body">
+                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+
+                    <label>Cargando...</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal -->
+
+</div>

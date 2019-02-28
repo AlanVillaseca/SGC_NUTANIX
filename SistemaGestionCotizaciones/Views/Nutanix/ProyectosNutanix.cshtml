@@ -1,0 +1,95 @@
+﻿
+@{
+    ViewBag.Title = "ProyectosNutanix";
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
+}
+
+@model SistemaGestionCotizaciones.Models.NutanixFunciones
+@using System.Data
+@using System.Web.Script.Serialization;
+
+<script>
+    $(document).ready(function () {
+
+        let divOculto = $('#tabla');
+        divOculto.hide();
+        let cmbProyectos = $('#combo_proyecto');
+        let cmbCotiza =$('#combo_cotiza');
+        let tablaCoti=$('#tablaCoti tbody');
+
+
+        var proyecto = @Html.Raw(Model.dtProyectosNutanixJson);
+        var cmbProyectoCotizar = document.getElementById('combo_proyecto');
+        var tblCoti = document.getElementById('tablaCoti');
+
+
+        //Llenado combo proyectos
+        _.each(proyecto, function(pib){
+            cmbProyectos.append($('<option></option>').attr('value', pib.idproyecto).text(pib.nombre))
+        });
+
+        //Listado Cotizaciones en Tabla
+        $('#btnCoti').click(function () {
+            let divOculto = $('#tabla');
+            divOculto.show(300);
+            tablaCoti.empty();
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("getCotizacionesNutanix","Nutanix")',
+                async: false,
+                data: { id: cmbProyectoCotizar.value },
+                success: function (result) {
+
+                    var cotizacion=JSON.parse(result);
+                    _.each(cotizacion, function(pib){
+                        tablaCoti.append($('<tr><td>'+pib.idcotizacion+'</td><td>'+pib.descripcion+'</td><td>'+pib.estado+'</td><td>'+pib.fechacreacion +'</td><td><a href="@Url.Action("ComponentesNutanix", "Nutanix")/'+pib.idcotizacion+'" style=" background-color:#8fbe00" class="btn btn-primary">Ir</a></td></tr>'))
+                    })
+
+                }
+            });//fin ajax
+
+        })//fin boton
+
+    })//fin document ready
+
+
+</script>
+        <div id="resultado"></div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4 col-sm-3">
+                    <h3 id="ttl">Creación proyecto VM Nutanix</h3>
+                </div>
+            </div>
+                <div style="border-top:solid 2px #8FBE00;"></div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-3">
+                        <h5 style="padding-top:2%;"></h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        <label for="inputState">Proyecto</label>
+                        <select id="combo_proyecto" class="form-control"></select>
+                    </div>
+                    <label for="inputState">Buscar</label>
+                    <button id="btnCoti" style="background-color:#8FBE00" class="btn btn-primary">Buscar cotización</button>
+                </div>
+
+                <div id="tabla" class="row">
+                    <table id="tablaCoti" class="table table-responsive table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1">Id cotización</th>
+                                <th class="col-md-5">Nombre cotización</th>
+                                <th class="col-md-1">Estado cotizacion</th>
+                                <th class="col-md-2">Fecha de Creacion</th>
+                                <th class="col-md-1">Ir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>

@@ -1,0 +1,1839 @@
+﻿@{
+    ViewBag.Title = "nvaConceptoCosto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.ManPlantillas
+
+@using System.Data
+@using System.Web.Script.Serialization;
+<script src="~/Scripts/underscore-min.js"></script>
+<script src="~/Scripts/js/selectMenu.js"></script>
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    .lista li:hover {
+        cursor: pointer;
+    }
+
+    .ui-menu {
+        max-height: 100px;
+    }
+
+    .seleccion {
+        background-color: #fadcdc;
+    }
+
+    span:hover {
+        cursor: default;
+    }
+
+    .ico-corner {
+    }
+
+    .glyp-verde {
+        color: #87D409;
+    }
+
+    .glyp-rojo {
+        color: #E95009;
+    }
+
+    .glyp-amarillo {
+        color: #EDCF57;
+    }
+
+    .btn-corner {
+        position: absolute;
+        top: 0;
+        left: 100%;
+    }
+
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu > .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -6px;
+        margin-left: -1px;
+        -webkit-border-radius: 0 6px 6px 6px;
+        -moz-border-radius: 0 6px 6px 6px;
+        border-radius: 0 6px 6px 6px;
+    }
+
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-submenu > a:after {
+        display: block;
+        content: " ";
+        float: right;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+        border-width: 5px 0 5px 5px;
+        border-left-color: #cccccc;
+        margin-top: 5px;
+        margin-right: -10px;
+    }
+
+    .dropdown-submenu:hover > a:after {
+        border-left-color: #ffffff;
+    }
+
+    .dropdown-submenu.pull-left {
+        float: none;
+    }
+
+    .dropdown-submenu.pull-left > .dropdown-menu {
+        left: -100%;
+        margin-left: 10px;
+        -webkit-border-radius: 6px 0 6px 6px;
+        -moz-border-radius: 6px 0 6px 6px;
+        border-radius: 6px 0 6px 6px;
+    }
+</style>
+
+<script>
+
+    /* Modal Confirm INI*/
+    function confirm(heading, question, cancelButtonTxt, okButtonTxt, callback) {
+
+        var confirmModal =
+          $('<div class="modal fade">' +
+              '<div class="modal-dialog">' +
+              '<div class="modal-content">' +
+              '<div class="modal-header">' +
+                '<h4 class="modal-title">' + heading +'</h4>' +
+              '</div>' +
+
+              '<div class="modal-body">' +
+                '<p>' + question + '</p>' +
+              '</div>' +
+
+              '<div class="modal-footer">' +
+                '<a href="#!" class="btn" data-dismiss="modal">' +
+                  cancelButtonTxt +
+                '</a>' +
+                '<a href="#!" id="okButton" class="btn btn-primary">' +
+                  okButtonTxt +
+                '</a>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+            '</div>');
+
+        confirmModal.find('#okButton').click(function(event) {
+            callback();
+            confirmModal.modal('hide');
+        });
+
+        confirmModal.modal('show');
+    };
+    /*Modal Confirm END*/
+    /* Modal alert INI*/
+    function c_alert(heading, text, cancelButtonTxt) {
+
+        var confirmModal =
+          $('<div class="modal fade">' +
+              '<div class="modal-dialog">' +
+              '<div class="modal-content">' +
+              '<div class="modal-header">' +
+                  '<h4 class="modal-title">' + heading +'</h4>' +
+              '</div>' +
+
+              '<div class="modal-body">' +
+                '<p>' + text + '</p>' +
+              '</div>' +
+
+              '<div class="modal-footer">' +
+                '<a href="#!" class="btn" data-dismiss="modal">' +
+                  cancelButtonTxt +
+                '</a>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+            '</div>');
+
+        /*confirmModal.find('#okButton').click(function(event) {
+            callback();
+            confirmModal.modal('hide');
+        });*/
+
+        confirmModal.modal('show');
+    };
+    /*Modal alert END*/
+
+    $(document).ready(function () {
+        /************************************************************************/
+        /*                     AGREGAR EL ID A LA GLOSA                         */
+        /************************************************************************/
+
+        function encodeGlosa(str)
+        {
+            if (!str) return "";
+
+            var strArr = str.split(/[\[.*\]]/);
+            glosaVariables = [];
+            //alert('otra' + strArr);
+            for(i = 0; i < strArr.length; i++)
+            {
+                //alert(JSON.stringify(listaVariables));
+                var lstCVar = _.findWhere(listaVariables, {Nombreatributo : strArr[i]});
+
+                if (lstCVar)
+                {
+                    str = str.replace(strArr[i], 'idCatalogoElemento:' + lstCVar.idCatalogoElemento);
+
+                    glosaVariables.push({
+                        idParametroCosto : 0,
+                        idCatalogoElemento : lstCVar.idCatalogoElemento,
+                        fGlosa : '1',
+                        idPlantilla : 0
+                    });
+                }
+            }
+            return str;
+        }
+
+        /************************************************************************/
+        /*            REEMPLAZA EK UD DE LA GLOSA POR NOMBRE                    */
+        /************************************************************************/
+
+        function decodeGlosa(str)
+        {
+            if (!str) return "";
+
+            var strArr = str.split(/[\[.*\]]/);
+
+            for(i = 0; i < strArr.length; i++)
+            {
+                if (strArr[i].startsWith('idCatalogoElemento:') )
+                {
+                    var node = _.findWhere(listaVariables, {idCatalogoElemento : strArr[i].substring(19)});
+                    if (node)
+                        str = str.replace(strArr[i], node.Nombreatributo);
+                }
+            }
+            return str;
+        }
+
+        /************************************************************************/
+        /*        AGREGA SELECCION AL TEXTO DE LA GLOSA, S: SELECTELEMENT       */
+        /************************************************************************/
+
+        function onChangeCVariable(s)
+        {
+            var newText = $(s).find('option:selected').text();
+            newText = ' [' + newText.trim() + '] ';
+            var newValue = s.value;
+            s.value = '';
+            $(s).find('option:selected').text('');
+
+            var textAreaElement = $('#modGlosa #txt_glosa_txa');
+            var start = textAreaElement.prop("selectionStart");
+            var end = textAreaElement.prop("selectionEnd");
+            var text = textAreaElement.val();
+            var before = text.substring(0, start);
+            var after  = text.substring(end, text.length);
+            textAreaElement.val(before + newText + after);
+            textAreaElement[0].selectionStart = textAreaElement[0].selectionEnd = start + newText.length;
+            textAreaElement.focus();
+
+            $('option:first',s).prop('selected', true);
+        }
+
+        var listaVariables;
+        var glosaVariables = [];
+
+        /*Desabilitamos al inicio el boton siguiente (no funciona deshabilitar directamente en el html) */
+        $('#sigte').prop('disabled', true);
+
+        /************************************************************************/
+        /*                          OBTENEMOS LOS JSON                          */
+        /************************************************************************/
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var listaConceptosCostoNvl1 = @Html.Raw(jss.Serialize(@Model.listaConceptosCostoNvl1));
+        var listaParCostoNvl1 = @Html.Raw(jss.Serialize(@Model.listaParCostoNvl1));
+        var categoriasCostos = @Html.Raw(jss.Serialize(@Model.categoriasCostos));
+        var listaFormulas = @Html.Raw(jss.Serialize(@Model.listaFormulas));
+        var listaVariables = @Html.Raw(jss.Serialize(@Model.listaCostoVariables));
+
+        /************************************************************************/
+        /*             FUNCION PARA CAPTURAR SELECCION EN JSON                  */
+        /************************************************************************/
+
+        var arrayJson = [];
+        var parteNumId = 0;
+        var idBdJson = 0;
+
+        function addArrayJson(  idFicticio,         //1
+                                varFk,              //2
+                                varNombre,          //3
+                                varNivel,           //4
+                                varTipo,            //5
+                                varTipoFuncion,     //6
+                                varValor,           //7
+                                varGlosa,           //8
+                                varUsed,            //9
+                                varAcc,             //10
+                                varIdLista,         //11
+                                varOptLista){       //12
+
+            var varRuta = '';
+            var varIdCostoPadre = '';
+
+            varRuta = $.trim(_.pluck(_.where(arrayJson, {id : varFk}), 'ruta'));
+
+            if(varRuta == ''){
+
+                varRuta = $.trim(varNombre).toString();
+                //alert('1.- ' + varRuta);
+            }else{
+
+                varRuta = $.trim(_.pluck(_.where(arrayJson, {id : varFk}), 'ruta')) + ' <span class="glyphicon glyphicon-chevron-right"></span> ' + $.trim(varNombre).toString();
+                //alert('2.- ' + varRuta);
+            }
+
+            varFkBD = $.trim(_.pluck(_.where(arrayJson, {id : varFk}), 'idBd'));
+
+            if(varAcc == 'n' || varAcc == 'nr' || varAcc == 'p'){
+                idBdJson++;
+
+                arrayJson.push({
+                    id : idFicticio,
+                    fk : varFk,
+                    nombre: $.trim(varNombre),
+                    nivel: varNivel,
+                    glosa: varGlosa,
+                    tipo: varTipo,
+                    ruta: varRuta,
+                    tipoFuncion: varTipoFuncion,
+                    valor : varValor,
+                    idBd : idBdJson,
+                    fkBd : varFkBD,
+                    used : varUsed,
+                    acc : varAcc,
+                    idLista : varIdLista,
+                    optLista : varOptLista
+
+                });
+
+            }else{
+
+                arrayJson.push({
+                    id : idFicticio,
+                    fk : varFk,
+                    nombre: $.trim(varNombre),
+                    nivel: varNivel,
+                    glosa: varGlosa,
+                    tipo: varTipo,
+                    ruta: varRuta,
+                    tipoFuncion: varTipoFuncion,
+                    valor : varValor,
+                    idBd : idFicticio,
+                    fkBd : varFk,
+                    used : varUsed,
+                    acc : varAcc,
+                    idLista : varIdLista,
+                    optLista : varOptLista
+
+                });
+
+            }
+
+        }
+
+        /************************************************************************/
+        /*             TEMPLATE UNDERSCORE COMBOS PASO SIGUIENTE                */
+        /************************************************************************/
+        var templateListaFormulas = _.template('<select  class="selectmenu listaFormulas" ><option selected disabled value=0>Seleccione</option><% _.each('+ JSON.stringify(listaFormulas) + ', function(i) { %>  <option value="<%=i.Idformula%>" numvar="<%=i.NumVariables%>"><%= i.Nombreformula %></option> <% }); %></select>');
+        var templateListaVariables = _.template('<select  class="selectmenu listaVariables" ><option selected disabled value=0>Seleccione</option><% _.each('+ JSON.stringify(listaVariables) + ', function(i) { %>  <option value="<%=i.idCatalogoElemento%>"><%= i.Nombreatributo %></option> <% }); %></select>');
+
+        /************************************************************************/
+        /*                  CARGA PRIMER NIVEL ITEMS VIEJOS                     */
+        /************************************************************************/
+
+        _.each(listaParCostoNvl1, function (i) {
+            $('#nivel1').append('<li class="list-group-item old-item" id="' + i.Idparametrocosto + '"\
+                fk="' + i.FkIdparametrocosto + '" glosa="' + i.Glosa + '" tpodato="' + i.TipoNodo + '" idlista="' + i.IdLista + '">\
+                <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+                ' + $.trim(i.Nombre) + '</li>');
+        });
+
+        /************************************************************************/
+        /*             REPRODUCE LA RUTA DE UN ELEMENTO VIEJO                   */
+        /************************************************************************/
+
+        $(document).on('click', '.lista > li.old-item', function (e) {
+
+            var lItem = $(this);
+            lItem.parent().children().removeClass('seleccion');
+            lItem.addClass('seleccion');
+
+            var nivelActual = parseInt(lItem.closest('div').attr('nivel'));
+
+            $('div').each(function(){
+                if(parseInt($(this).attr('nivel')) > nivelActual){
+                    $(this).remove();
+                }
+            });
+
+            if(nivelActual == 1){
+                $('#nivel1 li').fadeOut(100);
+                $('#nivel1 li').not(this).remove();
+                $('#nivel1 li').fadeIn(300);
+                $('#nvoNvl1').addClass('disabled');
+                $('#nvoNvl1').prop('disabled', true);
+
+                addArrayJson(lItem.prop('id'), 			 //idFicticio,         1
+                             lItem.attr('fk'),           //varFk,              2
+                             lItem.text(),               //varNombre,          3
+                             nivelActual ,               //varNivel,           4
+                             lItem.attr('tpodato'),      //varTipo,            5
+                             '',                         //varTipoFuncion,     6
+                             '',                         //varValor,           7
+                             '',                         //varGlosa,           8
+                             0,                          //varUsed,            9
+                             'v',                        //varAcc,             10
+                             '',                         //varIdLista,         11
+                             '');                        //varOptLista	       12
+
+            }else{
+
+                var jExists = _.where(arrayJson, {id : lItem.attr('id')});
+
+                if(lItem.attr('tpodato') == '3' && jExists.length == 0){
+
+                    addArrayJson(lItem.prop('id'), 						 //idFicticio,         1
+                                 lItem.attr('fk'),                       //varFk,              2
+                                 lItem.text().toString(),                //varNombre,          3
+                                 lItem.closest('div').attr('nivel'),     //varNivel,           4
+                                 '3',                                    //varTipo,            5
+                                 '',                                     //varTipoFuncion,     6
+                                 '',                                     //varValor,           7
+                                 lItem.attr('glosa'),                    //varGlosa,           8
+                                 0,                                      //varUsed,            9
+                                 'v',                                    //varAcc,             10
+                                 lItem.attr('idlista'),                  //varIdLista,         11
+                                 lItem.attr('optlista'));                //varOptLista	       12
+
+                }
+                /*
+                if(lItem.attr('tpodato') != '2'){
+                    addArrayJson(lItem.prop('id'), 			 //idFicticio,         1
+                                 lItem.attr('fk'),           //varFk,              2
+                                 lItem.text(),               //varNombre,          3
+                                 nivelActual ,               //varNivel,           4
+                                 lItem.attr('tpodato'),      //varTipo,            5
+                                 '',                         //varTipoFuncion,     6
+                                 '',                         //varValor,           7
+                                 lItem.attr('glosa'),        //varGlosa,           8
+                                 0,                          //varUsed,            9
+                                 'v',                        //varAcc,             10
+                                 lItem.attr('idlista'),      //varIdLista,         11
+                                 lItem.attr('optlista'));    //varOptLista	       12
+                }
+                */
+            }
+
+            var url = 'jsonParametroCostoNvlN/';
+            $.ajax({
+                dataType: "json",
+                url: url,
+                data: {id : lItem.prop('id')}
+            }).done(function(varJson){
+
+                $('#contenedorArmador').append('<div class="col-md-2 col-sm-2" nivel="'+ (nivelActual + 1) +'">\
+                                                    <h4></h4>\
+                                                    <ul id="nivel'+ ((nivelActual + 1)) +'" class="list-group lista">\
+                                                    </ul>\
+                                                </div>');
+
+                var maxNivel = 1;
+
+                $('[nivel]').each(function(){
+                    if(maxNivel < parseInt($(this).attr('nivel'))){
+                        maxNivel = parseInt($(this).attr('nivel'));
+                    }
+                });
+
+                while(maxNivel > nivelActual){
+                    $('#nivel' + maxNivel).html('');
+                    $('#nvoNvl' + maxNivel).remove();
+                    maxNivel--;
+                }
+
+
+
+                jExists = _.where(arrayJson, {fk : lItem.attr('id')});
+
+
+                _.each(jExists, function (i) {
+
+                    if(i.tipo == 2 && i.acc != 'd'){
+                        //alert('entre');
+                        $('#nivel' + (nivelActual + 1)).append('<li id="' + i.id + '" class="list-group-item nuevo-item seleccion" fk="' + i.fk + '" tpodato="scosto">\
+                        <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+					    <div class="ico-corner"><span class="glyphicon glyphicon-usd ico-corner"></span> ' + i.nombre + '</div></li>');
+
+                    }
+                    /*
+                    if(i.tipo == 3 && i.acc != 'd'){
+
+                        $('#nivel' + (nivelActual + 1)).append('<li class="list-group-item nuevo-item seleccion" id="' + i.id + '" fk="' + i.fk + '" glosa="" idlista="' + i.idLista + '" optlista="' + i.optLista + '" tpodato="itemLista">' + i.nombre + '</li>');
+
+                    }
+                    */
+                });
+
+
+                counter = 0;
+                var tipoNodoUse = '';
+                _.each(varJson, function (i) {
+                    var delExists = _.where(arrayJson, {id : i.Idparametrocosto, acc : 'd'});
+
+                    //$('#testJson').html('');
+                    /*$('#testJson').append(JSON.stringify(arrayJson));
+                    $('#testJson').append('------------------------------');*/
+                    //$('#testJson').append(JSON.stringify(delExists));
+
+                    if (i.Deprecated == 'False' && i.FkIdparametrocosto == lItem.prop('id') && delExists.length == 0) {
+                        //alert();
+                        counter++;
+
+                        if(i.TipoNodo == '1'){
+                            $('#nivel' + (nivelActual + 1)).append('<li class="list-group-item old-item" id="' + i.Idparametrocosto + '"\
+                            fk="' + i.FkIdparametrocosto + '" glosa="' + i.Glosa + '" tpodato="' + i.TipoNodo + '" idlista="' + i.IdLista + '" optlista="' + i.idOption + '">\
+                            <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+                            <div class="ico-corner"><span class="glyphicon glyphicon-plus ico-corner"></span> ' + i.Nombre + '</div></li>');
+
+                            //addArrayJson(i.Idparametrocosto, i.FkIdparametrocosto, i.Nombre, (nivelActual + 1), i.TipoNodo, '', '', i.Glosa, 0, 'v', '', '')
+
+                        }
+
+                        if(i.TipoNodo == '2'){
+                            $('#nivel' + (nivelActual + 1)).append('<li class="list-group-item old-item" id="' + i.Idparametrocosto + '"\
+                            fk="' + i.FkIdparametrocosto + '" glosa="' + i.Glosa + '" tpodato="' + i.TipoNodo + '" idlista="' + i.IdLista + '" optlista="' + i.idOption + '">\
+                            <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+                            <div class="ico-corner"><span class="glyphicon glyphicon-usd ico-corner"></span> ' + i.Nombre + '</div></li>');
+
+                            //addArrayJson(i.Idparametrocosto, i.FkIdparametrocosto, i.Nombre, (nivelActual + 1), i.TipoNodo, '', '', '', i.Glosa, 0)
+                        }
+
+                        if(i.TipoNodo == '3'){
+                            $('#nivel' + (nivelActual + 1)).append('<li class="list-group-item old-item" id="' + i.Idparametrocosto + '"\
+                            fk="' + i.FkIdparametrocosto + '" glosa="' + i.Glosa + '" data-toggle="tooltip" title="' + i.Glosa + '" tpodato="' + i.TipoNodo + '" idlista="' + i.IdLista + '" optlista="' + i.idOption + '">\
+                            <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+                            ' + i.Nombre + '</li>').tooltip({
+                                trigger: "focus",
+                                open: function(event, ui) {
+                                    ui.tooltip.delay(4000).fadeTo(1000, 0);
+                                }
+                            });
+
+                            //addArrayJson(i.Idparametrocosto, i.FkIdparametrocosto, i.Nombre, (nivelActual + 1), i.TipoNodo, '', '', i.Glosa, 0, 'v', '', '')
+                        }
+                        tipoNodoUse = i.TipoNodo;
+
+                    }
+                });
+
+                /* en caso de contener tipo costo*/
+                /*
+                if(tipoNodoUse == '1'){
+                    $('#nivel'+(nivelActual + 1)).parent().append('<button id="nvoNvl'+ (nivelActual + 1) +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                    data-toggle="dropdown">\
+                    Agregar <span class="caret"></span>\
+                    </button>\
+                    <ul class="dropdown-menu" role="menu">\
+                        <li><a href="#" class="agr-costo">Costo</a></li>\
+                        <li class="disabled"><a href="#" tabindex="-1" class="agr-select">Elemento Selector</a>\
+                        <li class="disabled"><a href="#" class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                    </ul>');
+
+                }
+                */
+
+                /* en caso de contener selector */
+                if('@User.IsInRole("OBSERVADOR")' == 'False'){
+                if(tipoNodoUse == '3'){
+                    //alert('1');
+                    $('#nivel'+(nivelActual + 1)).parent().append('<button id="nvoNvl'+ (nivelActual + 1) +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                        data-toggle="dropdown">\
+                        Agregar <span class="caret"></span>\
+                        </button>\
+                        <ul class="dropdown-menu" role="menu">\
+                            <li class="dropdown-submenu"><a href="#" tabindex="-1" class="agr-select">Elemento Selector</a>\
+                            <ul class="dropdown-menu lista-drop"></ul></li>\
+                            <li class="disabled"><a href="#" class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                        </ul>');
+
+                    //$('.lista-drop').html('');
+
+                    var numLista = $('#nivel' + (nivelActual + 1) + ' li:first').attr('idlista');
+
+                    _.each(listaConceptosCostoNvl1, function (i) {
+                        if(i.Idtipodato == 3 && i.Categoria == 2){
+                            if(numLista != i.idCatalogoElemento && numLista > 0){
+                                $('div[nivel*=' + (nivelActual + 1) +'] ul li .lista-drop').append('<li class="opt-drop disabled" id="' + i.idCatalogoElemento + '"\
+                                tpodato="' + i.Idtipodato + '" >\
+                                <a class="disabled" tabindex="-1" href="#"><span class="glyphicon glyphicon-th-list ico-corner"></span> ' + i.Nombreatributo + '</a></li>');
+
+                            }else{
+                                $('div[nivel*=' + (nivelActual + 1) +'] ul li .lista-drop').append('<li class="opt-drop" id="' + i.idCatalogoElemento + '"\
+                                tpodato="' + i.Idtipodato + '" >\
+                                <a tabindex="-1" href="#"><span class="glyphicon glyphicon-th-list ico-corner"></span> ' + i.Nombreatributo + '</a></li>');
+
+                            }
+                        }
+                    });
+                }
+
+                /* en caso de contener subcomponente de costo */
+                if(tipoNodoUse == '2'){
+
+                    $('#nivel'+(nivelActual + 1)).parent().append('<button id="nvoNvl'+ (nivelActual + 1) +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                    data-toggle="dropdown">\
+                    Agregar <span class="caret"></span>\
+                    </button>\
+                    <ul class="dropdown-menu" role="menu">\
+                        <li class="disabled"><a href="#" tabindex="-1" class="agr-select">Elemento Selector</a>\
+                        <li ><a href="#" class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                    </ul>');
+                }
+
+                if($('#nivel'+(nivelActual + 1)).children().length == 0){
+
+                    if(lItem.attr('tpodato') == '2'){
+
+                        $('#nivel'+(nivelActual + 1)).append('<li class="list-group-item" style="border:none;" id="noElement' + (nivelActual + 1) +'">Sin Elementos</li>');
+
+                        $('#nivel'+(nivelActual + 1)).parent().append('<button id="nvoNvl'+ (nivelActual + 1) +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                        data-toggle="dropdown">\
+                        Agregar <span class="caret"></span>\
+                        </button>\
+                        <ul class="dropdown-menu" role="menu">\
+                            <li class="disabled"><a href="#" tabindex="-1" class="agr-select">Elemento Selector</a>\
+                            <ul class="dropdown-menu lista-drop"></ul></li>\
+                            <li class="disabled"><a href="#" class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                        </ul>');
+
+                    }else{
+
+                        $('#nivel'+(nivelActual + 1)).append('<li class="list-group-item" style="border:none;" id="noElement' + (nivelActual + 1) +'">Sin Elementos</li>');
+
+                        $('#nivel'+(nivelActual + 1)).parent().append('<button id="nvoNvl'+ (nivelActual + 1) +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                        data-toggle="dropdown">\
+                        Agregar <span class="caret"></span>\
+                        </button>\
+                        <ul class="dropdown-menu" role="menu">\
+                            <li class="dropdown-submenu"><a href="#" tabindex="-1" class="agr-select">Elemento Selector</a>\
+                            <ul class="dropdown-menu lista-drop"></ul></li>\
+                            <li class=""><a href="#" class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                        </ul>');
+
+                        $('.lista-drop').html('');
+
+                        var numLista = $('#nivel' + (nivelActual + 1) + ' li:first').attr('idlista');
+
+                        _.each(listaConceptosCostoNvl1, function (i) {
+                            if(i.Idtipodato == 3 && i.Categoria == 2){
+                                if(numLista != i.idCatalogoElemento && numLista > 0){
+                                    $('.lista-drop').append('<li class="opt-drop disabled" id="' + i.idCatalogoElemento + '"\
+                                tpodato="' + i.Idtipodato + '" >\
+                                <a class="disabled" tabindex="-1" href="#"><span class="glyphicon glyphicon-th-list ico-corner"></span> ' + i.Nombreatributo + '</a></li>');
+
+                                }else{
+                                    $('.lista-drop').append('<li class="opt-drop" id="' + i.idCatalogoElemento + '"\
+                                tpodato="' + i.Idtipodato + '" >\
+                                <a tabindex="-1" href="#"><span class="glyphicon glyphicon-th-list ico-corner"></span> ' + i.Nombreatributo + '</a></li>');
+
+                                }
+                            }
+                        });
+                    }
+                }
+                }
+
+            });
+
+        });
+
+        /************************************************************************/
+        /*                 CREA UN ELEMENTO NUEVO EN NIVEL1                     */
+        /************************************************************************/
+        $('#nvoNvl1').prop('disabled', false);
+        $('#nvoNvl1').click(function(){
+
+            $('#nivel1 li').fadeOut(500, function() { $(this).remove(); });
+
+            $('#nivel1').children().each(function (){
+                $(this).removeClass('seleccion');
+            });
+
+            $('#nivel1').prepend('<li class="list-group-item nuevo-root seleccion dropdown" >\
+                <a href="#" data-toggle="dropdown" class="dropdown-toggle">Seleccione Ítem <b class="caret"></b>\
+                </a><ul class="dropdown-menu concep-drop"></ul></li>').hide().fadeIn(400);
+
+            $('.nuevo-root').append('<span class="glyphicon glyphicon-remove btn-corner" style="display:none;"></span>');
+
+            _.each(listaConceptosCostoNvl1, function (i) {
+
+                if(i.used == 'False' && i.Categoria == '3'){
+                    $('.concep-drop').append('<li class="opt-drop" id="' + i.idCatalogoElemento + '" tpodato="' + i.Idtipodato + '" catego="' + i.Categoria + '"><a>' + $.trim(i.Nombreatributo) + '</a></li>');
+                }
+
+            });
+
+            $(this).addClass('disabled');
+            $(this).prop('disabled', true);
+
+        });
+
+        /************************************************************************/
+        /*          FUNCION PARA CREAR DIV VACIO EN UN NIVEL RANDOM             */
+        /************************************************************************/
+
+        function nivelRandomVacio(nivelActual, tipo){
+
+            var intNivelSiguiente = parseInt(nivelActual) + 1;
+
+            var flagExiste = 0;
+            $('#contenedorArmador').children('div').each( function(){
+                if($(this).attr('nivel') == intNivelSiguiente){
+                    flagExiste = 1;
+                }
+            });
+            /* Si ya existe un div en el nivel actual  */
+            if(!flagExiste){
+
+                $('#contenedorArmador').append('<div class="col-md-2 col-sm-2" nivel="'+ intNivelSiguiente +'">\
+                                                <h4></h4>\
+                                                <ul id="nivel'+ intNivelSiguiente +'" class="list-group lista">\
+                                                </ul>\
+                                            </div>');
+
+
+                $('#nivel'+intNivelSiguiente).append('<li class="list-group-item" style="border:none;" id="noElement'+ intNivelSiguiente +'">Sin Elementos</li>');
+                /* en caso de ser tipo lista */
+                /*
+                if(tipo == '3'){
+                    $('#nivel'+intNivelSiguiente).parent().append('<button id="nvoNvl'+ intNivelSiguiente +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                        data-toggle="dropdown">\
+                        Agregar <span class="caret"></span>\
+                        </button>\
+                        <ul class="dropdown-menu" role="menu">\
+                            <li class="disabled"><a class="agr-costo">Costo</a></li>\
+                            <li class="disabled"><a class="agr-select">Elemento Selector</a></li>\
+                            <li class="disabled"><a class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                        </ul>');
+
+                }
+                */
+                if(tipo == '2' || tipo == '0'){
+                    $('#nivel'+intNivelSiguiente).parent().append('<button id="nvoNvl'+ intNivelSiguiente +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                            data-toggle="dropdown">\
+                            Agregar <span class="caret"></span>\
+                            </button>\
+                            <ul class="dropdown-menu" role="menu">\
+                                <li class="dropdown-submenu"><a href="#" tabindex="-1" class="agr-select">Elemento Selector</a>\
+                                <ul class="dropdown-menu lista-drop"></ul></li>\
+                                <li class=""><a href="#" class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                            </ul>');
+
+                    $('.lista-drop').html('');
+
+                    _.each(listaConceptosCostoNvl1, function (i) {
+                        if(i.Idtipodato == 3 && i.Categoria == 2){
+                            $('.lista-drop').append('<li class="opt-drop" id="' + i.idCatalogoElemento + '"\
+                            tpodato="' + i.Idtipodato + '" >\
+                            <a tabindex="-1" href="#"><span class="glyphicon glyphicon-th-list ico-corner"></span> ' + i.Nombreatributo + '</a></li>');
+
+                        }
+                    });
+                }
+                /* en caso de ser un item de lista */
+                if(tipo == 'itemLista' || tipo == '3'){
+                    $('#nivel' + intNivelSiguiente).parent().append('<button id="nvoNvl'+ intNivelSiguiente +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                    data-toggle="dropdown">\
+                    Agregar <span class="caret"></span>\
+                    </button>\
+                    <ul class="dropdown-menu" role="menu">\
+                        <li class="dropdown-submenu"><a href="#" tabindex="-1" class="agr-select">Elemento Selector</a>\
+                        <ul class="dropdown-menu lista-drop"></ul></li>\
+                        <li class=""><a href="#" class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                    </ul>');
+
+                    //$('.lista-drop').html('');
+
+                    _.each(listaConceptosCostoNvl1, function (i) {
+                        if(i.Idtipodato == 3 && i.Categoria == 2){
+                            $('div[nivel*=' + intNivelSiguiente +'] ul li .lista-drop').append('<li class="opt-drop" id="' + i.idCatalogoElemento + '"\
+                    tpodato="' + i.Idtipodato + '" >\
+                    <a tabindex="-1" href="#"><span class="glyphicon glyphicon-th-list ico-corner"></span> ' + i.Nombreatributo + '</a></li>');
+
+                        }
+                    });
+
+                }
+                /* en caso de ser subcomponente de costo */
+                if(tipo == 'scosto'){
+
+                    $('#nivel' + intNivelSiguiente).parent().append('<button id="nvoNvl'+ intNivelSiguiente +'" class="btn btn-default dropdown-toggle btn-sm btn-agregar"\
+                        data-toggle="dropdown">\
+                        Agregar <span class="caret"></span>\
+                        </button>\
+                        <ul class="dropdown-menu" role="menu">\
+                            <li class="disabled"><a href="#" tabindex="-1" class="agr-select">Elemento Selector</a>\
+                            <ul class="dropdown-menu lista-drop"></ul></li>\
+                            <li class="disabled"><a href="#" class="agr-ccosto">Sub-Componente de Costo</a></li>\
+                        </ul>');
+                }
+
+            }
+        }
+
+        /************************************************************************/
+        /*                   EVENTO AL CLIQUEAR UN ITEM NUEVO                   */
+        /************************************************************************/
+
+        $(document).on('click', '.lista > li.nuevo-item', function (e) {
+
+            var lItem = $(this);
+            var nivelActual = lItem.closest('div').attr('nivel');
+
+            //++JEP
+            //BORRA LOS NIVELES SUPERIORES (ASI MACHOMENTE)
+            $('div').each(function(){
+                var jintNivel = parseInt($(this).attr('nivel'));
+                if (jintNivel > nivelActual){
+                    $(this).remove();
+                }
+            });
+
+            //--JEP
+            lItem.parent().children().removeClass('seleccion');
+            lItem.addClass('seleccion');
+
+            nivelRandomVacio(nivelActual, lItem.attr('tpodato'));
+
+            //JEP
+            var jExists = _.where(arrayJson, {id : $(this).attr('id')});
+
+            //--JEP
+            if(lItem.attr('tpodato') == 'itemLista' && jExists.length == 0){
+
+                addArrayJson(lItem.prop('id'), 						 //idFicticio,         1
+                             lItem.attr('fk'),                       //varFk,              2
+                             lItem.text().toString(),                //varNombre,          3
+                             lItem.closest('div').attr('nivel'),     //varNivel,           4
+                             '3',                                    //varTipo,            5
+                             '',                                     //varTipoFuncion,     6
+                             '',                                     //varValor,           7
+                             lItem.attr('glosa'),                    //varGlosa,           8
+                             0,                                      //varUsed,            9
+                             'n',                                    //varAcc,             10
+                             lItem.attr('idlista'),                  //varIdLista,         11
+                             lItem.attr('optlista'));                //varOptLista	       12
+
+            }
+
+            //+++JEP
+            //ACA SEUDOCARGAMOS LO YA GRABADO
+            jExists = _.where(arrayJson, {fk : $(this).attr('id')});
+
+            if (jExists.length > 0){
+
+                var intNivelSgte = parseInt(nivelActual) + 1;
+                $('#noElement' + intNivelSgte).remove();
+
+                _.each(jExists, function (i) {
+                    if(i.tipo == 1){
+
+                        $('div[nivel='+ intNivelSgte +'] ul:first').append('<li id="' + i.id + '" class="list-group-item nuevo-item seleccion" fk="' + i.fk + '" tpodato="costo">\
+                        <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+					    <input data-toggle="tooltip" title="Ingrese Nombre Sub-Componente de Costo" value="' + i.nombre + '" class="form-control input-sm nvo-costo" placeholder="Costo" style="border:none;" type="hidden">\
+					    <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+					    <div class="ico-corner"><span class="glyphicon glyphicon-plus ico-corner"></span> ' + i.nombre + '</div></li>');
+
+                    }
+                    if(i.tipo == 2){
+
+                        $('div[nivel='+ intNivelSgte +'] ul:first').append('<li id="' + i.id + '" class="list-group-item nuevo-item seleccion" fk="' + i.fk + '" tpodato="costo">\
+                        <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+					    <input data-toggle="tooltip" title="Ingrese Nombre Sub-Componente de Costo" value="' + i.nombre + '" class="form-control input-sm nvo-costo" placeholder="Sub-Componente" style="border:none;" type="hidden">\
+					    <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span>\
+					    <div class="ico-corner"><span class="glyphicon glyphicon-usd ico-corner"></span> ' + i.nombre + '</div></li>');
+
+                    }
+
+                    if(i.tipo == 3){
+
+                        $('div[nivel='+ intNivelSgte +'] ul:first').append('<li class="list-group-item nuevo-item seleccion" id="' + i.id + '" fk="' + i.fk + '" \
+                                data-toggle="tooltip" title="' + i.glosa + '" glosa="" idlista="' + i.idLista + '" \
+                                optlista="' + i.optLista + '" tpodato="itemLista">' + i.nombre + '</li>').tooltip({
+                                    trigger: "focus",
+                                    open: function(event, ui) {
+                                        ui.tooltip.delay(4000).fadeTo(1000, 0);
+                                    }
+                                });
+
+                    }
+
+                });
+            }
+        });
+
+        /************************************************************************/
+        /*           FUNCION PARA POBLAR UN DIV DE CUALQUIER NIVEL              */
+        /************************************************************************/
+
+        function nivelRandom(nivelActual, itemsJson, itemFk, glosas, idLista){
+
+            var intNivelSiguiente = parseInt(nivelActual) + 1;
+
+            var counter = 0;
+
+            if($('#nivel'+ intNivelSiguiente + ' li').prop('id') == 'noElement'+ intNivelSiguiente){
+                $('#nivel'+ intNivelSiguiente + ' li').remove();
+            }
+
+            $('#nivel' + intNivelSiguiente + ' li').each(function(){
+                itemsJson = _.without(itemsJson, _.findWhere(itemsJson, {Idlistavalores: $(this).attr('optlista') }));
+            });
+
+
+            if(itemsJson.length > 0){
+                _.each(itemsJson, function (i) {
+                    counter++;
+                    parteNumId++;
+                    $('#nivel'+ intNivelSiguiente).append('<li class="list-group-item nuevo-item" id="nuevoItem' + parteNumId + '"\
+                        fk="' + itemFk + '" data-toggle="tooltip" title="' + glosas + '" glosa="' + glosas + '" tpodato="itemLista" idlista="' + idLista + '" optlista="' + i.Idlistavalores + '">' + i.Valor + '\
+                        <span class="glyphicon glyphicon-remove btn-corner" style="display: none;"></span></li>').tooltip({
+                            trigger: "focus",
+                            open: function(event, ui) {
+                                ui.tooltip.delay(4000).fadeTo(1000, 0);
+                            }
+                        });
+
+                });
+            }
+
+            if (counter == 0) {
+                $('#nivel'+ intNivelSiguiente).append('<li id="noElement'+ intNivelSiguiente +'">Sin Elementos</li>');
+            }
+
+
+        }
+        /************************************************************************/
+        /*               EVENTO AL CLIQUEAR UN ITEM DE DROPDOWN-MENU            */
+        /************************************************************************/
+
+        $(document).on('click', '.opt-drop', function() {
+
+            var lItem = $(this);
+            lItem.parent().children().removeClass('seleccion');
+            lItem.addClass('seleccion');
+
+            if(lItem.attr('catego') == 3 && lItem.closest('div').attr('nivel') == '1'){
+
+                lItem.parent().closest('li').children('a').html('');
+                lItem.parent().closest('li').children('span').remove();
+                lItem.parent().closest('li').prepend('<span class="glyphicon glyphicon-plus ico-corner"></span>');
+                lItem.parent().closest('li').children('a').text(lItem.text()).append('<b class="caret"></b>');
+                lItem.parent().closest('li').children('a').prop('id',lItem.prop('id'));
+            }
+
+            var nivelActual = parseInt(lItem.closest('div').attr('nivel'));
+
+            if(lItem.attr('tpodato') == '3'){
+
+                var url = 'jsonListaValores/';
+
+                $.ajax({
+                    dataType: "json",
+                    url: url,
+                    data: {id : lItem.prop('id')}
+                }).done(function(varJson){
+
+                    if(nivelActual == '1'){
+                        nivelRandomVacio(nivelActual, lItem.attr('tpodato'));
+                        nivelRandom(nivelActual, varJson, lItem.prop('id'), '', '');
+
+                        addArrayJson(lItem.prop('id'), 			 //idFicticio,         1
+                                     null,                       //varFk,              2
+                                     lItem.text(),               //varNombre,          3
+                                     '1',                        //varNivel,           4
+                                     '0',                        //varTipo,            5
+                                     '',                         //varTipoFuncion,     6
+                                     '',                         //varValor,           7
+                                     '',                         //varGlosa,           8
+                                     1,                          //varUsed,            9
+                                     'nr',                       //varAcc,             10
+                                     '',                         //varIdLista,         11
+                                     '');                        //varOptLista	       12
+
+                    }else{
+
+                        nivelRandomVacio(parseInt(nivelActual) - 1, lItem.attr('tpodato'));
+
+                        if(nivelActual == 2){
+
+                            if($('#nivel1 li').hasClass('old-item')){
+                                nivelRandom(parseInt(nivelActual) - 1, varJson, $('div[nivel*=' + (nivelActual - 1) +']').find('li.seleccion').prop('id'), $.trim(lItem.text()), lItem.prop('id'));
+                            }else{
+                                nivelRandom(parseInt(nivelActual) - 1, varJson, $('div[nivel*=' + (nivelActual - 1) +']').find('a').prop('id'), $.trim(lItem.text()), lItem.prop('id'));
+                            }
+                        }
+                        else{
+                            nivelRandom(parseInt(nivelActual) - 1, varJson, $('div[nivel*=' + (nivelActual - 1) +']').find('li.seleccion').prop('id'), $.trim(lItem.text()), lItem.prop('id'));
+                        }
+
+                        lItem.siblings().addClass('disabled');
+                        lItem.siblings().prop('disabled', true);
+
+                    }
+
+                });
+            }else{
+
+                nivelRandomVacio(nivelActual, lItem.attr('tpodato'));
+
+                addArrayJson(lItem.prop('id'),			 //idFicticio,         1
+                             null,                       //varFk,              2
+                             lItem.text(),               //varNombre,          3
+                             '1',                        //varNivel,           4
+                             '0',                        //varTipo,            5
+                             '',                         //varTipoFuncion,     6
+                             '',                         //varValor,           7
+                             0,                          //varGlosa,           8
+                             '',                         //varUsed,            9
+                             'nr',                       //varAcc,             10
+                             lItem.prop('id'),           //varIdLista,         11
+                             '');                        //varOptLista	       12
+            }
+        });
+
+
+        /************************************************************************/
+        /*          EVENTO AL AGREGAR UN NUEVO ELEMENTO SELECTOR                */
+        /************************************************************************/
+
+        $(document).on('click', '.dropdown-menu li a.agr-select', function(){
+
+            return false;
+
+        });
+
+        /************************************************************************/
+        /*          EVENTO AL AGREGAR UN NUEVO SUBCOMPONENTE COSTO              */
+        /************************************************************************/
+
+        $(document).on('click', '.dropdown-menu li a.agr-ccosto', function(){
+
+            var lItem = $(this);
+
+            if(lItem.parent().hasClass('disabled')){
+                return false;
+            }
+
+            var nivelActual = parseInt(lItem.closest('div').attr('nivel'));
+
+            $('#noElement' + nivelActual).remove();
+
+            parteNumId = parteNumId + 1;
+
+            if(nivelActual == '2'){
+                if($('div[nivel=1] ').find('a').length > 0){
+                    $('#nivel' + nivelActual).prepend('<li id="nuevoItem' + parteNumId + '" class="list-group-item nuevo-item" fk="' + $('div[nivel=1] ').find('a').prop('id') + '" tpodato="scosto">\
+                    <span class="glyphicon glyphicon-remove btn-corner" style="display:none;"></span>\
+                    <input data-toggle="tooltip" title="Ingrese Nombre Sub-Componente de Costo" type="text" class="form-control input-sm nvo-scosto" placeholder="Sub-Componente" style="border:none;"/>\
+                    </li>');
+                }else{
+                    $('#nivel' + nivelActual).prepend('<li id="nuevoItem' + parteNumId + '" class="list-group-item nuevo-item" fk="' + $('div[nivel=1] ').find('li').prop('id') + '" tpodato="scosto">\
+                    <span class="glyphicon glyphicon-remove btn-corner" style="display:none;"></span>\
+                    <input data-toggle="tooltip" title="Ingrese Nombre Sub-Componente de Costo" type="text" class="form-control input-sm nvo-scosto" placeholder="Sub-Componente" style="border:none;"/>\
+                    </li>');
+                }
+
+            }else{
+
+                $('#nivel' + nivelActual).prepend('<li id="nuevoItem' + parteNumId + '" class="list-group-item nuevo-item" fk="' + $('div[nivel=' + (nivelActual - 1) + '] .seleccion').prop('id') + '" tpodato="scosto">\
+                    <span class="glyphicon glyphicon-remove btn-corner" style="display:none;"></span>\
+                    <input data-toggle="tooltip" title="Ingrese Nombre Sub-Componente de Costo" type="text" class="form-control input-sm nvo-scosto" placeholder="Sub-Componente" style="border:none;"/>\
+                    </li>');
+            }
+
+            $('.nvo-scosto').focus();
+
+            lItem.closest('ul').find('li a.agr-select').parent().addClass('disabled');
+            lItem.closest('ul').find('li a.agr-select').parent().prop('disabled', true);
+            lItem.closest('ul').find('ul.dropdown-menu').hide();
+
+        });
+
+        /************************************************************************/
+        /*     EVENTO AL PRESIONAR ENTER EN UN ELEMENTO SUBCOMPONENTE COSTO     */
+        /************************************************************************/
+        /*keypress(ENTER) gatilla el evento blur*/
+        $(document).on('keypress', 'input.nvo-scosto',function(e){
+
+            var p = e.which;
+            if(p == 13){
+
+                $(this).blur();
+
+            }
+
+        });
+
+        /************************************************************************/
+        /*     EVENTO AL QUITAR FOCO EN UN ELEMENTO SUBCOMPONENTE COSTO         */
+        /************************************************************************/
+        $(document).on('blur', 'input.nvo-scosto',function(e){
+
+            var obj = $(this);
+
+            if($(this).val().length > 0){
+                var flagExiste = 0;
+
+                $(this).closest('ul').children('li').each(function(){
+
+                    if($.trim(obj.val()) == $.trim($(this).text())){
+                        flagExiste = 1
+                    }
+                });
+                if(flagExiste == 0){
+                    $('.btn-agregar').removeClass('disabled');
+                    $(this).prop('type', 'hidden');
+                    $(this).parent().append('<span class="glyphicon glyphicon-remove btn-corner" style="display:none;"></span>\
+                    <div class="ico-corner"><span class="glyphicon glyphicon-usd ico-corner"></span> ' + $(this).val() + '</div>');
+
+                    addArrayJson($(this).parent().prop('id'), 				 //idFicticio,         1
+                                 $(this).parent().attr('fk'),                //varFk,              2
+                                 $(this).val(),                              //varNombre,          3
+                                 $(this).closest('div').attr('nivel'),       //varNivel,           4
+                                 '2',                                        //varTipo,            5
+                                 '',                                         //varTipoFuncion,     6
+                                 '',                                         //varValor,           7
+                                 '',                                         //varGlosa,           8
+                                 0,                                          //varUsed,            9
+                                 'n',                                        //varAcc,             10
+                                 '',                                         //varIdLista,         11
+                                 '');                                        //varOptLista	       12
+
+                    $('#sigte').removeClass('disabled');
+                    $('#sigte').prop('disabled', false);
+                }else{
+                    setTimeout(function() {
+                        obj.focus();
+                    }, 10);
+
+                    obj.attr("title", "Ya existe un costo con este nombre en la columna.");
+
+                    obj.tooltip({
+                        trigger: "focus",
+                        open: function(event, ui) {
+                            ui.tooltip.delay(4000).fadeTo(1000, 0);
+                        }
+                    });
+                }
+
+            }else{
+
+                setTimeout(function() {
+                    obj.focus();
+                }, 10);
+                obj.attr("title", "Ingrese Nombre Sub-Componente de Costo.");
+
+                obj.tooltip({
+                    trigger: "focus"
+                });
+
+                $('.btn-agregar').addClass('disabled');
+
+            }
+
+        });
+
+
+        /************************************************************************/
+        /*            EVENTO MUESTRA-OCULTA BOTON ELIMINAR ELEMENTO             */
+        /************************************************************************/
+
+        $(document).on('mouseenter', '.list-group-item', function(){
+            $(this).children('span.btn-corner').fadeIn(300);
+        });
+        $(document).on('mouseleave', '.list-group-item', function(){
+            $(this).children('span.btn-corner').fadeOut(300);
+        });
+
+        /************************************************************************/
+        /*            FUNCION PARA ELIMINAR ELEMENTOS DEL JSON                  */
+        /************************************************************************/
+
+        function removerJson(varId){
+
+            var idNivelSig = _.pluck(_.where(arrayJson, {fk : varId}), 'id');
+
+            if(idNivelSig != ''){
+                _.each(idNivelSig,  function(i){
+                    removerJson(i);
+                });
+
+                _.each(idNivelSig,  function(i){
+                    arrayJson = _.without(arrayJson, _.findWhere(arrayJson, {id: i}));
+                });
+            }
+        }
+
+        /************************************************************************/
+        /*               EVENTO ELIMINAR NODOS DE LA ESTRUCTURA                 */
+        /************************************************************************/
+
+        $(document).on('click', '.btn-corner', function (e){
+            var actualBtn = $(this);
+
+            if($(this).closest('li').attr('tpodato') == 'scosto'  && _.where(arrayJson, {tipo : '2'}).length < 2){
+
+                $('#sigte').addClass('disabled');
+                $('#sigte').prop('disabled', true);
+            }
+            /*Habilito los botones de agregar en caso de que se elimine un li que aun tiene el input activo*/
+            $('.btn-agregar').removeClass('disabled');
+
+            /* En caso de ser un item existente pregunto antes de eliminar (solo se elimina en el paso siguiente)*/
+            if($(this).closest('li').hasClass('old-item')){
+                var actualLi = actualBtn.parent();
+                var heading = 'Eliminar Item de Concepto Costo';
+
+                var question = '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;Este concepto esta en uso, ¿Desea Continuar?';
+                var cancelButtonTxt = 'Cancelar';
+                var okButtonTxt = 'Aceptar';
+
+                var callback = function() {
+                    var divNivel = parseInt(actualLi.closest('div').attr('nivel'));
+                    actualUl = actualLi.parent();
+                    actualLi.remove();
+
+                    /*
+                    addArrayJson($(this).parent().prop('id'), 				 //idFicticio,         1
+                                 $(this).parent().attr('fk'),                //varFk,              2
+                                 $(this).val(),                              //varNombre,          3
+                                 $(this).closest('div').attr('nivel'),       //varNivel,           4
+                                 '2',                                        //varTipo,            5
+                                 '',                                         //varTipoFuncion,     6
+                                 '',                                         //varValor,           7
+                                 '',                                         //varGlosa,           8
+                                 0,                                          //varUsed,            9
+                                 'n',                                        //varAcc,             10
+                                 '',                                         //varIdLista,         11
+                                 '');                                        //varOptLista	       12
+                    */
+
+                    if(divNivel == 1){
+                        $('#contenedorArmador').find('div').each(function(){
+                            if(parseInt($(this).attr('nivel')) > 1){
+                                $(this).remove();
+                            }
+                        });
+
+                        $('#nvoNvl1').removeClass('disabled');
+                        $('#nvoNvl1').prop('disabled', false);
+                    }
+
+                    if(divNivel > 1){
+                        var tipoDato = '';
+
+                        $('#contenedorArmador').find('div').each(function(){
+                            if(parseInt($(this).attr('nivel')) > divNivel){
+                                $(this).remove();
+                            }
+                        });
+
+                        if(actualUl.children().length == 0){
+
+                            $('div[nivel*=' + (divNivel - 1) +']').find('ul').children('li').each(function(){
+                                if($(this).hasClass('seleccion')){
+                                    tipoDato = $(this).attr('tpodato');
+                                }
+                            });
+
+                            $('div[nivel*=' + divNivel +']').remove();
+                            nivelRandomVacio(divNivel - 1, tipoDato);
+                        }
+                    }
+
+                    arrayJson = _.without(arrayJson, _.findWhere(arrayJson, {id: actualLi.prop('id')}));
+
+                    addArrayJson(actualLi.prop('id'), 				         //idFicticio,         1
+                                 actualLi.attr('fk'),                        //varFk,              2
+                                 actualLi.text(),                            //varNombre,          3
+                                 divNivel,                                   //varNivel,           4
+                                 actualLi.attr('tpodato'),                   //varTipo,            5
+                                 '',                                         //varTipoFuncion,     6
+                                 '',                                         //varValor,           7
+                                 '',                                         //varGlosa,           8
+                                 0,                                          //varUsed,            9
+                                 'd',                                        //varAcc,             10
+                                 actualLi.attr('idlista'),                   //varIdLista,         11 (para nivel 1 mando idcatalogoelemento aqui)
+                                 '');                                        //varOptLista	       12
+
+                    removerJson($(this).closest('li').prop('id'));
+                    $('#sigte').removeClass('disabled');
+                    $('#sigte').prop('disabled', false);
+
+                    //$('#testJson').html('');
+                    //$('#testJson').append(JSON.stringify(arrayJson));
+
+                };
+
+                confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+            }else{
+                var ulNivel = $(this).parent().parent();
+                $(this).parent().remove();
+                var divNivel = parseInt(ulNivel.closest('div').attr('nivel'));
+
+                if(divNivel == 1){
+                    $('#contenedorArmador').find('div').each(function(){
+                        if(parseInt($(this).attr('nivel')) > 1){
+                            $(this).remove();
+                        }
+                    });
+
+                    $('#nvoNvl1').removeClass('disabled');
+                    $('#nvoNvl1').prop('disabled', false);
+                }
+
+                if(divNivel > 1){
+                    var tipoDato = '';
+
+                    $('#contenedorArmador').find('div').each(function(){
+                        if(parseInt($(this).attr('nivel')) > divNivel){
+                            $(this).remove();
+                        }
+                    });
+
+                    if(ulNivel.children().length == 0){
+                        $('div[nivel*=' + (divNivel - 1) +']').find('ul').children('li').each(function(){
+                            if($(this).hasClass('seleccion')){
+                                tipoDato = $(this).attr('tpodato');
+                            }
+                        });
+                        nivelRandomVacio(divNivel - 1, tipoDato);
+                    }
+                }
+                arrayJson = _.without(arrayJson, _.findWhere(arrayJson, {id: $(this).closest('li').prop('id')}));
+                removerJson($(this).closest('li').prop('id'));
+
+            }
+
+            e.stopPropagation();
+
+        });
+
+        /************************************************************************/
+        /*                    EVENTO AL IR AL PASO SIGUIENTE                    */
+        /************************************************************************/
+
+        $('#sigte').click(function (){
+            //$('#testJson').html('');
+            //$('#testJson').append(JSON.stringify(arrayJson));
+            $('#nuevosConcep').html('');
+            $('#elimConcep').html('');
+
+            _.each(arrayJson, function (i) {
+
+                if(i.tipo == 2 && i.acc == 'n'){
+                    $('#nuevosConcep').append('<tr id="' + i.id + '">\
+                        <td>' + i.ruta + '</td>\
+                        <td class="cmbFormulas"></td>\
+                        <td class="tdVariables"><button data-toggle="tooltip" title="Asignar Variables" style="border: medium none;background-color: transparent; ;"><span class="glyphicon glyphicon-tags"></span></button></td>\
+                        <td class="tdGlosa"><button data-toggle="tooltip" title="Editar Glosa" style="border: medium none;background-color: transparent; ;">\
+                                    <input id="txt_glosa_hid" type="hidden"></input>\
+                                    <span class="glyphicon glyphicon-font"></span></button></td>\
+                        <td><input type="text" class="val_txt" /></td>\
+                    </tr>');
+                }
+
+            });
+
+            _.each(arrayJson, function (i) {
+
+                if(i.acc == 'd'){
+                    $('#elimConcep').append('<tr id="' + i.id + '">\
+                        <td>' + i.ruta + '</td>\
+                    </tr>');
+                }
+
+            });
+
+            $('td.cmbFormulas').append(templateListaFormulas);
+
+            $('select').selectmenu();
+
+            $('#contenedorArmador').hide();
+            $('#contentBtnConcept').hide();
+            $('#contentBtnTablas').show('slide', {direction: 'left'}, 400);
+            $('#contenedorResumen').show('slide', {direction: 'left'}, 400);
+        });
+
+        /************************************************************************/
+        /*                      EVENTO VOLVER AL ARMADOR                        */
+        /************************************************************************/
+
+        $('#atras').click(function (){
+            //$('#testJson').html('');
+            //$('#testJson').append(JSON.stringify(arrayJson));
+            $('#bodyConcep').html('');
+            $('#contenedorArmador').show('slide', {direction: 'right'}, 400);
+            $('#contentBtnConcept').show('slide', {direction: 'right'}, 400);
+            $('#contentBtnTablas').hide();
+            $('#contenedorResumen').hide();
+        });
+
+        /************************************************************************/
+        /*                EVENTO AL PRESIONAR EL BOTON FINALIZAR                */
+        /************************************************************************/
+
+        $('#btnFinaliza').click(function(){
+
+            var varAsignadas = 0;
+
+            $('#nuevosConcep tr').each(function(){
+                if(!$(this).find('td.tdVariables button span').hasClass('glyp-verde')){
+                    $(this).find('td.tdVariables button span').addClass('glyp-rojo');
+                    varAsignadas = 1;
+                }
+
+                /*JEP*/
+                if($('td .listaFormulas option:selected', this).attr('numvar') == '0'){
+                    $(this).find('td.tdVariables button span').removeClass('glyp-rojo');
+                    $(this).find('td.tdVariables button span').addClass('glyp-verde');
+                    varAsignadas = 0;
+                }
+            });
+
+            if(varAsignadas == 0){
+
+                var heading = 'Guardar Concepto';
+                var question = '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;¿Desea guardar los cambios realizados?';
+                var cancelButtonTxt = 'Cancelar';
+                var okButtonTxt = 'Aceptar';
+
+                var callback = function() {
+                    $('#nuevosConcep tr').each(function( fila ) {
+
+                        var ident = $(this).prop('id');
+                        var match = _.find(arrayJson, function(item) { return item.id === ident });
+
+                        if (match) {
+                            match.tipoFuncion = $('[id*=' + ident + '] td.cmbFormulas select').val();
+                            match.valor = $('[id*=' + ident + '] td input.val_txt').val();
+                        }
+
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("jsonReceiverConcepto")',
+                        data: JSON.stringify(arrayJson),
+                        contentType: "application/json; charset=utf-8",
+
+                    }).done(function(){
+                        location.reload();
+                    });
+
+                };
+
+                confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+
+            }else{
+                c_alert('Error', '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;Existen Tipos de Formula o Variables Sin Asignar.', 'Cerrar');
+            }
+
+
+
+
+        });
+
+        /************************************************************************/
+        /*                          EVENTO REINICIAR                            */
+        /************************************************************************/
+
+        $('#btnRestart').click(function(){
+
+            var heading = 'Reinicio';
+            var question = '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;Se perderan los cambios sin guardar, ¿Desea continuar?';
+            var cancelButtonTxt = 'Cancelar';
+            var okButtonTxt = 'Aceptar';
+
+            var callback = function() {
+                location.reload();
+            }
+
+            confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+        });
+
+        /*Elementos con la clase disabled de bootstrap no siempre deshabilita,  esto es para prevenir*/
+        $(document).on('click', '.disabled', function (e){
+            return false;
+        });
+
+        /************************************************************************/
+        /*                        MODAL DE VARIABLES                            */
+        /************************************************************************/
+
+        $(document).on('click','.tdVariables button',function () {
+
+            var m_idFila = $(this).closest('tr').attr('id');
+            var m_idFormula = $('#contenedorResumen #'+m_idFila + ' .listaFormulas').val();
+
+            if (m_idFormula == null){
+                c_alert('Error', '<span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>&nbsp;&nbsp;Debe seleccionar un tipo de fórmula', 'Cerrar');
+                return;
+            }
+            var mbody = $('#modVariables .modal-body');
+
+            var m_ruta = $('#contenedorResumen #'+m_idFila + ' td:first-child').html();
+            var m_formula = $('#contenedorResumen #'+m_idFila + ' select').children(":selected").text();
+            var m_numvar = $('#contenedorResumen #'+m_idFila + ' select').children(":selected").attr('numvar');
+            //var m_idSC = $('#contenedorResumen #'+m_idFila + ' td:first-child').attr('id');
+            //alert(m_idSC);
+            mbody.find('#mm_Variables').html('');
+
+            for (i=1 ; i<=m_numvar; i++){
+                mbody.find('#mm_Variables').append('\
+                                <div orden="'+i+'" class="col-sm-6">\
+                                    <label>Variable '+ i +'</label>\
+                                    '+ templateListaVariables() +'\
+                                </div>');
+                $('select').selectmenu();
+            }
+
+            mbody.find('#hidSC').val(m_idFila);
+            mbody.find('#m_RutaCosto p').html(m_ruta);
+            mbody.find('#m_TipoFormula p').html(m_formula);
+
+            _.each(_.where(arrayJson, {glosa : m_idFila}), function(i){
+                //alert();
+                $('div[orden='+ i.tipo +'] select').val(i.nombre).selectmenu('refresh');
+            });
+
+            //$('#modVariables .modal-body').append('');
+
+            $('#modVariables')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modVariables').modal('show');
+            //$(':input, a').attr('tabindex', '-1');
+            //$('#nvo_pryct').load('vpIngresar');
+        });
+
+        $(document).on('click','.tdGlosa button',function () {
+
+            var m_idFila = $(this).closest('tr').attr('id');
+            var m_ruta = $('#contenedorResumen #'+m_idFila + ' td:first-child').html();
+            var mbody = $('#modGlosa .modal-body')
+            mbody.find('#m_RutaCosto p').html(m_ruta);
+
+            mbody.find('#mm_Variables').html('');
+            mbody.find('#mm_Variables').append('\
+                                    <div class="col-sm-6">\
+                                        <label>Agregar variable a glosa:</label>\
+                                        '+ templateListaVariables() +'\
+                                    </div>');
+            mbody.find('select').selectmenu();
+            mbody.find('select').selectmenu('refresh');
+
+            var glosa = $('#nuevosConcep tr#' + m_idFila + ' #txt_glosa_hid').val();
+            mbody.find('#txt_glosa_txa').val(decodeGlosa(glosa));
+            mbody.find('#hidSC').val(m_idFila);
+
+            mbody.find('#mm_Variables select').selectmenu({
+                change: function( event, ui ) {
+                    onChangeCVariable(this);
+                }
+            });
+
+            $('#modGlosa')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modGlosa').modal('show');
+        });
+
+        /************************************************************************/
+        /*                     MODAL - GUARDAMOS VARIABLES                      */
+        /************************************************************************/
+        $(document).on('click','#modVarGuardar',function () {
+
+            arrayJson = _.reject(arrayJson, {glosa : $('#modVariables #editFormulas #hidSC').val()});
+            /*Con este contador verifico que todos las variables hayan sido seleccionadas*/
+            var countSelect = 0;
+
+            $('#modVariables #editFormulas select').each(function(){
+
+                if($(this).val() != null){
+                    countSelect++;
+                    addArrayJson(0, 		                                    //idFicticio,         1 IDENTIFICADOR DEL SUBCOMPONENTE DE COSTO
+                                '',                                             //varFk,              2
+                                $(this).val(),                                  //varNombre,          3 IDENTIFICADOR DE LA VARIABLE
+                                '',                                             //varNivel,           4
+                                $(this).parent().attr('orden'),                 //varTipo,            5 ORDEN DE LAS VARIABLES
+                                '',                                             //varTipoFuncion,     6
+                                '',                                             //varValor,           7
+                                $('#modVariables #editFormulas #hidSC').val(),  //varGlosa,           8 IDENTIFICADOR FICTICIO NUEVOITEM
+                                0,                                              //varUsed,            9
+                                'p',                                            //varAcc,             10 "P" FILA DE VARIABLES
+                                '',                                             //varIdLista,         11
+                                '');                                            //varOptLista	      12
+
+                }
+
+            });
+            if($('#modVariables #editFormulas select').length == countSelect){
+                $('#alertVariables').hide();
+                $('#modVariables').modal('hide');
+            }else{
+                $('#alertVariables').fadeIn().delay(4000).fadeOut();
+            }
+
+
+            /*$('#testJson').html('');
+            $('#testJson').append(JSON.stringify(listaVariables));*/
+            $('#nuevosConcep tr').each(function(){
+
+                if(_.where(arrayJson, {glosa : $(this).prop('id'), acc : 'p'}).length > 0){
+                    var thisElement = $(this);
+                    var varTitle = '';
+                    $(this).find('td.tdVariables button span').removeClass('glyp-rojo');
+                    $(this).find('td.tdVariables button span').addClass('glyp-verde');
+                    //listaVariables
+                    _.each(arrayJson, function(i){
+                        if(i.acc == 'p' && i.glosa == thisElement.prop('id')){
+                            varTitle =  varTitle + JSON.stringify(_.pluck(_.filter(listaVariables, {idCatalogoElemento : i.nombre}),'Nombreatributo'));
+                        }
+                    });
+                    thisElement.find('td.tdVariables button').attr("title", varTitle).tooltip({
+                        trigger: "focus",
+                        open: function(event, ui) {
+                            ui.tooltip.delay(4000).fadeTo(1000, 0);
+                        }
+                    });
+                }
+            });
+        });
+
+        /************************************************************************/
+        /*                     MODAL - GUARDAMOS GLOSA                          */
+        /************************************************************************/
+        $(document).on('click','#modGlosaGuardar',function () {
+
+            var idrow = $('#modGlosa #editFormulas #hidSC').val();
+
+            arrayJson = _.reject(arrayJson, {nombre : idrow});
+
+            var glosaNoEncode = $('#modGlosa #txt_glosa_txa').val();
+            var glosaTexto = encodeGlosa($('#modGlosa #txt_glosa_txa').val());
+
+            /* actualizamos la glosa en el costo */
+            var match = _.find(arrayJson, function(item) { return item.id === idrow });
+
+            if (match) {
+                match.glosa = glosaTexto;
+            }
+
+            $('#nuevosConcep tr#' + idrow + ' #txt_glosa_hid').val(glosaTexto);
+            //alert(JSON.stringify(glosaVariables));
+            _.each(glosaVariables, function(i){
+                addArrayJson(0, 		                                //idFicticio,         1 IDENTIFICADOR DEL SUBCOMPONENTE DE COSTO
+                            '',                                         //varFk,              2
+                            idrow,                                      //varNombre,          3 IDENTIFICADOR DEL COSTO
+                            '',                                         //varNivel,           4
+                            '',                                         //varTipo,            5
+                            i.idCatalogoElemento,                       //varTipoFuncion,     6 IDENTIFICADOR FICTICIO NUEVOITEM
+                            '',                                         //varValor,           7
+                            glosaTexto,                                 //varGlosa,           8 VALOR GLOSA
+                            0,                                          //varUsed,            9
+                            'g',                                        //varAcc,             10 "G" FILA DE GLOSA
+                            '',                                         //varIdLista,         11
+                            '');                                        //varOptLista	      12
+            });
+            $('#modGlosa').modal('hide');
+            /*
+            $('#testJson').html('');
+            $('#testJson').append(JSON.stringify(arrayJson));
+            */
+            $('#nuevosConcep tr').each(function(){
+
+                //if(_.where(arrayJson, {nombre : idrow, acc : 'g'}).length > 0){
+                $('tr[id=' + idrow + ']').find('td.tdGlosa button span').addClass('glyp-verde');
+                $('tr[id=' + idrow + ']').find('td.tdGlosa button').attr("title", glosaNoEncode);
+                $('tr[id=' + idrow + ']').find('td.tdGlosa button').tooltip({
+                    trigger: 'focus'
+                });
+
+                //}
+
+
+            });
+
+        });
+    });
+
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+
+    <div class="container-fluid">
+        <div class="row">
+            <h3 id="ttl" class="col-md-6 col-sm-6">Modelamiento de Costo</h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+        </div>
+        <div id="contenedorArmador" class="row">
+            <div class="col-md-2 col-sm-2" nivel="1">
+                <h4></h4>
+                <ul id="nivel1" class="list-group lista"></ul>
+                <button id="nvoNvl1" class="btn btn-default btn-sm">Nuevo</button>
+            </div>
+        </div>
+        <div id="contenedorResumen" class="row" style="display:none;">
+            <table class="table table-striped">
+                <thead>
+                    <tr class="success">
+                        <th class="col-md-8">Nuevo Costo</th>
+                        <th class="col-md-1">Tipo de Fórmula</th>
+                        <th class=" col-md-1">Variables</th>
+                        <th class=" col-md-1">Glosa</th>
+                        <th class=" col-md-1">Valor</th>
+                    </tr>
+                </thead>
+                <tbody id="nuevosConcep"></tbody>
+            </table>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr class="info">
+                        <th class="col-md-6">Items por Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody id="elimConcep"></tbody>
+            </table>
+
+        </div>
+        <div class="row">
+            <div id="contentBtnTablas" class="col-md-offset-8 col-sm-offset-8 col-md-4 col-sm-4" style="display:none;text-align:right;">
+                <button id="atras" class="btn btn-primary btn-sm" title="Vuelve al paso de selección de elementos"><span class="glyphicon glyphicon-arrow-left" title="Vuelve al paso de seleccción"></span> Atras</button>
+                <button id="btnFinaliza" class="btn btn-primary btn-sm" title="Guarda los conceptos creados">Finalizar</button>
+            </div>
+            <div id="contentBtnConcept" class="col-md-offset-8 col-sm-offset-8 col-md-4 col-sm-4 text-right">
+                <button id="btnRestart" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-refresh"></span> Reiniciar</button>
+                <button id="sigte" class="btn btn-primary btn-sm disabled" title="Sólo se habilita al agregar o eliminar elementos">Ir al Paso Siguiente <span class="glyphicon glyphicon-arrow-right"></span></button>
+            </div>
+        </div>
+        <div id="testJson" class="row">
+        </div>
+    </div>
+
+    <!-- /.modal glosa -->
+    <div class="modal fade" id="modGlosa">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Glosa</h4>
+                </div>
+                <div id="editFormulas" class="modal-body ui-front">
+                    <input id="hidSC" type="hidden" />
+                    <div class="row">
+                        <div id="m_RutaCosto" class="col-sm-12">
+                            <label class="control-label">Costo</label>
+                            <p></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="m_Glosa" class="col-sm-6">
+                            <label class="control-label">Glosa</label>
+                            <textarea id="txt_glosa_txa" style="height:120px;width:260px"> </textarea>
+                            <p></p>
+                        </div>
+                        <div id="mm_Variables">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="modGlosaGuardar" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal end -->
+    <!-- /.modal variables -->
+    <div class="modal fade" id="modVariables">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Variables</h4>
+                </div>
+                <div id="editFormulas" class="modal-body ui-front">
+                    <input id="hidSC" type="hidden" />
+                    <div class="row">
+                        <div id="m_RutaCosto" class="col-sm-12">
+                            <label class="control-label">Costo</label>
+                            <p></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="m_TipoFormula" class="col-sm-6">
+                            <label class="control-label">Tipo Fórmula</label>
+                            <p></p>
+                        </div>
+                    </div>
+                    <div id="mm_Variables" class="row">
+                    </div>
+                    <div id="alertVariables" class="alert alert-warning" role="alert" style="display:none;">
+                        <span class="glyphicon glyphicon-warning-sign gl glyp-amarillo"></span>
+                        Existen Variables sin asignar.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="modVarGuardar" class="btn btn-primary" data-toggle="tooltip" title="Debe ingresar todas las variables">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal end -->
+
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+}
+
+

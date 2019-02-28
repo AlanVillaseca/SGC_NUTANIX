@@ -1,0 +1,138 @@
+﻿@{
+    ViewBag.Title = "listarCotizacion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.ListarCotizaciones
+@using System.Data
+
+
+    <script type="text/javascript" src="~/Scripts/js/listarCotizacion.js"></script>  
+    <link href="~/Content/css/listarCotizacion.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+        $('#btn_buscar').click(function () {
+            var pagina = '0';
+            var cantidad = '10';
+            var campoOrden = 'idCotizacion';
+            var nombre = $('#nomProyecto').val();
+            var jefe = $('#selJefe').val();
+            var fechaI = $('#fech_cr_min').val();
+            var fechaF = $('#fech_cr_max').val();
+            var estado = $('#selEstado').val();
+
+            fechaI = cambiaFecha(fechaI);
+            fechaF = cambiaFecha(fechaF);
+
+            if (fechaI == '')
+                fechaI = '-1';
+
+            if (fechaF == '')
+                fechaF = '-1';           
+
+            var url = 'vpGrillaListar/' + pagina + '?cantidad=' + cantidad + '&campoOrden=' + campoOrden + '&nombre=' + nombre + '&jefe=' + jefe + '&fechaINI=' + fechaI + '&fechaFIN=' + fechaF + '&estado=' + estado;
+            $('#tb_cttc').load(url);
+        });      
+
+        alert("Listar COtizacion");
+
+    });
+
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+
+@if (ViewBag.Error == "")
+{ 
+   
+
+<div id="contenedorPagina">
+    <h3 id="ttl">Listar Cotizacion</h3>
+
+
+    <div id="pyct_aso" class="form-group fila1 col1">
+        <label for="">Proyecto Asociado</label>
+        <input type="text" class="form-control input-sm" id="nomProyecto" placeholder="Ingresar Nombre">
+    </div>
+
+    <div id="jef_pyct" class="form-group fila1 col2">
+        <ul>
+            <li>
+                <label for="">Jefe de la Cotizacion</label>
+            </li>
+
+            <li>
+                <fieldset>
+                    <select class="selectmenu" id="selJefe">
+                        <option value="-1">Todos</option>
+                        @foreach (DataRow col in Model.dtJefe.Rows)
+                        {
+                            <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                        }
+                    </select>
+                </fieldset>
+            </li>
+        </ul>
+    </div>
+
+    <div id="fech_cr" class="form-group fila1 col3">
+        <ul>
+            <li>
+                <label for="">Fecha de Creacion</label>
+            </li>
+
+            <li>
+                <table>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <input id="fech_cr_min" type="text" class="datepicker input-sm" placeholder="Desde">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input id="fech_cr_max" type="text" class="datepicker input-sm" placeholder="Hasta">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </li>
+        </ul>
+    </div>
+
+    <div id="est_pyct" class="form-group fila2 col1">
+        <ul>
+            <li>
+                <label for="">Estado Cotización</label>
+            </li>
+
+            <li>
+                <fieldset>
+                    <select class="selectmenu" id="selEstado">
+                        <option value="-1">Todos</option>
+                        @foreach (DataRow col in Model.dtEstado.Rows)
+                        {
+                            <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                        }
+                    </select>
+                </fieldset>
+            </li>
+        </ul>
+    </div>
+
+    <button id="btn_buscar" type="button" class="btn btn-primary btn-sm">Filtrar</button>
+
+    <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;position:absolute;top:270px"></div>
+
+    <div style="z-index:2" id="tb_cttc"></div>
+
+
+
+</div>
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+}

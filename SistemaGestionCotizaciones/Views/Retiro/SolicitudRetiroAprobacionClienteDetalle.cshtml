@@ -1,0 +1,160 @@
+﻿
+@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.RetiroComponentes
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+<script>
+
+    $(document).ready(function () {
+
+        var SolicitudRetiro = @Html.Raw(jss.Serialize(Model.solicitudretiroclientedetalleJson));
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        _.each(SolicitudRetiro, function(index){
+
+            $('#tb_componentes_retiro tbody').append('<tr>\
+                                                        <td>' + index.Alias + '</td>\
+                                                        <td id="' + index.Idcomponente + '">' + index.Componente + '</td>\
+                                                        <td>' + index.Cuotas + '</td>\
+                                                        <td>' + index.Monto + '</td>\
+                                                    </tr>');
+
+        });
+
+
+
+
+        $('#btn_reporte_solicitud').click(function() {
+        
+            $('#btn_reporte_solicitud').prop('disabled', true);
+            $('#btn_reporte_solicitud').html('<i class="fa fa-spinner fa-spin"></i> Generando...');
+
+            var URL = '@Html.Raw(Url.Action("ReporteSolicitudRetiro", "retiro", new
+            { 
+                id = ViewBag.idsolicitudretiro
+            }))';
+
+            
+
+            $.ajax({
+                type: "POST",
+                url: URL                
+            }).done(function (err) {
+                $('#btn_reporte_solicitud').prop('disabled',false);
+                $('#btn_reporte_solicitud').html('<i class="fa fa-file-pdf-o"></i> Reporte Solicitud');
+                var blob = b64toBlob(err, "data:application/pdf;");               
+                saveAs(blob, 'Solicitud Retiro.pdf');
+            });
+        
+        });
+
+
+        $('.accion').click(function() {
+
+
+            if($(this).attr('id') == 'btn_aprobar_solicitud') {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ApruebarRechazarSolicitud", "Retiro")',
+                    data: {accion: 1,
+                        idsolictudretiro: '@ViewBag.IdsolicitudRetiro'},
+                    async: false
+                });
+
+
+            } else {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ApruebarRechazarSolicitud", "Retiro")',
+                    data: {
+                        accion: 0,
+                        idsolictudretiro: '@ViewBag.IdsolicitudRetiro'},
+                    async: false
+                });
+
+
+            }
+
+
+
+            var dir = '@Html.Raw(Url.Action("SolicitudRetiroAprobacionCliente", "Retiro", new
+            {
+                id = "1"
+            }))';
+
+            window.location.href = dir;
+
+
+        });
+
+    });
+
+</script>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-md-5 col-sm-5">
+            <h3 id="ttl">Detalle Solicitud de Retiro</h3>
+        </div>
+    </div>
+
+    <div class="row grilla">
+
+
+        <table id="tb_componentes_retiro" class="table table-responsive table-striped table-condensed grilla">
+            <thead>
+                <tr>
+                    <th>Alias</th>
+                    <th>Componente</th>
+                    <th>Cuotas</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+
+
+    <div class="row">
+
+        <button id="btn_reporte_solicitud" class="col-md-2 btn btn-success"><i class="fa fa-file-pdf-o"></i> Reporte Solicitud</button>
+        <button id="btn_rechazar_solicitud" class="col-lg-offset-5 col-md-2 btn btn-default accion">Rechazar Solicitud</button>
+        <button id="btn_aprobar_solicitud" class="col-xs-offset-1 col-md-2 btn btn-primary accion">Aprobar Solicitud</button>
+
+    </div>
+
+
+
+</div>
+

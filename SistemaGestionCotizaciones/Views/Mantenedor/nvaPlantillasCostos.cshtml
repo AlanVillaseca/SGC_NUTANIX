@@ -1,0 +1,261 @@
+﻿
+@{
+    ViewBag.Title = "nvaPlantillasCostos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.ManPlantillas
+
+@using System.Data
+@using System.Web.Script.Serialization;
+<script src="~/Scripts/underscore-min.js"></script>
+<script src="~/Scripts/js/selectMenu.js"></script>
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+</style>
+
+<script>
+
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var plantillasCostos = @Html.Raw(jss.Serialize(@Model.plantillasCostos));
+        var categoriasCostos = @Html.Raw(jss.Serialize(@Model.categoriasCostos));
+        var listaFormulas = @Html.Raw(jss.Serialize(@Model.listaFormulas));
+        var listaCostoVariables = @Html.Raw(jss.Serialize(@Model.listaCostoVariables));
+        var parCostoCat = @Html.Raw(jss.Serialize(@Model.parCostoCatElemento));
+
+        console.log(JSON.stringify(parCostoCat));
+        listaCostoVariables = _.where(listaCostoVariables, {Idtipodato : '2'});
+
+        var idPlantilla = '@ViewBag.idPlantilla';
+
+        $('#contenedorJson').append('<table id="tablaPlantillasCostos" class="table table-responsive table-hover table-striped table-condensed grilla">\
+                                        <thead><tr>\
+                                            <th class="col-md-6 col-sm-6">Costo</th>\
+                                            <th class="col-md-1 col-sm-1">Tipo Fórmula</th>\
+                                            <th class="col-md-2 col-sm-2">Variable</th>\
+                                            <th class="col-md-1 col-sm-1">Glosa</th>\
+                                        </tr></thead>\
+                                     <tbody></tbody></table>');
+
+
+        _.each(plantillasCostos, function(i){
+            $('#tablaPlantillasCostos tbody').append('<tr id="'+ i.id +'">\
+                    <td class="td-nom">' + i.RutaNombre + '</td>\
+                    <td class="td-formul"><label id="'+ i.idFormula +'">'+ i.NombreFormula +'</label></td>\
+                    <td class="td-variabl"></td>\
+                    <td class="td-glosa"></td>' +
+                '<td></td></tr>');
+        });
+
+        $('#tablaPlantillasCostos tbody tr').each(function(){
+
+            if($(".td-formul label", this).attr("id") == '2'){
+                $(".td-variabl", this).append('<select class="selectmenu sel-variables"></select>');
+            }
+
+            if($(".td-formul label", this).attr("id") > 2){
+                $(".td-variabl select", this).remove();
+                $(".td-variabl", this).append('<a class="fncVar">Variable</a>');
+            }
+        });
+
+        _.each(categoriasCostos, function(i){
+            $('.sel-cat').append('<option value="'+ i.Idlistavalores +'">' + i.Valor + '</option>');
+        });
+
+        _.each(listaFormulas, function(i){
+            $('.sel-formul').append('<option class="' + i.NumVariables + '" value="'+ i.Idformula +'">' + i.Nombreformula + '</option>');
+        });
+
+        _.each(listaCostoVariables, function(i){
+            $('.sel-variables').append('<option value="'+ i.idCatalogoElemento +'">' + i.Nombreatributo + '</option>');
+        });
+
+        _.each(parCostoCat, function(i){
+            $('select').selectmenu();
+            $('#tablaPlantillasCostos tbody tr[id='+ i.idParametroCosto +'] select').val(i.idCatalogoElemento).selectmenu('refresh');           
+        });
+
+        $('select').selectmenu();
+
+        $('.sel-formul').selectmenu({ change: function (event, ui) {
+
+            if(parseInt($('option:selected', this).attr('class')) == 1 ){
+                $(this).closest('tr').children('.td-variabl').html('');
+                $(this).closest('tr').children('.td-variabl').append('<select class="selectmenu sel-costov"></select>');
+                /*_.each(listaCostoVariables, function(i){
+                    $('sel-costov').append('<option value="'+ i.idCatalogoElemento +'">' + i.Nombreatributo + '</option>');
+                });*/
+
+            }
+
+            if(parseInt($('option:selected', this).attr('class')) > 1 ){
+                $(this).closest('tr').children('.td-variabl').html('');
+                $(this).closest('tr').children('.td-variabl').append('<a href="#" class="asig-varibls" data-toggle="modal" data-target="#modCustom">Asignar Variables</a>');
+            }
+
+        }
+        });
+
+        $(document).on('click', '.asig-varibls', function(){
+            $('#editFormulas').append('Aqui van las variables');
+        });        
+
+        $('.fncVar').click(function () {
+
+            var vIdFormula = $(this).parent().parent().children('.td-formul').children('label').attr('id');
+
+
+
+            var jsonFormula = _.where(listaFormulas,{Idformula : vIdFormula});
+
+
+            _.each(jsonFormula, function(i){
+
+                var cantVars = i.NumVariables;
+
+                $('.modal-body .varContenedor div').remove();
+
+                for(var j=0; j<cantVars; j++) {
+                    $('.modal-body .varContenedor').append('<div class="row">\
+                                        <div class="col-sm-3">\
+                                            <div class="form-group">\
+                                                <label for="label1">Variable '+ (j+1) +'</label>\
+                                                <select class="selectmenu modVariables"></select>\
+                                            </div>\
+                                        </div>\
+                                    </div>');
+                }
+
+                _.each(listaCostoVariables, function(i){
+                    $('.modVariables').append('<option value="'+ i.idCatalogoElemento +'">' + i.Nombreatributo + '</option>');
+                });
+                $('select').selectmenu();
+            });
+
+
+            $('#modCustom').modal('show');
+        });
+
+
+        $('#btnGuardar').click(function () {
+            var plCostos = []
+            $('#tablaPlantillasCostos tbody tr').each(function(){
+
+                plCostos.push({
+                    idParametroCosto : $(this).attr('id'),
+                    idCatalogoElemento : $('.sel-variables',this).val(),
+                    fGlosa : '0',
+                    idPlantilla : idPlantilla
+                });
+
+                /*plCostos.push({
+                    idParametroCosto : $(this).attr('id'),
+                    idCatalogoElemento : $('.sel-variables',this).val(),
+                    fGlosa : '1',
+                    idPlantilla : idPlantilla
+                });*/
+
+
+
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("jsonReceiverGuardar")',
+                data: JSON.stringify(plCostos),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            });
+
+        });
+
+
+    });
+
+
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                <h3 id="ttl">Plantilla Costos</h3>
+            </div>
+            <div class="col-md-9 col-sm-9 text-right">
+                <ol class="breadcrumb">
+                    <li><a href="@Url.Action("manPlantillas","Mantenedor")">Plantillas</a></li>
+                    <li class="active">Costos</li>
+                </ol>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-right"><button id="btnGuardar" class="btn-lg" style="border:none;background-color:white;"><span class="glyphicon glyphicon-floppy-save"></span></button></div>
+        </div>
+
+        
+
+        <div id="contenedorJson" class="row">
+        </div>
+
+    </div>
+
+    <!-- /.modal -->
+    <div class="modal fade" id="modCustom">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div id="editFormulas" class="modal-body ui-front">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="label1">Costo</label>
+                                <p id="label1" class="form-control-static">Nombre del Costo</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="label1">Tipo Fórmula</label>
+                                <p id="label1" class="form-control-static">Nombre de la Fórmula</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-9">
+                            <div class="form-group">
+                                <label for="label1">Formula</label>
+                                <p id="label1" class="form-control-static">A = (Variable1 * interes)/(100*(1-(1+(interes/100)^(-Variable2)))) </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="varContenedor"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="guardar" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+
+}
+else
+{
+<script>error('@ViewBag.Error');</script>
+}
+
+

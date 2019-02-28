@@ -1,0 +1,353 @@
+﻿
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/underscore-min.js"></script>
+<script src="~/Scripts/js/LimpiarTexto.js"></script>
+
+<script>
+    $(document).ready(function(){
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var PlantillaSubservicio = @Html.Raw(jss.Serialize(Model.dtPlantillaSubservicio));
+        var idplantillasubservicio;
+        var idservicio;
+        var idversion;
+        var totalregistros = '0';
+        var pagina = '1';
+        var totalpaginas = '0';
+        var elemento = '';
+        var existe = 0;
+        var NombrePlantillaSubservicio;
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+
+        if(PlantillaSubservicio != '') {
+
+            totalregistros = _.pluck(PlantillaSubservicio, 'TotalRegistros')[0];
+            pagina = _.pluck(PlantillaSubservicio, 'PaginaActual')[0];
+            totalpaginas = _.pluck(PlantillaSubservicio, 'TotalPaginas')[0];
+        }
+
+        $('#tot_reg').append('<p>Total de Registros ' + totalregistros + '</p>');
+        $('#txt_pag').val(pagina);
+        $('#ttl_pag').append(totalpaginas);
+
+        _.each(PlantillaSubservicio, function(i) {
+
+
+            elemento += '<tr>\
+                            <td valoractual="' + i.Nombre + '">' + i.Nombre + '</td>\
+                            <td>' + i.NombreServicio + '</td>\
+                            <td>';
+
+
+            if ('@User.IsInRole("OBSERVADOR")' == 'False')
+            {
+                elemento += '<span class="glyphicon glyphicon-pencil" idplantillasubservicio="' + i.Idplantillasubservicio + '"\
+                                                                      idservicio="' + i.Idservicio + '"></span>\
+                            <span class="glyphicon glyphicon-trash" idplantillasubservicio="' + i.Idplantillasubservicio + '"\
+                                                                      idservicio="' + i.Idservicio + '"></span>';
+            }
+
+            elemento += '</td>\
+                        </tr>';
+
+        });
+
+        $('#tb_plantillasubservicio tbody').append(elemento);
+
+
+        $('#icono_agregar').click(function () {
+
+            if ($('#in_nombre').val().trim() != '' && $('#combo_servicios').val() != '-1') {
+
+                _.each(_.where(PlantillaSubservicio), function(index) {
+
+
+                    if(limpiar(index.Nombre) == limpiar($('#in_nombre').val().trim())){
+
+
+                        existe = 1;
+
+
+                    }
+
+                });
+
+
+                if(existe == 0){
+
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Html.Raw(Url.Action("GuardarPlantillaSubservicio", "Mantenedor"))',
+                        dataType: "html",
+                        data: {
+                            nombre: $('#in_nombre').val().trim(),
+                            idcatalogoservicio: $('#combo_servicios').val()
+                        },
+                        async: false
+                    }).done(function () {
+                        alert('Plantilla de subservicio guardada');
+                    });
+
+                    location.reload();
+
+
+                } else {
+
+                    alert('El nombre ingresado para la plantilla de subservicio ya existe');
+
+                    existe = 0;
+
+                }
+
+
+
+
+            } else {
+
+                alert('Se debe ingresar un nombre y un servicio para la plantilla de subservicio');
+
+            }
+
+        });
+
+
+        $('.glyphicon-pencil').click(function(){
+
+            idplantillasubservicio = $(this).attr('idplantillasubservicio');
+
+            NombrePlantillaSubservicio = $(this).closest('td').siblings(':first-child').text();
+
+
+            var url = '@Url.Action("vpGrillaPlantillaSubservicio_Subservicios", "Mantenedor")';
+
+            $('#dv_subservicio').load(url, {
+                idplantillasubservicio : idplantillasubservicio
+            });
+
+
+            $('#modal-plantillasubservicio').modal('show');
+
+            $('#modal-plantillasubservicio .modal-title').text('Plantilla Actividades : ' + NombrePlantillaSubservicio);
+
+
+        });
+
+        $('.glyphicon-trash').click(function() {
+
+            idplantillasubservicio = $(this).attr('idplantillasubservicio');
+            idservicio = $(this).attr('idservicio');
+
+            var callback = function () {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminarPlantillaSubservicio", "Mantenedor")',
+                    dataType: "html",
+                    data: {
+                        idplantillasubservicio: idplantillasubservicio,
+                        idservicio: idservicio
+                    },
+                    async: false
+                }).done(function(){
+                    alert('cambio guardado');
+                });
+
+                location.reload();
+
+            };
+
+            confirm('', '¿Esta seguro que desea borrar esta plantilla de subservicio?', 'Cancelar', 'Eliminar', callback);
+
+        });
+
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if ($(this).val() <= totalpaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio", "Mantenedor", new { id = "reemplazo" }))';
+
+                    dir = dir.replace("reemplazo", $(this).val());
+
+                    $('#tb_plantillasubservicio').load(dir);
+                }
+
+            }
+        });
+
+        $('#btn_pri_pag').on('click', function () {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio", "Mantenedor", new { id = "1" }))';
+
+            $('#tb_plantillasubservicio').load(dir);
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio", "Mantenedor", new { id = "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) - 1);
+
+                $('#tb_plantillasubservicio').load(dir);
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio", "Mantenedor", new { id = "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) + 1);
+
+                $('#tb_plantillasubservicio').load(dir);
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("vpGrillaPlantillaSubservicio", "Mantenedor", new { id = "reemplazo" }))';
+
+            dir = dir.replace("reemplazo", parseInt(totalpaginas));
+
+            $('#tb_plantillasubservicio').load(dir);
+
+        });
+
+        $('#btn_descargar').click(function () {
+
+            $.ajax({
+                url: '@Url.Action("PlantillaSubservicioFileXls", "Mantenedor")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoPlantillaSubservicio.csv");
+
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<div>
+
+    <table id="tb_plantillasubservicio" class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-5">Nombre Plantilla</th>
+                <th class="col-md-5">Nombre Seervicio</th>
+                <th class="col-md-2">Acción</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-2">
+            <div id="tot_reg" style="display:inline-block;"></div>
+        </div>
+        <div class="col-md-2 col-md-offset-3 form-inline">
+            <p class="control-label ">
+                Ir a
+                <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:13%; display:initial;" value="" />
+                de <font id="ttl_pag"></font> Pág.
+            </p>
+        </div>
+        <div class="col-md-3  col-md-offset-2">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button id="btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+                    <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="modal-plantillasubservicio" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+
+                <div class="modal-body">
+
+                    @if (!User.IsInRole("OBSERVADOR"))
+                    {
+                        <div id="cabecera" class="row">
+
+                            <div class="col-md-3">
+                                <label class="control-label">
+                                    Nombre Actividad :
+                                </label>
+                                <input id="subservicio_in_nombre" class="form-control input-sm es-requerido" type="text" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="control-label">
+                                    Horas Subservicio :
+                                </label>
+                                <input id="subservicio_in_horas" class="form-control input-sm es-requerido" type="text" />
+                            </div>
+
+                            <div class="col-md-2 centrado">
+                                <label class="control-label">
+                                    Agregar :
+                                </label>
+                                <span id="subservicio_icono_agregar" class="glyphicon glyphicon-plus icono" />
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div id="dv_subservicio" class="grilla"></div>
+                    </div>
+
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    
+
+
+</div>

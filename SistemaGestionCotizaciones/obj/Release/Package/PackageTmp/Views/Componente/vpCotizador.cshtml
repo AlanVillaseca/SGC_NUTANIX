@@ -1,0 +1,574 @@
+﻿@model SistemaGestionCotizaciones.Models.Componente
+
+@using System.Data
+@using System.Web.Script.Serialization;
+@using Microsoft.AspNet.Identity
+@using ExtensionMethods;
+<script src="~/Scripts/js/selectMenu.js"></script>
+
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    .resumen {
+        position: absolute;
+        top: 276px;
+        right: 0px;
+        width: 30%;
+    }
+    .tab-pane{
+        padding-top:10px;
+    }
+    .fondo{
+        background-color:#F5F5F5;
+    }
+    .enLinea{
+        display:inline-block;
+        padding-left:20px;
+    }
+</style>
+
+<script>
+    $('#tabs').tab();
+
+    $(document).ready(function () {
+
+        function jsonCombo(jsonArray)
+        {
+            var templateCombo = _.template('<select class="arbolCombo dad" ><option selected disabled>Seleccione</option><% _.each('+ JSON.stringify(jsonArray) + ', function(i) { %>  <option dad="<%=i.item%>" value="<%=i.id%>"><%= i.nombre %></option> <% }); %></select>');
+
+            return templateCombo;
+        }
+
+        function jsonComboRandom(jsonArray)
+        {
+            var templateCombo = _.template('<select class="arbolCombo" ><option selected disabled>Seleccione</option><% _.each('+ JSON.stringify(jsonArray) + ', function(i) { %>  <option dad="<%=i.item%>" value="<%=i.id%>"><%= i.nombre %></option> <% }); %></select>');
+
+            return templateCombo;
+        }
+
+        function jsonLabel(varJson,attJson)
+        {
+            var templateLabel = _.template('<label><%= ' + attJson + ' %></label>');
+
+            return templateLabel(varJson);
+        }
+
+        $('.bsError').hide();
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var arbolJson = @Html.Raw(jss.Serialize(@Model.arbolJson));
+        var parametrosJson = @Html.Raw(jss.Serialize(@Model.parametrosJson));
+        var costosJson = @Html.Raw(jss.Serialize(@Model.costosJson));
+        var headerJson = @Html.Raw(jss.Serialize(@Model.headerJson));
+        var variablesJson = @Html.Raw(jss.Serialize(@Model.variablesJson));
+        var catSwJson = @Html.Raw(jss.Serialize(@Model.CatSWJson));
+        
+        costosJson = _.where(costosJson, { seleccion: '2' });
+        var arbolFiltradoOp = [];
+        var jsonArr = [];
+
+        var calMontosJson;
+
+
+        _.each(costosJson, function(i){
+            var op1 = _.where(arbolJson, { id: i.idCosto });
+            arbolFiltradoOp.push(op1[0]);
+        });
+        //alert(JSON.stringify(arbolFiltradoOp));
+        //alert(JSON.stringify(arbolJson));
+        //$('#divPrueba').html(JSON.stringify(costosJson));
+
+
+        /************************************************************************/
+        /*                           CARGA HEADER                               */
+        /************************************************************************/
+        //console.log(JSON.stringify(headerJson));
+        //$('#divPrueba').html(JSON.stringify(headerJson));
+
+        var hdDepSW = 0;
+        var hdDepHW = 0;
+
+        _.each(headerJson, function(i){
+            $('#hdtxtDolar').val(i.ValorDolar);
+            $('#hdtxtUf').val(i.ValorUF);
+            //$('#hdtxtDepSW').val(i.DepSW);
+            //$('#hdtxtDepHW').val(i.DepHW);
+            $('#hiddenDEPSW').val(i.DepSW);
+            $('#hiddenDEPHW').val(i.DepHW);
+            //hdDepSW = i.DepSW;
+            //hdDepHW = i.DepHW;
+        });
+
+        /************************************************************************/
+        /*                  PINTAMOS LOS TABS Y SUBCOMPONENTES                  */
+        /************************************************************************/
+
+        //alert(JSON.stringify(arbolJson));
+        //$('#divPrueba').html(JSON.stringify(arbolJson));
+        
+        var vSoftwareAd = _.where(arbolJson, { SoftAdicional: 'False' });
+
+        $("#liSoftAdicional").show();
+        if (vSoftwareAd.length > 0){
+            $("#liSoftAdicional").hide();
+        }
+
+        //var nivel1 = _.where(arbolJson, { nivel: '1' });
+        //$('#divPrueba').html(JSON.stringify(variablesJson));
+
+        var copyVariablesJson = variablesJson;
+
+        _.each(copyVariablesJson, function(i){
+            //var nivel2 = _.where(arbolJson, { nivel : '2', fk : i.id, tipoNodo :'3' });
+            //var nivel2 = _.where(arbolJson, { nivel : '2', fk : i.id});
+
+            var nmbTabs = i.Tabs;
+            if ($('#tab' + nmbTabs).length == 0) {
+                $('#tabs').prepend('<li role="presentation"><a href="#tab' + nmbTabs + '" data-toggle="tab">' + nmbTabs + '</a></li>');
+                $('#tabContenedor').prepend('<div id="tab' + nmbTabs + '" class="tab-pane container-fluid dyn"></div>');
+                $('#tab' + nmbTabs).append('<div class="row"></div>')
+            }
+
+
+            //texto
+            if (i.Idtipodato == "1"){
+                $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idCatalogoElemento+'" class="form-control input-sm ctrlVar caracter-200" tipo="1" />\
+                                                        </div>\
+                                                    ');
+                    if (i.Requerido == "True"){
+                        $('#v' + i.idCatalogoElemento).addClass('es-requerido');
+                        $('#v' + i.idCatalogoElemento).closest('div').children('label').html(i.Nombreatributo + ' *');
+                    }
+            }
+
+            //numerico
+            if (i.Idtipodato == "2"){
+                $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idCatalogoElemento+'" class="form-control input-sm ctrlVar solo-numero-dec" tipo="2" />\
+                                                        </div>\
+                                                    ');
+                    if (i.Requerido == "True"){                                        
+                        $('#v' + i.idCatalogoElemento).addClass('es-requerido');
+                        $('#v' + i.idCatalogoElemento).closest('div').children('label').html(i.Nombreatributo + ' *');
+                    }
+            }
+
+            //bool
+            if (i.Idtipodato == "4"){
+                $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <input id="v'+i.idCatalogoElemento+'" class="form-control input-sm ctrlVar" type="checkbox" tipo="4" />\
+                                                        </div>\
+                                                    ');
+            }
+            //lista
+            if (i.Idtipodato == "3"){
+                if($('#v' + i.idCatalogoElemento).length == 0){
+                    $('#tab' + nmbTabs +' .row').append('\
+                                                        <div class="form-group col-md-2">\
+                                                            <label class="control-label">'+ i.Nombreatributo +'</label>\
+                                                            <select id="v'+i.idCatalogoElemento+'" class="form-control input-sm ctrlVar comboVar" style="width:100%;" tipo="3"></select>\
+                                                        </div>\
+                                                    ');
+
+                    $('#v'+i.idCatalogoElemento).append('<option value="">Seleccione</option>');
+                    _.each(_.where(copyVariablesJson,{idCatalogoElemento : i.idCatalogoElemento}), function(j){
+                        $('#v'+i.idCatalogoElemento).append('<option value='+ j.Idlistavalores +'>'+ j.Valor +'</option>');
+                    });
+                    $('#v'+i.idCatalogoElemento).val("");                    
+                }
+                if (i.Requerido == "True"){
+                    $('#v' + i.idCatalogoElemento).addClass('es-requerido');
+                    $('#v' + i.idCatalogoElemento).closest('div').children('label').html(i.Nombreatributo + ' *');
+                }
+
+            }
+
+            //$('#tab' + nmbTabs +' .row #'+ i.id).append(jsonCombo(nivel2));
+        });
+        //$('.comboVar').selectmenu();
+        //$('.comboVar').selectmenu("refresh");
+
+        /************************************************************************/
+        /*                         SOFTWARE ADICIONAL                           */
+        /************************************************************************/
+
+        if($('#listaBody').children().length == 0){
+            $('#lista').hide();
+        }
+        $('#txtNombre').append('<option></option>');
+        _.each(catSwJson, function(i){
+            $('#txtNombre').append('<option>'+ i.Valor +'</option>');
+        });
+
+        var contLista = 0;
+        $("#btnAgregar").click(function () {
+            
+            $('#lista').show();
+
+            var nombre = $("#txtNombre option:selected").text();
+            var valLic = $("#txtValLic").val();
+            var valMan = $("#txtValMan").val();
+
+            if (nombre == "" || !$.isNumeric(valLic) || !$.isNumeric(valMan)){
+                return;
+            }
+            contLista = contLista + 1;
+            $('#lista #listaBody').append("<div id=trx"+contLista.toString()+" class='row'><div class='col-md-1'></div><div class='col-md-4 nombre'>" + nombre + "</div><div class='col-md-2 licencias'>  " + valLic + "</div><div class='col-md-2 mantencion'>" + valMan + "</div><div class='col-md-2'><a class='btnEliminar ' style='cursor:pointer;' id=x"+ contLista.toString() +"><span class='glyphicon glyphicon-remove'></span></a></div><div class='col-md-1'></div></div>");
+
+           $("#txtNombre").val("");
+           $("#txtValLic").val("");
+           $("#txtValMan").val("");
+
+        });
+
+        $(document).on("click", ".btnEliminar", function () {
+
+            var ide = $(this).attr("id");
+            $("#tr"+ide).remove();
+
+            if($('#listaBody').children().length == 0){
+                $('#lista').hide();
+            }
+
+
+        });
+        //Software adicional - fin
+
+        /************************************************************************/
+        /*                         CARGA PREDEFNINIDOS                          */
+        /************************************************************************/
+
+        //$('#divPrueba').html(JSON.stringify(copyVariablesJson));
+        _.each(copyVariablesJson, function(i){
+            if (i.Predefinido != ''){
+            $('#v' + i.idCatalogoElemento).val(i.Predefinido);
+            }            
+            if (i.Editable == 'False'){
+                $('#v' + i.idCatalogoElemento).attr('readonly', true);
+                $('#v' + i.idCatalogoElemento +' option:not(:selected)').attr('disabled', true);
+            }
+            if (i.Requerido == 'True'){
+                $('#v' + i.idCatalogoElemento).addClass('es-requerido');
+            }
+            //$('.comboVar').selectmenu('refresh');
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /***********************************************************/
+        /*                    CALCULAR COSTOS                      */
+        /***********************************************************/
+        $(document).on("click", "#btnCalcular", function () {            
+            $('.bsError').hide();
+            if ($('#idNvaCompo').validar()){
+                $('#errLabel').text('No se pudo realizar la acción. Existen campos con error');
+                $('.bsError').show();
+                return;
+            }
+
+            jsonArr = _.reject(jsonArr, { tipo: '2' });
+            jsonArr = _.reject(jsonArr, { tipo: '3' });
+            jsonArr = _.reject(jsonArr, { tipo: '4' });
+            jsonArr = _.reject(jsonArr, { tipo: '5' });
+
+            $("#tabSoftAdicional #listaBody .row").each(function(){
+                var saNombre = $(".nombre", this).text();
+                var saLicencias = $(".licencias", this).text();
+                var saMantencion = $(".mantencion", this).text();
+
+                jsonArr.push({
+                    id: '-',
+                    tipo: '2',
+                    padre: '-',
+                    nombre: saNombre,
+                    licencias: saLicencias,
+                    mantencion: saMantencion,
+                    cotizacion: $("#hiddenCot").val(),
+                    plantilla: $("#cmbPlantilla").val()
+                });
+            });
+
+            $(".ctrlVar").each(function(){
+                var tmpValor = $(this).val();
+                if($(this).hasClass('solo-numero-dec')){
+                    tmpValor = tmpValor.replace(',','.');
+                }
+                jsonArr.push({
+                    id: $(this).attr("id").substr(1),
+                    tipo: '4',
+                    padre: '-',
+                    nombre: tmpValor,
+                    licencias: '-',
+                    mantencion: '-',
+                    cotizacion: $("#hiddenCot").val(),
+                    plantilla: $("#cmbPlantilla").val()
+                });
+            });
+
+            var hdNombre = $('#hdtxtNombre').val();
+            var hdDescripcion = $('#hdtxtDescripcion').val();
+            var hdDolar = $('#hdtxtDolar').val();
+            var hdUf = $('#hdtxtUf').val();
+
+            jsonArr.push({
+                id: 0,
+                tipo: '5',
+                padre: hdNombre, //Nombre
+                nombre: hdDolar, //valor dolar
+                licencias: hdUf, //valor uf
+                mantencion: hdDepSW, //annos sw
+                cotizacion: hdDepHW, // annos hw
+                plantilla: hdDescripcion //Descripcion
+            });
+
+            //$('#divPrueba').html(JSON.stringify(jsonArr));
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("jsonReceiverCalcular")',
+                data: JSON.stringify(jsonArr),
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(resp){    
+                calMontosJson = resp;
+            });
+            console.log(calMontosJson);
+            //$('#divPrueba').html(JSON.stringify(calMontosJson));
+
+            var suma = 0;
+            var cat;
+            var sTotal = 0;
+
+            $('#tblCalculo tr').remove();
+
+            _.each(calMontosJson, function(i){
+
+                if($('#tblCalculo tr[id=cat'+ i.idCategoria +']').length == 0){
+                    $('#tblCalculo').append('<tr id="cat'+ i.idCategoria +'" class="active">\
+                                                <th>'+i.Categoria+'</th>\
+                                                <th id="sum'+ i.idCategoria +'">0</th>\
+                                            </tr>');
+                }
+
+                $('#tblCalculo').append('<tr  class="col-md-offset-1">\
+                                            <td><div class="col-md-offset-1">'+ i.NomCosto +'</div></td>\
+                                            <td class="costo" categoria="'+ i.idCategoria +'">'+ parseFloat(i.Costo.replace(',','.')).toFixed(2) +'</td>\
+                                        </tr>');
+
+            });
+
+            $('#tblCalculo tr .costo').each(function(){
+                cat = $(this).attr('categoria');
+                suma = parseFloat($('#tblCalculo tr #sum'+cat).text().replace(',','.')).toFixed(2);
+
+                sTotal = parseFloat(sTotal) + parseFloat($(this).text().replace(',','.'));
+                
+
+                suma = parseFloat($(this).text().replace(',','.')) + parseFloat(suma);         
+                
+                sTotal = sTotal.toFixed(2);
+                suma = suma.toFixed(2);
+
+                $('#tblCalculo tr #sum'+cat).html(suma);
+            });
+
+            //$('#lblTotal').html(sTotal);
+
+            $('#tblCalculo').append('<tfoot>\
+                                        <tr class="table warning">\
+                                            <th>Total</th>\
+                                            <th><label id="lblTotal">' + sTotal + '</label></th>\
+                                        </tr>\
+                                    </tfoot>');
+            //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+            $('h4.modal-title').text('Datos Consolidados');
+            //$('#modCustom')
+            //.prop('class', 'modal fade')
+            //.addClass('right')
+            //.modal({
+            //    backdrop: 'static',
+            //    keyboard: false
+            //});
+            //$('#modCustom').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+
+
+        });
+    });
+
+</script>
+<script src="~/Scripts/js/validador.js"></script>
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div style="border-top:solid 2px #8FBE00;padding-bottom:10px;margin-top:10px;"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="bs-callout bs-callout-danger bsError" style="display: none;">
+                <h4>Error</h4>
+                <label id="errLabel"></label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <input id="hdtxtNombre" type="hidden" class="form-control input-sm" value="" /> @*deprecated*@    
+        <div class="form-group col-xs-12 col-md-5">
+            <label class="control-label">Descripción</label>
+            <input id="hdtxtDescripcion" type="text" class="form-control input-sm es-requerido" placeholder="Descripción de Componente" />
+        </div>
+        <div class="form-group col-xs-6 col-md-2 col-md-offset-1 has-warning">
+            <label class="control-label">Valor Dolar</label>
+            <input id="hdtxtDolar" type="text" class="form-control input-sm" placeholder="US$" readonly />
+        </div>
+        <div class="form-group col-xs-6 col-md-2 has-warning">
+            <label class="control-label">Valor UF</label>
+            <input id="hdtxtUf" type="text" class="form-control input-sm" placeholder="UF" readonly />
+        </div>
+        <input id="hiddenDEPSW" type="hidden" />
+        <input id="hiddenDEPHW" type="hidden" />
+    </div>
+    @*<div class="row">
+        <div class="form-group col-xs-6 col-md-2">
+            <label>Años Depreciación Software</label>
+            <input id="hdtxtDepSW" type="text" class="form-control input-sm" placeholder="Años Depreciacion SW" />
+        </div>
+        <div class="form-group col-xs-6 col-md-2">
+            <label>Años Depreciacion Hardware</label>
+            <input id="hdtxtDepHW" type="text" class="form-control input-sm" placeholder="Años Depreciacion HW" />
+        </div>
+    </div>*@
+    <div id="dmc_cntdo" class="row">
+        <div class="col-md-12">
+            <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                <li id="liSoftAdicional" role="presentation"><a href="#tabSoftAdicional" data-toggle="tab">Software Adicional</a></li>
+                <li id="btnCalcular" role="presentation"><a href="#tabResumen" class="active" data-toggle="tab">Resumen</a></li>
+            </ul>
+            <div id="tabContenedor" class="tab-content" style="border-bottom:1px solid;border-left:1px solid; border-right:1px solid; border-color:#DDD">
+                <div id="tabSoftAdicional" class="tab-pane container-fluid">
+                    <div id="rowSWAdd" class="row">
+                        <div class="col-xs-1"></div>
+                        <div class="form-group col-xs-12 col-md-4">
+                            <label>Nombre Software</label>
+                            <select class="form-control input-sm" id="txtNombre"></select>
+                        </div>
+
+                        <div class="form-group col-xs-6 col-md-2">
+                            <label>Licencias US$</label>
+                            <input id="txtValLic" type="text" class="form-control input-sm" placeholder="Licencia" />
+                        </div>
+                        <div class="form-group col-xs-6 col-md-2">
+                            <label>Mantención Anual US$</label>
+                            <input id="txtValMan" type="text" class="form-control input-sm" placeholder="Mantención" />
+                        </div>
+                        <div class="form-group col-xs-2">
+                            <label>&nbsp;</label>
+                            <button id="btnAgregar" value="Agregar" class="btn btn-default btn-sm" type="button" title="Agregar"><span class="glyphicon glyphicon-plus"></span></button>
+                        </div>
+                        <div class="col-xs-1"></div>
+                    </div>
+
+                    <div id="lista" style="margin-bottom:1%;">
+                        <div class="row">
+                            <div class="col-md-1"></div>
+                            <div class="col-md-4"><b>Nombre Software</b></div>
+                            <div class="col-md-2"><b>Licencias US$</b></div>
+                            <div class="col-md-2"><b>Mantención Anual US$</b></div>
+                            <div class="col-md-2"><b>Eliminar</b></div>
+                            <div class="col-md-1"></div>
+                        </div>
+                        <div id="listaBody"></div>
+                    </div>
+                </div>
+                <div id="tabResumen" class="tab-pane container-fluid active">
+                    <div class="row">
+                        <div class="panel-body">
+                            @*<table id="RestblArbol" class="table">
+                                <tbody></tbody>
+                                <tfoot>
+                                    <tr class="table warning">
+                                        <th>Total</th>
+                                        <th><label id="lblTotal"> - </label></th>
+                                    </tr>
+                                    <tr>
+
+                                        <th colspan="2"><button id="btnCalcular" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-usd"></span> Calcular</button></th>
+                                    
+                                    </tr>
+                                </tfoot>
+                            </table>*@
+                            <table id="tblCalculo" class="table"></table>
+                        </div>
+                    </div>
+                </div>
+                <div id="sComp03" class="tab-pane" style="padding-left:10%;">
+                </div>
+            </div>
+            <div id="divPrueba"></div>            
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-right">
+            @if (User.HasWriteAccess("COMPONENTE"))
+            {
+            <button id="btnGuardar" type="button" class="btn btn-success btn-sm">
+                <span class="glyphicon glyphicon-floppy-save"></span>
+                Guardar
+            </button>
+            }
+        </div>
+    </div>
+
+    @*<!— /.modal con el detalle de los costos —>*@
+    @*<div class="modal fade" id="modCustom">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div id="modCalculo" class="modal-body">
+                    <table id="tblCalculo" class="table">
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>*@
+    @*<!— /.modal —>*@
+
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+}
+

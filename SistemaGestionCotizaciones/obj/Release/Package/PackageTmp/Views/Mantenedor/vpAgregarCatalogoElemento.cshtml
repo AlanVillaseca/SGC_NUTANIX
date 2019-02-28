@@ -1,0 +1,305 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+
+
+<script>
+    var URLjs = ' @Html.Raw(Url.Action("jsonListaElementos", "Mantenedor"))';
+    var Json = [];
+    $(document).ready(function () {
+        var contLista = 0;
+        $('#tipoDato').selectmenu({
+            change: function (event, ui) {
+                if ($("#tipoDato").val() == 3) {
+                    $("#lista").show();                   
+                    $('#categoria').selectmenu('refresh', true);
+                }
+                else {
+                    $("#lista").hide();
+                    $('#listaBody').empty();
+                    $('#categoria option[value=4]').attr('disabled', false);
+                   $('#categoria').selectmenu('refresh', true);
+                }
+            }
+
+        });
+        $('#modDialog .modal-body select').selectmenu({
+            overlayTheme: "a",
+            width: 150,
+            maxHeight: 150
+        });
+
+        $('#btn_enviar').click(function () {
+            
+            $.ajax({
+                dataType: "json",
+                url: URLjs,
+                async: false,
+            }).done(function (varJson) {
+                //mi codigo
+                // console.log(JSON.stringify(varJson));
+                Json = varJson;
+
+            });
+            var existe = false;
+          // console.log(' alo'+JSON.stringify(Json));
+
+            _.each(Json, function (i) {
+
+                var nombre = i.Nombreatributo;
+               // console.log(nombre.toLowerCase() + '  ' + $("#nombre").val().toLowerCase());
+                if (nombre.toLowerCase() == $("#nombre").val().toLowerCase()) {
+                    existe = true;
+                }
+            });
+            // console.log(existe);
+            if (existe) {
+                alert('El nombre que intenta ingresar, no esta disponible, intente con otro nombre.');
+                return;
+            }
+            // ////console.log("Enviar");
+            // ////console.log($("#select").val() + ' ' + $("#descripcion").val() + ' ' + $("#nombre").val())
+            if ($("#nombre").val().trim().length > 0 && $("#descripcion").val().trim().length > 0 && $("#tipoDato").val() != 0 && $("#categoria").val() != 0) {
+                var nombre = $("#nombre").val();
+                var descripcion = $("#descripcion").val();
+                var tipoDato = $("#tipoDato").val();
+                var categoria = $('#categoria').val();
+                var url;
+                ////console.log('categoria '+categoria);
+                // ////console.log("ifdatos" + "tipodato: " +tipoDato);
+                ////console.log('select: ' + $('#tipoDato').val());
+                if ($('#nvo_header').validar()) {
+                    if ($("#nombre").val().trim().length == 0) {
+                        alert('Debe ingresar un nombre.');
+                        $("#nombre").focus();
+                    }
+                    if ($("#descripcion").val().trim().length == 0) {
+                        alert('Debe ingresar una descripción.');
+                        $("#descripcion").focus();
+                    }
+                    if ($("#tipoDato").val() = 0) {
+                        alert('Debe selecionar un tipo de dato.');
+                        $("#tipoDato").focus();
+                    }
+                    if ($("#categoria").val() = 0) {
+                        alert('Debe selecionar una categoria.');
+                        $("#categoria").focus();
+                    }
+                    if ($('#tipoDato').val() == 3) {
+
+                        //console.log("ifselect");
+                        var valores = new String("");
+                        var j = 1;
+                        $("#listaBody .row").each(function () {
+
+                            j++;
+                        });
+                        if (j < 2 && valores.trim().length <= 2) {
+                            alert('La lista  esta vacia.');
+                        }
+                    }
+                    
+                    return;
+                }
+                if ($('#tipoDato').val() == 3) {
+
+                    //console.log("ifselect");
+                    var valores = new String("");
+                    var i = 1;
+                    $("#listaBody .row").each(function () {
+                        var Nombre = $(".nombre", this).text();
+                        var Descripcion = $(".licencias", this).text();
+                        //console.log("valores");
+                        valores += Nombre + ";" + Descripcion + '*';
+                        i++;
+                    });
+                    ////console.log(i + ' ' + valores);
+                    if (i > 1 && valores.trim().length>3) {
+                         ////console.log("iflista");
+
+                        url1 = '@Html.Raw(Url.Action("vpAgregarCatalogoElemento1", "Mantenedor", new { id = "param-id", descripcion = "param-descripcion", idTipoDato = "param-idTipoDato", categoria = "param-categoria", cadena = "param-cadena" }))'
+                        url1 = url1.replace("param-id", nombre)
+                                 .replace("param-descripcion", descripcion)
+                                 .replace("param-idTipoDato", tipoDato)
+                                 .replace("param-cadena", valores)
+                                 .replace("param-categoria", categoria);
+                        $.ajax({
+                            type: "post",
+                            url: url1,
+                            async: false
+                        });
+                        $(".modal").modal("toggle");
+                        location.reload();
+                    }
+                    else {
+                        // ////console.log('la lista  esta vacia.')
+                    }
+                }
+                else {
+
+                    // ////console.log("else url 3 param");
+
+                    url = '@Html.Raw(Url.Action("vpAgregarCatalogoElemento", "Mantenedor", new { id = "param-id", descripcion = "param-descripcion", idTipoDato = "param-idTipoDato", categoria = "param-categoria" }))'
+                    url = url.replace("param-id", nombre)
+                             .replace("param-descripcion", descripcion)
+                             .replace("param-idTipoDato", tipoDato)
+                             .replace("param-categoria", categoria);
+                    // ////console.log(nombre+' des '+descripcion+' tidat '+tipoDato+' cate '+categoria)
+                    // ////console.log("replace");
+                    // ////console.log(url);
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        async: false
+                    });
+                    ////console.log("ajax");
+                    $(".modal").modal("toggle");
+                    location.reload();
+                }
+
+                //$('#tb_Header').load(url);
+            }
+            else {
+                // ////console.log('elseenviar');
+                if ($("#nombre").val().trim().length == 0) {
+                    alert('Debe ingresar un nombre.');
+                    $("#nombre").focus();
+                }
+                if ($("#descripcion").val().trim().length == 0) {
+                    alert('Debe ingresar una descripción.');
+                    $("#descripcion").focus();
+                }
+                if ($("#tipoDato").val() = 0) {
+                    alert('Debe selecionar un tipo de dato.');
+                    $("#tipoDato").focus();
+                }
+                if ($("#categoria").val() = 0) {
+                    alert('Debe selecionar una categoria.');
+                    $("#categoria").focus();
+                }
+            }
+        });
+        $("#btnAgregar").click(function () {
+
+            var nombre = $("#txtNombre").val().trim();
+            var descripcion = $("#txtDescripcion").val().trim();
+            var existeLista = false;
+            //  ////console.log((!nombre) + ' ' + (!descripcion));
+            $("#listaBody .row").each(function () {
+                var Nombre = $(".nombre", this).text();
+                var Descripcion = $(".licencias", this).text();
+                //console.log("valores");
+                if (Nombre.toLowerCase() == nombre.toLowerCase()) {
+                    existeLista = true;
+                    alert("Este nombre ya esta en la lista.")
+                }
+
+            });
+
+            if ($("#txtNombre").val().trim().length != 0 && $("#txtDescripcion").val().trim().length != 0 && !existeLista) {
+
+                contLista = contLista + 1;
+                $('#listaBody').append("<div id=trx" + contLista.toString() +
+                    " class='row'>" + ''
+                    + "<div class='col-md-4 nombre'>" +
+                    nombre + "</div><div class='col-md-6 licencias'>" + descripcion
+                    + "</div><div class='col-md-1'><a class='btnEliminar ' style='cursor:pointer;' id=x" + contLista.toString()
+                               + "><span class='glyphicon glyphicon-remove'></span></a></div></div>");
+
+                $("#txtNombre").val('');
+                $("#txtDescripcion").val('');
+            }
+            else {
+
+                if ($("#txtNombre").val().trim().length == 0) {
+                    alert('Debe ingresar un nombre.');
+                    $("#txtNombre").focus();
+                }
+                if ($("#txtDescripcion").val().trim().length == 0) {
+                    alert('Debe ingresar una descripción.');
+                    $("#txtDescripcion").focus();
+                }
+            }
+        });
+         
+        $(document).on("click", ".btnEliminar", function () {
+            var ide = $(this).attr("id");
+            // ////console.log(ide);
+            $("#tr" + ide).remove();
+        });
+    });
+</script>   
+<div id="msg_wrn" class="row"><span></span></div>
+
+
+    <div class="row">
+        <div id="nom_header" class="form-group col-sm-4">
+            <label for="">Nombre del  Elemento</label>
+            <input id="nombre" type="text" required name="nombreAtributo" class="form-control  es-requerido caracter-250" placeholder="Nombre del Elemento">
+        </div>
+
+        <div id="des_header" class="form-group col-sm-6 ">
+            <label for="">Descripción del elemento</label>
+            <input id="descripcion" type="text" required name="descripcion" class="form-control  es-requerido caracter-250" placeholder="Descripción">
+        </div>
+    </div>
+    <div class="row">
+        <div id="serv_neg" class="form-group col-sm-4">
+
+            <label class="control-label">Tipo de dato</label>
+            <select id="tipoDato" name="idTipoDato" required class="selectmenu form-group change ui">
+                <option value="0">Selecione un tipo de dato</option>
+                @foreach (DataRow colCb in Model.dtTipodato.Rows)
+                {
+
+                    <option value="@colCb.ItemArray.GetValue(0)">@colCb.ItemArray.GetValue(1)</option>
+                }
+            </select>
+        </div>
+        <div id="divCategoria" class="form-group col-sm-4">
+            <label class="control-label">Categoría</label>
+            <select id="categoria" class="selectmenu combobox ui">
+                <option selected value="0">Seleccione una categoría</option>
+                <option value="2">Variables</option>
+                <option value="4">Configuración</option>
+            </select>
+        </div>
+    </div>
+    <div id="lista" class="container-fluid" hidden>
+        <div class="row form-group">
+            <div class="col-md-4 col-sm-12">
+                <label class="control-label">Nombre</label>
+            </div>
+            <div class="col-md-6 col-sm-12 input-group ">
+                <label class="control-label">Descripción</label>
+            </div>
+        </div>
+
+        <div class="row form-group  ">
+            <div id="input1" class="col-md-4 col-sm-12">
+                <input type="text" name="valor1" id="txtNombre" class="form-control  es-texto caracter-250" />
+            </div>
+            <div class="col-md-6 col-sm-12 input-group ">
+                <input type="text" name="descripcion1" id="txtDescripcion" class="form-control  es-texto caracter-250" />
+                <span class="input-group-btn ">
+                    <input type="button" id="btnAgregar" class="btn btn-default " name="Agregar" value="Agregar" />
+                </span>
+            </div>
+        </div>
+
+        <div class="row control-label">
+            <label class="control-label">Elementos de la lista</label>
+        </div>
+        <div class="row">
+            <div class='col-md-4 Nombre control-label'>
+                <label class="control-label">Nombre</label>
+            </div>
+            <div class='col-md-6 descripcion control-label'>
+                <label class="control-label">Descripción</label>
+            </div>
+        </div>
+
+        <div class="listaValores" id="listaBody"></div>
+
+    </div>
+
+

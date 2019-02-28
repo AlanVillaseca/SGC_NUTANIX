@@ -1,0 +1,471 @@
+﻿@model SistemaGestionCotizaciones.Models.MantenedorFamilia
+@using System.Data;
+
+<link href="~/Content/css/paginacion.css" rel="stylesheet" />
+<script src="~/Scripts/Blob.js"></script>
+
+@if (Model.dtSubFamilia.Rows.Count > 0 && Model.dtListaFamilia.Rows.Count > 0)
+{
+
+
+    <script>
+    ///scrip botones aciones
+    $(document).ready(function () {
+
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        var msg = new String();
+        $('.btnGuardarSf').hide();
+        $('.btnCancelarSf').hide();
+        // $('.btnEliminar').hide();
+        // $(".table input").addClass("TextBoxAsLabel").attr("readonly", true);
+        var bkpStringsf = new String("");// string para guardar los datossf recividos antes de editar
+        $('.btnEditarSf').click(function () { //al presionar el boton editar
+            $('.btnEditarSf').prop("disabled", true);
+            // $('.btnEliminar').prop("disabled", true);
+            var idFilasf = $(this).attr("id");
+            //alert(idFilasf);
+            $("#filaSf_" + idFilasf + ".tr").addClass("warning");
+            $("#filaSf_" + idFilasf + " .btnEditarSf").hide();    //oculta btn edit
+            $("#filaSf_" + idFilasf + " .btnEliminarSf").hide();   //oculta btn eliminar
+            $("#filaSf_" + idFilasf + " .btnGuardarSf").show().css("background", "transparent");    //muestra boton guadar
+            $("#filaSf_" + idFilasf + " .btnCancelarSf").show().css("background", "transparent");   //muestra boton cancelar
+            $("#filaSf_" + idFilasf + " input").removeClass("TextBoxAsLabel").attr("readonly", false).css("background", "transparent"); //quita la clase y el atributo readonly
+            $("#filaSf_" + idFilasf + " select").removeClass("selectToLabel").attr("disabled", false);// activa el comboBox de la fila que se quiere editar
+            //alert($("#nombre_" + idFilasf).val());
+            $('#estado_' + idFilasf).prop('disabled',false);
+            //var check;
+            //if ($('#estado_' + idFilasf).prop('checked')) {
+            //    check = 1;
+            //}
+            //else { check = 0;}
+            bkpStringsf="";
+            bkpStringsf = $("#nombreSf_" + idFilasf).val() + ';' + $('#cbFamilaSf_' + idFilasf).val();
+
+            //alert("sorpresa #0= "+bkpStringsf);
+            //alert($("#Aplicacioninmediata_" + idFilasf).val());
+            //alert($("#Dominio_" + idFilasf).val().toString() + " ; " + $("#Dominio_" + idFilasf).val());
+            //alert($("#Aplicacioninmediata_" + idFilasf).val());
+        });
+
+        $('.btnCancelarSf').click(function () {
+            $('.btnEditarSf').show();
+            // $('.btnEliminar').show();
+            var idFilasf = $(this).attr("id");
+            var elementosf = bkpStringsf.split(";"); // separa los datossf
+            //alert(bkpStringsf);
+            $("#nombreSf_" + idFilasf).val(elementosf[0]);
+            $('#cbFamilaSf_' + idFilasf).val(elementosf[1]);
+
+            // alert(elementosf[4]);
+            //if(elementosf[4] == 1){
+            //    $('#estado_' + idFilasf).prop('checked',true).prop("disabled", true);
+            //}
+            //else { $('#estado_' + idFilasf).prop('checked', false).prop("disabled", true); }
+
+            //restaura los valores previos
+            $("#filaSf_" + idFilasf + " select").addClass("selectToLabel").attr("disabled", true);// deshabilita el comboBox de la fila editada
+            $("#filaSf_" + idFilasf + " input").addClass("TextBoxAsLabel").attr("readonly", true); //agrega la clase y el atributo readonly
+            $("#Aplicacioninmediata_" + idFilasf).prop("disabled", true); //deja todos los checkbox desactivados
+            $("#filaSf_" + idFilasf + " .btnGuardarSf").hide(); //oculta boton guadar
+            $("#filaSf_" + idFilasf + " .btnCancelarSf").hide();//oculta boton cancelar
+            $("#filaSf_" + idFilasf + " .btnEditarSf").show();  //muestra btn edit
+            //$("#fiSfla_" + idFilasf + " .btnEliminar").show();//muesta btn eliminar
+            if ($('.tr').children().hasClass('has-error')) {
+                $('.tr .control-label').remove();
+                $('.tr label .has-error').removeClass('has-error');
+            }
+            $('.btnEditarSf').prop("disabled", false);
+            //  $('.btnEliminar').prop("disabled", false);
+            $("#filaSf_" + idFilasf + ".tr").removeClass("warning");
+            bkpStrinSfgsf = "";
+        });
+
+        $('.btnGuardarSf').click(function () {
+            var idFilasf = $(this).attr("id");
+            //   alert(idFilasf);
+            //alert();
+            var datossf = new String("");
+            // alert("servicio" + $("#servicio_" + idFilasf).toString().trim().length );
+            if ($("nombreSf_" + idFilasf).toString().trim().length > 0 && !$('.tr').children().hasClass('has-error')) {
+                // alert("if");
+                //se guardan los cambios en un string
+                //var check;
+                //if ($('#estado_' + idFilasf).prop('checked')) {
+                //    check = 1; //alert();
+                //}
+                //else { check = 0; }
+                datossf="";
+                datossf = $("#nombreSf_" + idFilasf).val() + ';' + $('#cbFamilaSf_' + idFilasf).val();
+                var nombreSf,idfamilaSf;
+                nombreSf   = $("#nombreSf_" + idFilasf).val();
+                idfamilaSf =  $('#cbFamiliaSf_' + idFilasf).val();
+                // console.log(" "+idFilasf+" "+idfamilaSf+" "+nombreSf);
+                // lo envio por post a el controlador :O
+                var URLsf = '@Html.Raw(Url.Action("actualizarSubfamila", "Mantenedor", new { id = "idR", nombre = "param-nombre", Familia = "param-familia" }))';
+                //alert("if3");
+                URLsf = URLsf.replace('idR', idFilasf)
+                             .replace('param-nombre', nombreSf)
+                           .replace('param-familia', idfamilaSf) ;
+                // alert(datossf);
+                //alert(URLsf);
+                //msg = 'Se actualizara el nombre del país '+ bkpStringsf +' ,¿Desea continuar?';
+                //var titulo = 'Advertencia';
+                //var iconClass = 'glyphicon glyphicon-exclamation-sign';
+                //alert(msg);
+                //dialogConfirmar('dialog', titulo, msg, iconClass, URL);
+                $.ajax({
+                    type: "POST",
+                    url: URLsf,
+                    async:false
+                }).done(function (resp) {
+                    resultado = resp;
+                    //alert("done"+resp);
+                });
+                $('.btnEditarSf').show();
+                $('.btnGuardarSf').hide();
+                $('.btnCancelarSf').hide();
+                $("#filaSf_" + idFilasf + " select").addClass("selectToLabel").attr("disabled", true);// deshabilita el comboBox de la fila editada
+                $("#filaSf_" + idFilasf + " input").addClass("TextBoxAsLabel").attr("readonly", true); //agrega la clase y el atributo readonly
+                $("#Aplicacioninmediata_" + idFilasf).prop("disabled", true); //deja todos los checkbox desactivados
+                $("#filaSf_" + idFilasf + " .btnGuardarSf").hide(); //oculta boton guadar
+                $("#filaSf_" + idFilasf + " .btnCancelarSf").hide();//oculta boton cancelar
+                $("#filaSf_" + idFilasf + " .btnEditarSf").show();  //muestra btn edit
+                //$("#fiSfla_" + idFilasf + " .btnEliminar").show();//muesta btn eliminar
+                if ($('.tr').children().hasClass('has-error')) {
+                    $('.tr .control-label').remove();
+                    $('.tr label .has-error').removeClass('has-error');
+                }
+                $('.btnEditarSf').prop("disabled", false);
+                //  $('.btnEliminar').prop("disabled", false);
+                $("#filaSf_" + idFilasf + ".tr").removeClass("warning");
+                cargarPaginasf(pagActualsf);
+            }
+            else {
+                if ($('.tr').children().hasClass('has-error')) {
+                    $('.tr').children('.has-error').children().focus();
+                }
+                if ($("#nombreSf_" + idFilasf).toString().trim().length() == 0) {
+                    alert('Debe ingresar un nombre de la subfamilia');
+                    $("#nombreSf_" + idFilasf).focus();
+                }
+            }
+            $("#filaSf_" + idFilaSf + " select").addClass("selectToLabel").attr("disabled", true);// deshabilita el comboBox de la fila editada
+            $("#filaSf_" + idFilasf + " input").addClass("TextBoxAsLabel").attr("readonly", true); //agrega la clase y el atributo readonly
+            $("input.checkbox").prop("disabled", true); //deja todos los checkbox desactivados
+            $("#filaSf_" + idFilasf + " .btnGuardarSf").hide();    //oculta boton guadar
+            $("#filaSf_" + idFilasf + " .btnCancelarSf").hide();   //oculta boton cancelar
+            $("#filaSf_" + idFilasf + " .btnEditarSf").show();     //muestra btn edit
+            // $("#fila_" + idFilasf + " .btnEliminar").show();   //muesta btn eliminar
+            $("#filaSf_" + idFilasf + ".tr").removeClass("warning");
+            $('.btnEditarSf').show().prop("disabled", false);
+            //  $('.btnEliminar').show().prop("disabled", false);
+            datossf = "";
+            bkpStringsf = "";
+        });
+
+        $('.btnEliminarSf').click(function () {
+            var idFilasf = $(this).attr("id");
+            datossf="";
+            var check = 0;
+            datossf = $("#nombre_" + idFilasf).val() + ';' + $('#descripcion_' + idFilasf).val() + ';' + $('#funcion_' + idFilasf).val() + ';'
+            + $('#variable_' + idFilasf).val() + ';' + check;
+
+            // var URLsf = '@Url.Action("actualizarFormula", "Mantenedor", new { id = "idR", cadena = "cadenaR" })';
+            //alert("if3");
+            URLsf = URLsf.replace('idR', idFilasf)
+                     .replace('cadenaR', datossf);
+            // alert(datossf);
+            // alert(URL);
+            //msg = 'Se actualizara el nombre del país '+ bkpStringsf +' ,¿Desea continuar?';
+            //var titulo = 'Advertencia';
+            //var iconClass = 'glyphicon glyphicon-exclamation-sign';
+            //alert(msg);
+            //dialogConfirmar('dialog', titulo, msg, iconClass, URL);
+            $.ajax({
+                type: "POST",
+                url: URLsf,
+                async:false
+            }).done(function (resp) {
+                resultado = resp;
+            });
+            location.reload();
+
+        });
+        
+        var tPaginasf;
+        tPaginasf = @Model.dtSubFamilia.Rows[0][3] ;
+        var paginaSf;
+        var pagActSfualsf =0;
+
+        function cargarPaginasf(id) {
+            var urlsf = '@Url.Action("vpGrillaDetalleSubFamilia", "Mantenedor", new { id = "param-id", ordenarPor = "param-name" })'
+            urlsf = urlsf.replace("param-id", id)
+                     .replace("param-name", "idsubfamilia");
+            $('#divTablaSubFamilia').load(urlsf);
+        }
+
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#txt_pagsfam').keypress(function (e) {
+            var key = e.which;
+            if (key == 13) {
+                var valor = parseInt($(this).val() - 1);
+                //alert(valor + ' ' + parseInt($('#ttl_pag').text()));
+                if (valor >= 0 && valor <= parseInt($('#ttl_pag').text() - 1)) {
+                    cargarPaginasf(valor);
+                }
+            }
+        });
+
+        $('#txt_pagsfam').focus(function () {
+            pagActualsf = $.trim($(this).val());
+            $(this).val($.trim($(this).val()));
+        });
+
+        $('#txt_pagsfam').focusout(function () {
+            $(this).val(pagActualsf);
+
+        });
+
+        $('#txt_pagsfam').keypress(function (e) {
+            var key = e.which;
+            if (key == 13) {
+                var valor = parseInt($(this).val() - 1);
+                //alert(valor + ' ' + parseInt($('#ttl_pag').text()));
+                if (valor >= 0 && valor <= parseInt(tPaginasf - 1)) {
+                    cargarPaginasf(valor);
+                }
+            }
+        });
+
+        $('#btn_pag_sigsfam').click(function () {
+            pagina = parseInt($('#txt_pagsfam').val());
+            if (pagina < parseInt(tPaginasf)) {
+                pagina--;
+                cargarPaginasf(pagina + 1);
+            }
+        });
+
+        $('#btn_ult_pagsfam').click(function () {
+            cargarPaginasf(tPaginasf - 1);
+        });
+
+        $('#btn_pri_pagsfam').click(function () {
+
+            cargarPaginasf("0");
+        });
+
+        $('#btn_pag_antsfam').click(function () {
+
+            if (parseInt(($('#txt_pagsfam').val())) == 1) {
+
+            } else {
+
+                if (parseInt($('#txt_pagsfam').val()) > parseInt(tPaginasf)) {
+                    paginaSf = parseInt(tPaginasf);
+
+                }
+                else
+                {
+                    paginaSf = (parseInt($('#txt_pagsfam').val()));
+                    paginaSf -= 2;
+                }
+                cargarPaginasf(paginaSf);
+
+            }
+        });
+
+        $('#btn_nvo_sfam').click(function () {
+            //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+            $('h4.modal-title').text('Nueva SubFamilia');
+            $("#txtNombre").val("");
+            $('#cbFamilia').val("0");
+            $('#cbFamilia').selectmenu('refresh', true);
+            $("#listaBody").empty();
+            $('#modSubfamilia')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modSubfamilia').data('modal', null);
+            $('#modSubfamilia').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+            $('#nva_subfamilia').load();
+        });
+
+
+        $('#btn_descargar_subfamilias').click(function () {
+            
+            $.ajax({
+                url: '@Url.Action("SubFamiliaFileXls", "Mantenedor")',
+                type: 'POST',
+                async: false,
+                success: function (data) {
+
+                    var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                    saveAs(blob, "ListadoSubFamilias.csv");
+
+                }
+            });
+
+        });
+
+
+    });
+</script>
+
+
+    <div class="grilla container col-md-12 col-sm-12 ">
+        <div class="row">
+            <table id="tbListarSubFamilia" class="  table table-responsive text-left  table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subfamilia</th>
+                        <th>Familia</th>
+                        <th class="col-md-1">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (DataRow col in Model.dtSubFamilia.Rows)
+                    {
+                        <tr id="filaSf_@col.ItemArray.GetValue(0)" class="tr  ">
+                            <td class="text-left"><label id="idSf_@col.ItemArray.GetValue(0)" class="TextBoxAsLabel">@col.ItemArray.GetValue(0)</label></td>
+                            <td class="text-left"><input id="nombreSf_@col.ItemArray.GetValue(0)" value="@col.ItemArray.GetValue(1)" class="TextBoxAsLabel es-texto caracter-250" readonly /></td>
+                            <td class="text-left">
+                                <select id="cbFamiliaSf_@col.ItemArray.GetValue(0)" class="selectmenu input-sm combobox selectToLabel" disabled="disabled">
+                                    <option value="">Seleccione un tipo de dato</option>
+                                    @foreach (DataRow colCb in Model.dtListaFamilia.Rows)
+                                    {
+
+
+                                        if (col.ItemArray.GetValue(2).ToString() == colCb.ItemArray.GetValue(0).ToString())
+                                        {
+                                            <option selected class="TextBoxAsLabel" value="@colCb.ItemArray.GetValue(0)">@colCb.ItemArray.GetValue(1)</option>
+
+                                        }
+                                        else
+                                        {
+                                            <option class="TextBoxAsLabel" value="@colCb.ItemArray.GetValue(0)">@colCb.ItemArray.GetValue(1)</option>
+                                        }
+
+                                    }
+                                </select>
+                            </td>
+                            <td class="text-left">
+                                @if (!User.IsInRole("OBSERVADOR"))
+                                {
+                                <div class="btn-group btn-group-xs" role="group" style="display:inline-block">
+                                    <button id="@col.ItemArray.GetValue(0)" type="button" class="btnGuardarSf" title="Guardar" hidden style="border:none"><span class="glyphicon glyphicon-ok"></span></button>
+                                    <button id="@col.ItemArray.GetValue(0)" type="button" class="btnCancelarSf" title="Cancelar" hidden style="border:none"><span class="glyphicon glyphicon-remove"></span></button>
+                                    <button id="@col.ItemArray.GetValue(0)" type="button" class="btnEditarSf" title="Editar" style="border:none"><span class="glyphicon glyphicon-pencil"></span></button>
+                                    <button id="@col.ItemArray.GetValue(0)" hidden type="button" class="btnEliminarSf" title="Eliminar" style="border:none"><span class="glyphicon glyphicon-trash"></span></button>
+                                </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class=" pagination col-md-12 col-sm-12   " style="background-color:#F9F9F9;height:28px;">
+                <div class=" form-inline " role="form">
+                    <div class="col-md-2 col-sm-2 col-md-offset-1 ">
+                        <p class="control-label">Total de Registros @Model.dtSubFamilia.Rows[0][4]</p>
+                    </div>
+                    <div class="col-md-2 col-sm-3 col-md-offset-2 form-inline">
+                        <p class="control-label ">
+                            Ir a
+                            <input id="txt_pagsfam" type="text" class="form-control solo-numero input-xs" style="width:13%" value="@(int.Parse(Model.dtSubFamilia.Rows[0][5].ToString()) + 1) " />
+                            de @Model.dtSubFamilia.Rows[0][3] Pág.
+                        </p>
+                    </div>
+            <!-- /.btn-toolbar -->
+            <div class="col-md-offset-9 col-sm-offset-9">
+                <div id="btn_Func_Tools" class="" role="toolbar">
+                    @if (!User.IsInRole("OBSERVADOR"))
+                    {
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="btn_descargar_subfamilias" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+                        <button id="btn_nvo_sfam" type="button" class="btn btn-default" title="Nueva SubFamilia" style="border:none;background-color:transparent;"><span class="glyphicon glyphicon-plus"></span></button>
+                    </div>
+                    }
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="btn_pri_pagsfam" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                        <button id="btn_pag_antsfam" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                        <button id="btn_pag_sigsfam" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                        <button id="btn_ult_pagsfam" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                    </div>
+                </div>
+            </div>
+            <!-- /.btn-toolbar -->
+            </div>
+            </div>
+        </div>
+    </div>
+        <div id="dialog" title="¿Desea continuar?">
+
+        </div>
+        }
+        else
+        {
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="alert alert-warning text-center" role="alert">
+                    <strong>Alerta!</strong> No hay SubFamilias creadas, <a id="btn_nuevo_sfam" href="#" data-toggle="modal" data-target="" class="alert-link"> Crear una SubFamilia</a>.
+                </div>
+            </div>
+        </div>
+        <script>
+            $('#btn_nuevo_sfam').click(function () {
+                //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+
+                $('#modSubfamilia')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modSubfamilia').modal('show');
+                $(':input, a').attr('tabindex', '-1');
+                $('#nva_subfamilia').load();
+            });
+
+            error('@ViewBag.Error');
+        </script>
+        }
+
+
+

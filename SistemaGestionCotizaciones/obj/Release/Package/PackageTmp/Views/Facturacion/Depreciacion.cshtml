@@ -1,0 +1,202 @@
+﻿@{
+    ViewBag.Title = "listarCotizacion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.FacturacionDepreciacion
+@using System.Data
+@using System.Web.Script.Serialization;
+
+<style>
+    #contenedorPagina{
+        padding-top: 60px;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var DepreciacionJson = @Html.Raw(jss.Serialize(Model.dtDepreciacionJson));
+        var totalpaginas = 0;
+        var pagina = 0;
+        var totalRegistros = 0;
+        var elemento = '';
+        var idcomponente = [];
+        var arraytemp;
+
+        if(DepreciacionJson != '') {
+
+            totalpaginas = _.pluck(DepreciacionJson, 'totalPaginas')[0];
+            pagina = _.pluck(DepreciacionJson, 'paginaActual')[0];
+            totalRegistros = _.pluck(DepreciacionJson, 'totalRegistros')[0];
+        }
+
+        var cargacheck = function cargacheck() {
+
+            _.each(idcomponente, function(i){
+
+                $('.check[value=' + i.value + ']').prop('checked', true);
+
+            });
+        }
+
+        function agregarid(id) {
+
+            arraytemp = {
+                'idcomponente': id
+            };
+
+            idcomponente.push(arraytemp);
+            
+        }
+
+        function quitarid(id) {
+
+            idcomponente = _.reject(idcomponente, {idcomponente:id});
+
+        }
+
+        $(document).on('click', '.check', function (e) {
+
+            if ($(this).is(':checked')) {
+                agregarid($(this).val());
+
+                cargacheck();
+            }
+            else {
+                quitarid($(this).val());
+
+                cargacheck();
+            }
+        });
+
+        $('#tot_reg p').append(totalRegistros);
+        $('#txt_pag').val(pagina);
+        $('#total_pag').text(totalpaginas);
+
+        _.each(DepreciacionJson, function(i){
+
+            elemento += '<tr>\
+                            <td><input type="checkbox" class="check" value="' + i.IdComponente + '"/></td>\
+                            <td>' + i.Alias + '</td>\
+                            <td>' + i.Idcotizacion + '</td>\
+                            <td>' + i.IdComponente + '</td>\
+                            <td>' + i.Descripcion + '</td>\
+                            <td>' + i.MontoMensual + '</td>\
+                            <td>' + i.Fechafacturacion + '</td>\
+                        </tr>';
+
+        });
+
+        $('#tb_depreciacion tbody').append(elemento);
+
+        $('#btn_pri_pag').click(function () {
+            
+            var dir = '@Html.Raw(Url.Action("Depreciacion", "Facturacion", new { id = "reemplazo" }))';
+            
+            dir = dir.replace("reemplazo", '1');
+
+            window.location.href = dir;
+        });
+
+        $('#btn_pag_ant').click(function () {
+
+            if ((parseInt(pagina) - 1) <= totalpaginas && parseInt(pagina) - 1 != '0') {
+
+                var dir = '@Html.Raw(Url.Action("Depreciacion", "Facturacion", new { id = "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) - 1);
+
+                window.location.href = dir;
+
+            }
+        });
+
+        $('#btn_pag_sig').click(function () {
+
+            if ((parseInt(pagina) + 1) <= totalpaginas) {
+
+                var dir = '@Html.Raw(Url.Action("Depreciacion", "Facturacion", new { id = "reemplazo" }))';
+
+                dir = dir.replace("reemplazo", parseInt(pagina) + 1);
+
+                window.location.href = dir;
+            }
+        });
+
+        $('#btn_ult_pag').click(function () {
+
+            var dir = '@Html.Raw(Url.Action("Depreciacion", "Facturacion", new { id = "reemplazo" }))';
+
+            dir = dir.replace("reemplazo", totalpaginas);
+
+            window.location.href = dir;
+
+        });
+
+        $('#btn_dejar_facturar').click(function(){
+
+            if(idcomponente != '') {
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '@Html.Raw(Url.Action("modificaDepreciacion", "Facturacion"))',
+                    data: JSON.stringify(idcomponente),
+                    contentType: 'application/json',
+                    async: false
+                });
+                
+
+                location.reload();
+            }
+
+        });
+    });
+</script>
+
+<div id="contenedorPagina" class="container-fluid">
+    <h3 id="ttl">Depreciación</h3>
+    
+    <table id="tb_depreciacion" class="table table-hover grilla">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Alias</th>
+                <th>Idcotizacion</th>
+                <th>Idcomponente</th>
+                <th>Descripcion</th>
+                <th>Monto Mensual</th>
+                <th>Fecha Facturacion</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-2">
+            <div id="tot_reg" style="display:inline-block;">
+                <p>Total de Registros </p>
+            </div>
+        </div>
+        <div class="col-md-2 col-md-offset-3 form-inline">
+            <p class="control-label ">
+                Ir a
+                <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:13%; display:initial;" value="@ViewBag.Pagina" />
+                de <font id="total_pag"></font> Pág.
+            </p>
+        </div>
+        <div class="col-md-5">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button id="btn_dejar_facturar" type="button" class="btn btn-default" title="Dejar de Facturar" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-erase"></span></button>
+                    <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                    <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

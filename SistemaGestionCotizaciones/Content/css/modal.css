@@ -1,0 +1,30 @@
+﻿#modCustom {
+    right: 0;
+    left: auto;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+#modDialog {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    top: auto;
+    left: auto;
+}
+
+.modal.fade .modal-dialog {
+    -webkit-transition-property: transform;
+    -webkit-transition-duration: 0;
+    transition-property: transform;
+    transition-duration: 0;
+}
+
+.modal.fade {
+    transition: none;
+}
+
+.modal.fade:not(.in).right .modal-dialog {
+    -webkit-transform: translate3d(25%, 0, 0);
+    transform: translate3d(25%, 0, 0);
+}

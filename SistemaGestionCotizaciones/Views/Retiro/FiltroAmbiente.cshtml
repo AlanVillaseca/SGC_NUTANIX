@@ -1,0 +1,86 @@
+﻿
+@{
+    ViewBag.Title = "listarCotizacion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.RetiroComponentes
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var Infraestructura = @Html.Raw(jss.Serialize(Model.infraestructuraJson));
+        var ServiciosJson;
+        var InfraestructuraJson;
+        var idservicionegocio;
+        var ambiente;
+        var ncomponentes;
+
+
+        _.each(Infraestructura, function(index){
+
+            $('#tb_infraestructura tbody').append('<tr id="' + index.Idservicionegocio + '">\
+                                                                <td class="ambiente">' + index.Ambiente + '</td>\
+                                                                <td class="ncomponentes">' + index.Ncomponente + '</td>\
+                                                                <td class="total" style="text-align:right">' + index.TotalComponente + '</td>\
+                                                           </tr>');
+
+        });
+
+
+
+        $(document).on('click','#tb_infraestructura tr' ,function(){
+
+            idservicionegocio = $(this).attr('id').trim();
+            ambiente = $(this).find('.ambiente').text().trim();
+            ncomponentes = $(this).find('.ncomponentes').text();
+
+            if(ncomponentes != 0){
+
+                var dir = '@Html.Raw(Url.Action("SolicitudRetiro", "Retiro", new { id = "1", idservicionegocio = "reemplazo2", ambiente = "reemplazo3" }))';
+                dir = dir.replace("reemplazo2", idservicionegocio);
+                dir = dir.replace("reemplazo3", ambiente);
+
+                window.location.href = dir;
+
+            }
+
+        });
+
+    });
+</script>
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-4 col-sm-">
+            <h3 id="ttl">Solicitud Retiro</h3>
+        </div>
+        <div class="col-md-8 col-sm-8 text-right">
+            <ol class="breadcrumb">
+                <li><a href="@Url.Action("FiltroNegocio", "Retiro", new { id = ViewBag.IdServicioNegocio })">Inicio</a></li>
+                <li class="active">Servicio de Negocio: '@ViewBag.ServicioNegocio'</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row grilla">
+        <table id="tb_infraestructura" class="table table-responsive table-striped table-hover">
+            <caption class="titulo-tabla">Lista de Componentes por Ambiente</caption>
+            <thead>
+                <tr>
+                    <th class="col-md-5">Ambiente de Uso</th>
+                    <th class="col-md-4">Número Componentes</th>
+                    <th class="col-md-2">Total Componente UF</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+
+
+</div>

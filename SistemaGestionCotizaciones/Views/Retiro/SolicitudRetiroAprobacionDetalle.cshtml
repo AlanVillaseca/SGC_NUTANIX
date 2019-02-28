@@ -1,0 +1,359 @@
+﻿@{
+    ViewBag.Title = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.RetiroComponentes
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+<script>
+
+    $(document).ready(function () {
+
+        var SolicitudRetiro = @Html.Raw(jss.Serialize(Model.solicitudretirodetalleJson));
+        var componentes = [];
+        var totalcomponentes = 0;
+        var totalcuota = 0;
+
+
+
+        _.each(SolicitudRetiro, function(index) {
+
+            $('#tb_componentes_retiro tbody').append('<tr>\
+                                                        <td id="' + index.Idcomponente + '">' + index.Componente + '</td>\
+                                                        <td>' + index.TipoServidor + '</td>\
+                                                        <td>' + index.Alias + '</td>\
+                                                        <td>' + (parseFloat(index.MontoMensual.replace(',', '.'))).toFixed(2).replace('.', ',') + '</td>\
+                                                    </tr>');
+
+        });
+
+
+        $(document).on('keyup', '.cuotas', function(e) {
+            
+
+            if((e.which >= 48 && e.which <= 57) || (e.which >= 96 && e.which <= 105) || e.which == 8) {
+
+
+                totalcomponentes = 0;
+                totalcuota = 0;
+
+                if(e.which == 8) {
+                    
+
+                    if($(this).val() == '' || $(this).val().slice(0,-1) == '') {
+
+
+                        totalcuota = parseFloat($(this).attr('monto').replace(',', '.'));
+                            
+                        
+                        
+                    } else {
+
+
+                        totalcuota = parseFloat($(this).attr('monto').replace(',', '.') / parseFloat($(this).val()));
+
+                        
+                    }
+
+
+                } else {
+
+
+
+                    totalcuota = parseFloat($(this).attr('monto').replace(',', '.')) / parseFloat($(this).val());
+
+
+                }
+
+                
+                $(this).parents('tr').find(':nth-child(4)').text(totalcuota.toFixed(2).replace('.', ','));
+
+
+                $(this).parents('tbody').find('tr').each(function() {
+                
+                
+                    totalcomponentes += parseFloat($(this).find(':nth-child(4)').text().replace(',', '.'));
+                
+                });
+
+
+                $('#tb_total_componentes').text(totalcomponentes.toFixed(2).replace('.', ','));
+
+
+            } else {
+
+                return false;
+
+            }
+
+        });
+
+        $(document).on('change' ,'.sincosto', function() {
+            
+
+            totalcomponentes = 0;
+
+            if($(this).is(':checked')) {
+            
+            
+                $(this).parents('tr').find(':nth-child(3) input').val('0');
+                $(this).parents('tr').find(':nth-child(3) input').attr('disabled', true);
+                $(this).parents('tr').find(':nth-child(4)').text('0');
+            
+            } else {
+
+                $(this).parents('tr').find(':nth-child(3) input').val('1');
+                $(this).parents('tr').find(':nth-child(3) input').attr('disabled', false);
+                $(this).parents('tr').find(':nth-child(4)').text($(this).parents('tr').find(':nth-child(3) input').attr('monto'));
+
+            }
+
+            $(this).parents('tbody').find('tr').each(function() {
+                
+                
+                totalcomponentes += parseFloat($(this).find(':nth-child(4)').text().replace(',', '.'));
+                
+            });
+            
+        
+            $('#tb_total_componentes').text(totalcomponentes.toFixed(2).replace('.', ','));
+
+        });
+
+
+        $('#calcular_solicitud').click(function() {
+        
+
+            $('#tb_calculo tbody').empty();
+            $('#tb_total_componentes').empty();
+            totalcomponentes = 0;
+
+
+            _.each(SolicitudRetiro, function(index){
+
+                
+
+                if(parseInt(index.NroCuotas) < 1) {
+
+                    
+
+                    $('#tb_calculo tbody').append('<tr>\
+                                                        <td id="' + index.Idcomponente + '">' + index.Componente + '</td>\
+                                                        <td><input class="sincosto" type="checkbox" disabled></td>\
+                                                        <td>0</td>\
+                                                        <td>0</td>\
+                                                    </tr>');
+
+
+
+                } else {
+                    
+                    if(parseInt(index.Cuotas) == 0) {
+                    
+                        $('#tb_calculo tbody').append('<tr>\
+                                                        <td id="' + index.Idcomponente + '">' + index.Componente + '</td>\
+                                                        <td><input class="sincosto" type="checkbox"></td>\
+                                                        <td>1</td>\
+                                                        <td>' + (parseFloat(index.Monto.replace(',', '.'))).toFixed(2).replace('.', ',') + '</td>\
+                                                    </tr>');
+
+                        totalcomponentes += parseFloat(index.Monto);
+                    
+                    } else {
+
+
+                        $('#tb_calculo tbody').append('<tr>\
+                                                        <td id="' + index.Idcomponente + '">' + index.Componente + '</td>\
+                                                        <td><input class="sincosto" type="checkbox"></td>\
+                                                        <td>\
+                                                            <input type="text" class="form-control input-sm cuotas" monto="' + (parseFloat(index.Monto.replace(',', '.'))).toFixed(2).replace('.', ',') + '" value="1"></input>\
+                                                        </td>\
+                                                        <td>' + (parseFloat(index.Monto.replace(',', '.'))).toFixed(2).replace('.', ',') + '</td>\
+                                                    </tr>');
+
+                        totalcomponentes += parseFloat((index.Monto).replace(',', '.'));
+
+                    }
+
+
+                }
+
+            });
+
+            $('#tb_total_componentes').text(totalcomponentes.toFixed(2).replace('.', ','));
+
+            $('#modal_calculo')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modal_calculo').modal('show');
+        
+        });
+
+
+        $('#btn_aprobar_solicitud').click(function() {
+        
+            
+            componentes = [];
+            
+            
+
+
+            $('#tb_calculo tbody tr').each(function() {
+                
+
+                if($(this).find(':nth-child(2) input').is(':checked')) {
+
+
+                    componentes.push({
+                        idcomponente: $(this).find(':nth-child(1)').attr('id'),
+                        cuotas: '0',
+                        monto: '0'
+                    });
+
+                } else {
+
+                    if($(this).find(':nth-child(3) input').length == 1) {
+
+
+                        componentes.push({
+                            idcomponente: $(this).find(':nth-child(1)').attr('id'),
+                            cuotas: $(this).find(':nth-child(3) input').val(),
+                            monto: $(this).find(':nth-child(4)').text()
+                        });
+
+                    } else {
+
+
+                        componentes.push({
+                            idcomponente: $(this).find(':nth-child(1)').attr('id'),
+                            cuotas: $(this).find(':nth-child(3)').text(),
+                            monto: $(this).find(':nth-child(4)').text()
+                        });
+
+                    }
+
+                    
+
+                }
+
+
+
+            });
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ApruebaSolicitudFacturador", "Retiro")',
+                data: JSON.stringify({
+                    idsolicitudretiro : '@ViewBag.IdsolicitudRetiro',
+                    componentesJson : componentes}),
+                dataType: 'json',
+                contentType: 'application/json',
+                async: false
+            });
+
+            var dir = '@Html.Raw(Url.Action("SolicitudRetiroAprobacion", "Retiro", new
+            {
+                id = "1"
+            }))';
+
+            window.location.href = dir;
+
+        
+        });
+
+    });
+
+</script>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-md-5 col-sm-5">
+            <h3 id="ttl">Detalle Solicitud de Retiro</h3>
+        </div>
+    </div>
+
+    <div class="row grilla">
+
+
+        <table id="tb_componentes_retiro" class="table table-responsive table-striped table-condensed grilla">
+            <thead>
+                <tr>
+                    <th>Componente</th>
+                    <th>Tipo Servidor</th>
+                    <th>Serie</th>
+                    <th>Monto Mensual UF</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+    <div class="row">
+        
+        <button id="calcular_solicitud" class="col-lg-offset-10 btn btn-primary">Calcular Retiro</button>
+
+    </div>
+
+
+    <!-- /.modal -->
+    <div class="modal fade" id="modal_calculo">
+        <div class="modal-dialog" id="modDialog" style="width:700px;">
+            <div class="modal-content">
+
+                <div class="modal-header ttl_modal">
+
+                    <h4 class="modal-title">Calculo de cuotas</h4>
+
+                </div>
+
+                <div id="" class="modal-body ui-front grilla">
+
+                    <table id="tb_calculo" class="table table-responsive table-striped table-condensed grilla">
+                        <thead>
+                            <tr>
+                                <th class="col-md-4">Componente</th>
+                                <th class="col-md-2">Sin Costo</th>
+                                <th class="col-md-3">Cuota</th>
+                                <th class="col-md-3">Monto UF</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>Total</td>
+                                <td id="tb_total_componentes"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btn_aprobar_solicitud" type="button" class="btn btn-primary">Aprobar Retiro</button>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+
+</div>
+

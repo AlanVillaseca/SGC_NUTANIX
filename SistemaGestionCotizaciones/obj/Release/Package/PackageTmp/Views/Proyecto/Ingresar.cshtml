@@ -1,0 +1,124 @@
+﻿@{
+    ViewBag.Title = "ingresoProyecto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.Proyecto
+@using System.Data
+    
+    
+<link rel="stylesheet" type="text/css" href="~/Content/css/ingresoProyecto.css" />        
+<script type="text/javascript" src="~/Scripts/js/ingresoProyecto.js"></script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+
+@using (Html.BeginForm("Ingresar", "Proyecto"))
+{
+    
+    if (ViewBag.Error == "")
+    { 
+
+<div id="contenedorPagina">
+
+    <h3 id="ttl">Ingreso Proyecto</h3>
+
+    <div id="nom_pyct" class="form-group fila1 col1">
+        <label for="">Nombre del Proyecto</label>
+        <input type="text" name="nombre" class="form-control input-sm" placeholder="Nombre Proyecto">
+    </div>
+
+    <div id="fech_sol" class="form-group fila1 col2">
+        <label for="">Fecha Solicitud</label>
+        <input type="text" name="fecha" class="datepicker input-sm" id="fech_cld" placeholder="Ingresar Fecha">
+    </div>
+
+
+    <div id="adj_arch" class="form-group fila1 col3">
+        <label for="archivo_word">Adjuntar un archivo</label>
+        <input type="file" id="archivo_word" name="rutaFEP">
+        <input type="text" id="ruta" name="ruta" />
+    </div>
+
+    <div id="usu_sol" class="form-group fila2 col1">
+        <ul>
+            <li>
+                <label for="">Usuario Solicitante</label>
+            </li>
+
+            <li>
+                <fieldset>
+                    <select class="selectmenu" name="usuario">
+                        <option disabled selected>Seleccione</option>
+                        @foreach (DataRow col in Model.dtUsuario.Rows)
+                        {
+                            <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                        }
+                    </select>
+                </fieldset>
+            </li>
+        </ul>
+    </div>
+
+    <div id="desc" class="form-group fila2 col2">
+        <label for="">Descripcion del Proyecto</label>
+        <textarea rows="4" cols="30" class="form-control input-sm" name="descripcion"></textarea>
+    </div>
+
+    <div id="serv_neg" class="form-group fila2 col3">
+        <ul>
+            <li>
+                <label for="">Servicio de Negocio</label>
+            </li>
+
+            <li>
+                <fieldset>
+                    <select class="selectmenu" name="servicioNegocio">     
+                        <option disabled selected>Ingresar Servicio</option>                   
+                        @foreach (DataRow col in Model.dtServicios.Rows)
+                        {
+                            <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                        }
+                    </select>
+                </fieldset>
+            </li>
+        </ul>
+    </div>
+
+    <div id="neg" class="col1">
+
+        <label for="">Negocio</label>
+
+        <ul id="ini">
+            <li id="li_ini">
+                <fieldset>
+                    <select class="selectmenu">
+                        <option disabled selected>Ingresar Negocio</option>
+                        <optgroup label="Chile">
+                            <option value="1">Falabella</option>
+                        </optgroup>
+                        
+                        @*foreach (DataRow col in Model.dtNegocios.Rows)
+                        {
+                            <option value="@col.ItemArray.GetValue(0)">@col.ItemArray.GetValue(1)</option>
+                        }*@
+                    </select>
+                </fieldset>
+            </li>
+        </ul>
+    </div>
+    <span id="ico_agr" class="glyphicon glyphicon-plus"></span>
+
+    <span id="ico_qtr" class="glyphicon glyphicon-minus"></span>
+
+    <button id="btn_ing" class="btn btn-primary btn-sm">Ingresar</button>
+
+    <!-->button id="btn_cnr" class="btn btn-danger btn-sm">Cancelar</!--button-->
+
+</div>
+    }
+else
+    {
+        <script>error(@ViewBag.Error);</script>
+    }
+}

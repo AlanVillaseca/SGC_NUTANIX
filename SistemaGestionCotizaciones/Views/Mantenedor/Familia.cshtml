@@ -1,0 +1,340 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/underscore-min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/css/grilla.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/css/mantenedorDetalle.css" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+<script src="~/Scripts/js/validador.js"></script>
+<script>
+
+    var listasubfamilia = [];
+    var selnegocio;
+    var esigual = 0;
+
+     $(document).ready(function(){
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var familias = @Html.Raw(jss.Serialize(Model.dtFamiliaJson));
+        var subfamilias = @Html.Raw(jss.Serialize(Model.dtSubfamiliaJson));
+        var familiasubfamilia = @Html.Raw(jss.Serialize(Model.dtFamiliaSubfamiliaJson));
+        //console.log(JSON.stringify(subfamilias));
+    
+
+        $('#NuevoFS').click(function () {
+            //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+            $('h4.modal-title');
+            $('#modFamilia')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modFamilia').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+            $('#nvo_header').load();
+        });
+
+        
+            
+                var url1 = '@Url.Action("vpGrillaDetalleFamilia", "Mantenedor", new { id = "param-id", ordenarPor = "param-name" })'
+                url1 = url1.replace("param-id", 0)
+                         .replace("param-name", "idfamilia");
+                $('#divTablaFamilia').load(url1);
+           
+                var url2 = '@Url.Action("vpGrillaDetalleSubFamilia", "Mantenedor", new { id = "param-id", ordenarPor = "param-name" })'
+                url2 = url2.replace("param-id", 0)
+                         .replace("param-name", "idsubfamilia");
+                $('#divTablaSubFamilia').load(url2);
+
+    });
+</script>
+
+<style>
+    h1 {
+        padding: .2em;
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .cajas {
+        float: left;
+        width: 500px;
+        margin-right: 2em;
+    }
+
+    #subfamilias {
+        font-size: 100%;
+        font-family: Verdana,Arial,sans-serif;
+        padding: 40px;
+    }
+
+        #subfamilias li {
+            cursor: pointer;
+        }
+</style>
+
+<div>
+    <h3 id="ttl">Mantenedor de Familias y Subfamilias</h3>
+
+    <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+        <li role="presentation" class="active"><a href="#tabFamilia" class="active" data-toggle="tab">Familia</a></li>
+        <li id="liSubfamilia" role="presentation"><a href="#tabSubFamilia" data-toggle="tab">SubFamilia</a></li>
+        
+    </ul>
+    <div id="tabContenedor" class="tab-content" style="border-bottom:1px solid;border-left:1px solid; border-right:1px solid; border-color:#DDD">
+       
+        <div id="tabFamilia" class="tab-pane active ">
+            <div class="container-fluid">
+                 <div id="divTablaFamilia" class="row"></div>
+            </div>
+        </div>
+
+        <div id="tabSubFamilia" class="tab-pane  ">
+            <div class="container-fluid">
+                <div id="divTablaSubFamilia" class="row"></div>
+            </div></div>
+    </div>
+
+   
+    
+</div>
+<!-- /.modal -->
+<div class="row">
+
+    <div class="modal fade" id="modFamilia">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Nueva Familia/Subfamilia</h4>
+                </div>
+                <div id="nva_familia" class="modal-body ui-front" style="height:100px">
+                  <div id="ContFamilia"  class="container">
+                        <div class="row">
+                            <div id="nom_familia" class="form-group col-sm-4">
+                                <label for="">Nombre </label>
+                                <input id="tbNombreModal" type="text" required name="nombreAtributo" class="form-control input-sm es-requerido es-texto" placeholder="Nombre de la familia">
+                            </div>
+                        </div>
+
+                        @*<div id="des_familia" class="form-group col-sm-6 ">
+                                <label for="">Descripción del Concepto</label>
+                                <input id="tbDescripcion" type="text" required name="descripcion" class="form-control input-sm es-requerido es-texto" placeholder="Descripción">
+                            </div>*@
+
+                    </div>
+                
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btn_enviar_fam" type="button"  class="btn btn-primary">Guardar</button>
+                </div>
+                <script src="~/Scripts/js/validador.js"></script>
+                <script>
+                    $('#btn_enviar_fam').click(function () {
+                        var nombre = $("#tbNombreModal").val();
+                       
+
+                        if (nombre.length > 0) {
+                            var url;
+                           
+                            url = '@Html.Raw(Url.Action("vpAgregarFamilia", "Mantenedor", new { id = "param-id" }))'
+                            url = url.replace("param-id",nombre);
+                          
+                            $.ajax({
+                                type: "POST",
+                                url: url,
+                                async:false
+                            });
+                            ////console.log("ajax");
+                            $("#modFamilia").modal("toggle");
+                            location.reload();
+                           
+                         
+                        }
+                        else
+                        {
+                            // ////console.log("else url 3 param");
+                            if ($("#tbNombreModal").val().trim().length == 0) {
+                                alert('Debe ingresar un nombre');
+                                $("#tbNombreModal").focus();
+                            }
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal -->
+<!-- /.modal -->
+<div class="row">
+
+    <div class="modal fade" id="modSubfamilia">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Nueva Subfamilia</h4>
+                </div>
+                <div id="nva_subfamilia" class="modal-body ui-front" style="height:300px">
+                    <div id="ContSubFamilia"  class="container">
+                        <div class="row">                        
+                            <div id="divCbFamilia" class="form-group col-sm-4">
+
+                                <label id="lbCmbFamilia" for="cbFamilia" class="control-label">Selecione una familia</label>
+                                <select class="selectmenu" id="cbFamilia" name="idTipoDato" required class="form-group change ui">
+                                    <option disabled selected value="0">Selecione una familia</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="lista" class="container">
+                            <div class="row form-group  ">
+                                <div id="input1" class="col-md-4 col-sm-12 input-group">
+                                    <label class="control-label">Nombre Subfamilia</label>
+                                    <input type="text" required name="valor1" placeholder="Nombre" id="txtNombre" class="form-control input-sm es-texto" />
+                                    @if (!User.IsInRole("OBSERVADOR"))
+                                    {
+                                    <span class="input-group-btn glyphicon glyphicon-plus" style="vertical-align:bottom">
+                                        <input type="button" id="btnAgregar" class="btn btn-primary " name="Agregar" value="Agregar" />
+                                    </span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="container">
+                                <div class="row">
+                                    <label>Subfamilias</label>
+                                </div>
+                                <div class="row">
+                                    <div class='col-md-2 Nombre'>
+                                        <label>Nombre</label>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+
+                                    <div class="" id="listaBody"></div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div id="nom_SubFamilia" class="form-group col-sm-4">
+                <label for="">Nombre Subfamilia </label>
+                <input id="tbSfNombre" type="text" required name="nombreAtributo" class="form-control input-sm es-requerido es-texto" placeholder="Nombre Concepto de costo">
+            </div>*@
+
+                    </div>
+
+    
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btn_enviar_sfam" type="button"  class="btn btn-primary">Guardar</button>
+                </div>
+                <script>
+
+                                        var familias = @Html.Raw(jss.Serialize(Model.dtFamiliaJson));
+
+                                        _.each(familias, function(i){
+                                            //  alert("cargarcb2");
+                                            // //console.log('<option value='+i.idFamilia +'>'+ i.Nombre +' </option>');
+                                            $('#cbFamilia').append('<option value='+i.idFamilia +'>'+ i.Nombre +' </option>');
+                                            // alert("cargarcb3");
+                                        });
+                                        var contlista = 0;
+
+                                        // alert("cargarcb3");
+                                        // $('#cbFamilia').selectmenu('refresh', true);
+
+                                        // alert("aqui2 " +$("#cbFamilia").val());
+                                        $("#btnAgregar").click(function () {
+                                            // alert("agregar");
+                                            if( $('#cbFamilia').val() == 0){
+                                                alert('debe ingresar '+$('#lbCmbFamilia').text().toLowerCase());
+                                                return;
+                                            }
+                                            else{
+                                                $('#cbFamilia').attr('disabled',true);
+                                            }
+                                            var txtnombre = $("#txtNombre").val().trim();
+
+                                            ////console.log((!txtnombre) );
+                                            if (txtnombre ) {
+                                                contlista ++;
+                                                $('#listaBody').append("<div id=trx" + contlista.toString() +
+                                                                             " class='row'>" + ''
+                                                                             + "<div class='col-md-2 nombre'>" +
+                                                                             txtnombre + "</div> <a class='btnEliminar ' style='cursor:pointer;' id=x" + contlista.toString()
+                                                                             + "><span class='glyphicon glyphicon-remove'></span></a></div></div>");
+                                            }
+                                            $("#txtNombre").val('');
+                                            if(contlista==0){
+                                                $('#cbFamilia').attr('disabled',false);
+                                            }
+
+                                        });
+
+                                        $(document).on("click", ".btnEliminar", function () {
+                                            var ide = $(this).attr("id");
+                                            // ////console.log(ide);
+                                            $("#tr" + ide).remove();
+                                        });
+
+                                        $('#btn_enviar_sfam').click(function () {
+
+                                            //console.log("ifselect");
+                                            var valores = new String("");
+                                            var i = 1;
+                                            $("#listaBody .row").each(function () {
+                                                var Nombre = $(".nombre", this).text();
+                                                //console.log("valores");
+                                                valores += Nombre + '*';
+                                                i++;
+                                            });
+                                            //console.log(i + ' ' + valores);
+        
+                                            if (i > 1 && valores.trim().length>3 ) {
+                                               // console.log("iflista");
+                                                var cbFamilia= $('#cbFamilia').val();
+                                                //string id,string idFamilia,string cadena
+                                                url1 = '@Html.Raw(Url.Action("vpAgregarSubFamilia", "Mantenedor", new { id = "param-id", cadena = "param-cadena" }))'
+                                                url1 = url1.replace("param-id",cbFamilia)
+                                                           .replace("param-cadena", valores);
+                                               // alert();
+                                                $.ajax({
+                                                    type: "post",
+                                                    url: url1,
+                                                    async: false
+                                                });
+                                                $("#modSubfamilia").modal("toggle");
+                                                //location.reload();
+           
+                                                var url2 = '@Url.Action("vpGrillaDetalleSubFamilia", "Mantenedor", new { id = "param-id", ordenarPor = "param-name" })'
+                                                url2 = url2.replace("param-id", 0)
+                                                         .replace("param-name", "idsubfamilia");
+                                                $('#divTablaSubFamilia').load(url2);
+                                            }
+
+                                            else
+                                            {
+                                                // ////console.log('elseenviar');
+                                                if ($("#nombre").val().trim().length == 0) {
+                                                    alert('Debe ingresar un nombre');
+                                                    $("#nombre").focus();
+                                                }
+                                            }
+                                        });
+
+                </script>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal -->

@@ -1,0 +1,765 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+@using System.Globalization;
+@if (Model.dtServicio.Rows.Count > 0 && Model.dtListHeader.Rows.Count > 0 && Model.dtListNegocio.Rows.Count > 0 && Model.dtListPais.Rows.Count > 0)
+{
+    <script src="~/Scripts/js/soloNumeroComa.js"></script>
+    <link href="~/Content/css/mantenedorDetalle.css" rel="stylesheet" />
+    <script>
+
+        ///scrip botones aciones
+
+        var idHead;
+        var ascDesc;
+        var ascDescAct;
+        var editando= false;
+        var URLjsCs = ' @Html.Raw(Url.Action("jsonListaCatalagoDeServicio", "Mantenedor", new { nombre = "param-nombre", Negocio = "param-negocio", Pais = "param-pais" }))';
+        var Json = [];
+        var URLjsLista = ' @Html.Raw(Url.Action("jsonListaCatalagoDeServicio", "Mantenedor"))';
+        var existe= false;
+        var servicios;
+        var listaservicios;
+        var countServicios;
+
+
+        $(document).ready(function () {
+            var availableTags = new Array();
+
+            var URLjs = ' @Html.Raw(Url.Action("jsonListaUnidadesCS", "Mantenedor"))';
+            // ////console.log(URLjs);
+
+
+            function b64toBlob(b64Data, contentType, sliceSize) {
+                contentType = contentType || '';
+                sliceSize = sliceSize || 512;
+                var byteCharacters = atob(b64Data);
+                var byteArrays = [];
+                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+                    var byteNumbers = new Array(slice.length);
+                    for (var i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    var byteArray = new Uint8Array(byteNumbers);
+                    byteArrays.push(byteArray);
+                }
+                var blob = new Blob(byteArrays, { type: contentType });
+                return blob;
+            }
+
+            $.ajax({
+                dataType: "json",
+                url: URLjs,
+                async: false,
+            }).done(function (varJson) {
+                //mi codigo
+                //  ////console.log(JSON.stringify(varJson));
+
+                _.each(varJson, function (i) {
+                    availableTags.push(i.Tipounidad);
+                });
+            });
+
+            var msg = new String();
+            $('.btnGuardar').hide();
+            $('.btnCancelar').hide();
+            $('.btnEliminar').hide();
+            $("input.checkbox").prop("disabled", true); //deja todos los checkbox desactivados
+            var idFila;
+            var tipoCobroInicial, tipoCobroMensual, CInicial,CMensual,UInicial, uMensual;
+
+            var bkpString = new String("");// string para guardar los datos recividos antes de editar
+
+            $('.btnEditarCentroCosto').click(function(){
+                var valor = $(this).attr("id");
+                $('h4.modal-title').text('Nuevo Centro de Costo');
+                $('#modCustom')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modCustom').modal('show');
+                $(':input, a').attr('tabindex', '-1');
+                $('#nvo_header').load('vpAgregarCentroCostroServicio?idservicio='+valor);
+            });
+
+
+            $('.btnEditar').click(function () { //al presionar el boton editar
+                $('.btnEditar').prop("disabled", true);
+            //$('.btnEliminar').prop("disabled", false);
+                $('.btnDominio').hide();
+                idFila = $(this).attr("id");
+                editando= true;
+                //alert(idFila);
+                $("#fila_" + idFila + " select").removeClass("selectToLabel").attr("disabled", false);// activa el comboBox de la fila que se quiere editar
+                $("#fila_" + idFila + ".tr").addClass("warning");
+                $("#fila_" + idFila + " .btnEditar").hide();    //oculta btn edit
+                // $("#fila_" + idFila + " .btnEliminar").hide();   //oculta btn eliminar
+                $("#fila_" + idFila + " .btnGuardar").show().css("background", "transparent");    //muestra boton guadar
+            $("#fila_" + idFila + " .btnEliminar").show().css("background", "transparent");   //muestra boton eliminar
+                $("#fila_" + idFila + " .btnCancelar").show().css("background", "transparent");   //muestra boton cancelar
+                $("#fila_" + idFila + " input").removeClass("TextBoxAsLabel").attr("readonly", false).css("background", "transparent"); //quita la clase y el atributo readonly
+                //alert("");
+                $("#Aplicacioninmediata_" + idFila).prop("disabled", false); //deja todos los comboBox desactivados
+
+                bkpString="";
+                bkpString += $("#servicio_" + idFila).val() + ";" + $("#descripcion_" + idFila ).val() + ";" +
+                             $("select#tipoCobroInicial_" + idFila).val()+ ";" +
+                             $("select#tipoCobroMensual_" + idFila).val() + ";" + $("#tipoUnidad_" + idFila).val() + ";" +
+                             $("#CostoUnidadInicial_" + idFila).val() + ";" +$("#CostoUnidadMensual_" + idFila).val() +';'+
+                             $("#tipoUnidadMensual_" + idFila).val();
+
+
+                $("#tipoUnidad_" + idFila+",#tipoUnidadMensual_" + idFila).autocomplete(
+                    {
+                        source: availableTags
+                    });
+                CInicial=0;
+                CMensual=0;
+                UInicial=0;
+                uMensual=0;
+                $('#tipoCobroInicial_' + idFila).change( function () {
+                    switch ($(this).val()) {
+
+                        // A case for each action. Your actions here
+                        case "0": {
+                            $('#CostoUnidadInicial_' + idFila+' , #tipoUnidad_'+idFila).val('').attr("readonly",true);
+                            CInicial='NULL';
+                            UInicial='NULL';
+                            break;
+                        }
+                        case "1": {
+                            $('#tipoUnidad_'+idFila).val('')
+                            UInicial='NULL';
+                            $('#CostoUnidadInicial_' + idFila).attr("readonly",false);
+                            break;
+                        }
+                        case "2": {
+
+                            $('#CostoUnidadInicial_' + idFila+' , #tipoUnidad_'+idFila).attr("readonly",false);
+                            break;
+                        }
+                    }
+                });
+
+                $('#tipoCobroMensual_' + idFila).change( function () {
+                    switch ($(this).val()) {
+
+                        case "0": {
+                            $('#CostoUnidadMensual_' + idFila+' , #tipoUnidadMensual_'+idFila).val('').attr("readonly",true);
+                            CMensual='NULL';
+                            uMensual='NULL';
+                            break;
+                        }
+                        case "1": {
+                            $('#tipoUnidadMensual_'+idFila).val('')
+                            UInicial='NULL';
+                            $('#CostoUnidadMensual_' + idFila).attr("readonly",false);
+                            break;
+                        }
+                        case "2": {
+                            $('#CostoUnidadMensual_' + idFila+' , #tipoUnidadMensual_'+idFila).attr("readonly",false);
+                            break;
+                        }
+                    }
+                });
+
+
+            });
+
+
+            $('.btnCancelar').click(function () {
+                $('.btnEditar').show();
+                // $('.btnEliminar').show();
+                $('.btnDominio').show();
+                idFila = $(this).attr("id");
+
+                var elemento = bkpString.split(";"); // separa los datos
+                //alert(bkpString);
+                $("#servicio_" + idFila).val(elemento[0]);                   //restaura los valores previos
+                $("#descripcion_" + idFila).val(elemento[1]);                //restaura los valores previos
+                //$("#responsable_" + idFila).val(elemento[2]);                //restaura los valores previos
+                $("#tipoCobroInicial_" + idFila).val(elemento[2]);           //restaura los valores previos
+                $("#tipoCobroMensual_" + idFila).val(elemento[3]);           //restaura los valores previos
+                $("#tipoUnidad_" + idFila).val(elemento[4]);                 //restaura los valores previos
+                $("#CostoUnidadInicial_" + idFila).val(elemento[5]);         //restaura los valores previos
+                $("#CostoUnidadMensual_" + idFila).val(elemento[6]);
+                $("#tipoUnidadMensual_" + idFila).val(elemento[7]);
+                //restaura los valores previos
+                //$("#Dominiopais_" + idFila).val(elemento[8]);                    //restaura los valores previos
+                //$("#Dominionegocio_" + idFila).val(elemento[9]);
+                //$("#Aplicacioninmediata_" + idFila).val(elemento[10]); //restaura los valores previos
+                if ($('.tr').children().hasClass('has-error')) {
+                    $('.tr .control-label').remove();
+                    $('.tr label .has-error').removeClass('has-error');
+                }
+                $("#fila_" + idFila + " select").addClass("selectToLabel").attr("disabled", true);// deshabilita el comboBox de la fila editada
+                $("#fila_" + idFila + " input").addClass("TextBoxAsLabel").attr("readonly", true); //agrega la clase y el atributo readonly
+                $("#Aplicacioninmediata_" + idFila).prop("disabled", true); //deja todos los checkbox desactivados
+                $("#fila_" + idFila + " .btnGuardar").hide(); //oculta boton guadar
+                $("#fila_" + idFila + " .btnCancelar").hide();//oculta boton cancelar
+                $("#fila_" + idFila + " .btnEditar").show();  //muestra btn edit
+            $("#fila_" + idFila + " .btnEliminar").hide();//muesta btn eliminar
+                $('.btnEditar').prop("disabled", false);
+                $('.btnEliminar').prop("disabled", false);
+                $("#fila_" + idFila + ".tr").removeClass("warning");
+                bkpString = "";
+                editando= false;
+            });
+
+            $('.btnGuardar').click(function () {
+                idFila = $(this).attr("id");
+                //   alert(idFila);
+                var datos = new String("");
+                //$("#tipoUnidad_" + idFila).toString().trim().length > 0 && $("#CostoUnidadInicial_" + idFila).toString().trim().length > 0 && $("#CostoUnidadMensual_" + idFila).toString().trim().length > 0
+                // alert("servicio" + $("#servicio_" + idFila).toString().trim().length );
+                URLjsCs = URLjsCs.replace("param-nombre",$("#servicio_" + idFila).val())
+                             .replace("param-negocio", $("#fila_" + idFila + " .btnDominio").data('negocio'))
+                             .replace("param-pais", $("#fila_" + idFila + " .btnDominio").data('pais'));
+                console.log(URLjsCs);
+                $.ajax({
+                    dataType: "json",
+                    url: URLjsCs,
+                    async: false,
+                }).done(function (varJson) {
+                    //mi codigo
+                    //console.log(JSON.stringify(varJson));
+                    Json = varJson;
+
+                });
+                var existe = false;
+                // console.log(' alo'+JSON.stringify(Json));
+                var pais, negocio,cmbPais,cmbNegocio, id;
+                _.each(Json, function (i) {
+                    negocio = i.DominioNegocio;
+                    pais = i.DominioPais;
+
+                    cmbPais =  $("#fila_" + idFila + " .btnDominio").data('pais');
+                    cmbNegocio = $("#fila_" + idFila + " .btnDominio").data('negocio');
+
+                    if (cmbPais =="") {
+                        cmbPais = 0;
+                    }
+                    if (cmbNegocio=="" ) {
+                        cmbNegocio = 0;
+                    }
+                    // console.log(pais+ '  '+negocio+'  ' +cmbPais+'  ' +cmbNegocio+'  ' +id);
+                    // console.log((i.Nombreservicio.toLowerCase() == $("#servicio_" + idFila).val().toLowerCase() && negocio == cmbNegocio  && pais == cmbPais));
+                    if (i.Nombreservicio.toLowerCase() == $("#servicio_" + idFila).val().toLowerCase() && negocio == cmbNegocio
+                        && pais == cmbPais) {
+                        id = i.Idcatalogoservicio;
+                        existe = true;
+                    }
+                });
+                //console.log(existe);
+                if (existe && id != idFila) {
+                    alert('El nombre que intenta ingresar, no esta disponible, intente con otro nombre o con dominio distinto.');
+                    return;
+                }
+
+                if ($("#servicio_" + idFila).toString().trim().length > 0 && $("#descripcion_" + idFila).toString().trim().length > 0 &&
+                    $("#responsable_" + idFila).toString().trim().length > 0 && $("select#tipoCobroInicial_" + idFila).toString().trim().length > 0 &&
+                    $("select#tipoCobroMensual_" + idFila).toString().trim().length > 0 && !$('.tr').children().hasClass('has-error')) {
+
+
+                    datos += $("#servicio_" + idFila).val() + ";" + $("#descripcion_" + idFila).val() + ";" +
+                             $("select#tipoCobroInicial_" + idFila).val() + ";" +
+                             $("select#tipoCobroMensual_" + idFila).val() + ";" + $("#tipoUnidad_" + idFila).val()+ ";"+
+                             $("#tipoUnidadMensual_" + idFila).val();
+
+                    var elemento = bkpString.split(";"); // separa los datos
+                    //  ////console.log(($("#CostoUnidadInicial_" + idFila).val() == elemento[5]) +' '+($("#CostoUnidadMensual_" + idFila).val() == elemento[6]));
+                    if(!($("#CostoUnidadInicial_" + idFila).val() == elemento[5] && $("#CostoUnidadMensual_" + idFila).val() == elemento[6] )){
+
+
+                        var id = $(this).data('id');
+                        if( $("select#tipoCobroInicial_" + idFila).val()==2 || $("select#tipoCobroInicial_" + idFila).val()==1){
+                            CInicial= $("#CostoUnidadInicial_" + idFila).val() ;
+
+                        }
+                        if( $("select#tipoCobroMensual_" + idFila).val()==2 ||$("select#tipoCobroMensual_" + idFila).val()==1){
+                            CMensual= $("#CostoUnidadMensual_" + idFila).val() ;
+
+                        }
+
+                        var CIa = elemento[5];
+                        var CMa = elemento[6];
+                        var cadena= id+';'+ CMa+';'+CMensual+';'+CIa+';'+CInicial;
+                        // console.log(cadena);
+
+                        $('#Fecha').attr('data-id',cadena); //div que contiene la modal
+                        $('#modFechaAplicacion h4.modal-title').text("Fecha de aplicación de costos");
+                        $('#modFechaAplicacion')
+                            .prop('class', 'modal fade')
+                            .addClass('right')
+                            .modal({
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                        $('#modFechaAplicacion').modal('show');
+                        $(':input, a').attr('tabindex', '-1');
+                        $('#Fecha').load('vpFechaAplicacionCServicio');
+
+                    }
+                    // lo envio por post a el controlador
+                    var URL = '@Html.Raw(Url.Action("actualizarCatalogoServicio", "Mantenedor"))';
+
+                    msg = "Se actualizaran los datos,¿Desea continuar?";
+                    var titulo = 'Advertencia';
+                    var iconClass = 'glyphicon glyphicon-exclamation-sign';
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL,
+                        data: {id : idFila, cadena : datos} ,
+                        async:false
+                    }).done(function (resp) {
+                        resultado = resp;
+                        //location.reload();
+                    });
+                    $("#fila_" + idFila + " select").addClass("selectToLabel").attr("disabled", true);// deshabilita el comboBox de la fila editada
+                    $("#fila_" + idFila + " input").addClass("TextBoxAsLabel").attr("readonly", true); //agrega la clase y el atributo readonly
+                    $("input.checkbox").prop("disabled", true); //deja todos los checkbox desactivados
+                    $("#fila_" + idFila + " .btnGuardar").hide();    //oculta boton guadar
+                    $("#fila_" + idFila + " .btnCancelar").hide();   //oculta boton cancelar
+                    $("#fila_" + idFila + " .btnEditar").show();     //muestra btn edit
+                    // $("#fila_" + idFila + " .btnEliminar").show();   //muesta btn eliminar
+                    $("#fila_" + idFila + ".tr").removeClass("warning");
+                    $('.btnEditar').show().prop("disabled", false);
+                    //$('.btnEliminar').show().prop("disabled", false);
+                    $('.btnDominio').show();
+
+                    datos = "";
+                    bkpString = "";
+                    $('.btnGuardar').hide();
+                    $('.btnCancelar').hide();
+                    editando= false;
+                }
+                else {
+                    //  alert('else');
+                    if ($('.tr').children().hasClass('has-error')) {
+                        $('.tr').children('.has-error').children().focus();
+                    }
+                    if ($("#servicio_" + idFila).toString().trim().length() == 0) {
+                        alert('Debe ingresar un nombre del servicio');
+                        $("#servicio_" + idFila).focus();
+                    }
+                    if ($("#descripcion_" + idFila).toString().trim().length() == 0) {
+                        alert('Debe ingresar una descripción');
+                        $("#descripcion_" + idFila).focus();
+                    }
+                    if ($("#tipoUnidad_" + idFila).toString().trim().length() == 0) {
+                        alert('Debe ingresar un tipo unidad');
+                        $("#tipoUnidad_" + idFila).focus();
+                    }
+                    if ($("#CostoUnidadInicial_" + idFila).toString().trim().length() == 0) {
+                        alert('Debe ingresar una descripción');
+                        $("#descripcion_" + idFila).focus();
+                    }
+                    if ($("#CostoUnidadMensual_" + idFila).toString().trim().length() == 0) {
+                        alert('Debe ingresar una descripción');
+                        $("#descripcion_" + idFila).focus();
+                    }
+
+                    datos = "";
+                }
+
+            });
+
+            $('.btnEliminar').click(function () {
+            var idFila = $(this).attr("id");
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("eliminarCatalogoServicio", "Mantenedor")',
+                data: {id: idFila},
+                async: false,
+                success: function (data) {
+                    servicios = jQuery.parseJSON(data);
+                }
+            });
+
+            console.log(servicios);
+
+            var countServicios = servicios.length;
+            
+            listaservicios = '<div class="panel panel-warning">\
+                                        <div class="panel-heading">El elemento se encuentra relacionado con las siguientes <span  id="spnParametro"  class="badge">'+ countServicios +'</span> servicio\s</div>\
+                                        <div class="panel-body">\
+                                            <table id="tblRelacionadosParam" class="table table-responsive table-condensed table-hover table-striped">\
+                                                <thead><tr><th>#</th><th>Servicios</th><tr>\
+                                                <tbody>';
+            _.each(servicios, function(i, index){
+                listaservicios += '<tr>\
+                                        <td>' + (index + 1) + '</td>\
+                                        <td>' + i.Nombre + '</td>\
+                                    </tr>';
+            });
+            listaservicios += '        <tbody>\
+                                            </table>\
+                                        </div>\
+                                    </div>';
+            if(countServicios == 0){
+                listaservicios = '';
+            } 
+            if(JSON.stringify(servicios) != '[]') {
+                $('#contServicios').html(listaservicios);
+                $('#modServicios')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modServicios').modal('show');
+                $('.modal-body').css({
+                    height: '400px',
+                    'overflow-y': 'auto'
+                });
+            } else {
+                var heading = 'Acción Exitosa';
+                var question = '<span class="glyphicon glyphicon-check text-success"></span> El catalogo de servicio se ha eliminado correctamente.';
+                var cancelButtonTxt = '0';
+                var okButtonTxt = 'OK';
+                var callback = function () {
+                    location.reload();
+                };
+                confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+            }
+
+            });
+            ////------------------------------------------------------paginacion--------------------------------------------------------////
+            //idHead, ascDesc
+            @if (ViewBag.ascDescAct == "a")
+              {
+                  @:$('<span class="glyphicon glyphicon-arrow-up" style="cursor: default;" aria-hidden="true"></span>').appendTo($('#tblListarServicios thead tr [ide = @ViewBag.idHeadAct]'));
+                                          }
+
+            @if (ViewBag.ascDescAct == "d")
+              {
+                  @:$('<span class="glyphicon glyphicon-arrow-down" style="cursor: default;" aria-hidden="true"></span>').appendTo($('#tblListarServicios thead tr [ide = @ViewBag.idHeadAct]'));
+                                          }
+
+            $("#tblListarServicios thead tr th").click(function () {
+
+                idHead = $(this).attr("ide");
+
+                ascDesc = 'a';
+                ascDescAct = '@ViewBag.ascDescAct';
+
+                if(editando == false)
+                {
+
+                    if (ascDesc == 'a' && ascDescAct == 'a'  ) {
+                        cargarPagina(parseInt($('#txt_pag').val()-1), idHead, 'd');
+
+                    } else {
+                        if (ascDescAct == 'd') {
+                            cargarPagina(parseInt($('#txt_pag').val()-1), idHead, 'a');
+                        } else {
+                            cargarPagina(parseInt($('#txt_pag').val()-1), idHead, 'a');
+                        }
+                    }
+                }
+
+            });
+
+            var pagActual = 0;
+            var tPagina;
+            tPagina=@Model.dtServicio.Rows[0][15];
+
+            function cargarPagina(id,idHead,ascDesc) {
+                var url = '@Html.Raw(Url.Action("vpGrillaDetalleCatalogoServicio", "Mantenedor", new { id = "param-id", ordenarPor = "param-name", ascDesc = "param-ascDesc" }))';
+                url = url.replace("param-id", id)
+                         .replace("param-name", idHead)
+                         .replace("param-ascDesc", ascDesc);
+                // console.log(url);
+                $('#tb_Header').load(url);
+            }
+
+            $('.solo-numero').keypress(function (e) {
+                if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                     e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                    return false;
+                }
+            });
+
+            $('#txt_pag').keypress(function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    var valor = parseInt($(this).val() - 1);
+                    //alert(valor + ' ' + parseInt($('#ttl_pag').text()));
+                    if (valor >= 0 && valor <= parseInt(tPagina - 1)) {
+                        cargarPagina(valor,idHead,ascDescAct);
+                    }
+                }
+            });
+            $('#txt_pag').focus(function () {
+                pagActual = $.trim($(this).val());
+                $(this).val($.trim($(this).val()));
+            });
+            $('#txt_pag').focusout(function () {
+                $(this).val(pagActual);
+            });
+            $('#btn_pag_sig').click(function () {
+                pagina = parseInt($('#txt_pag').val());
+                if (pagina < parseInt(tPagina)) {
+                    pagina--;
+                    cargarPagina(pagina + 1,idHead,ascDescAct);
+                }
+            });
+            $('#btn_ult_pag').click(function () {
+                cargarPagina(tPagina - 1,idHead,ascDescAct);
+            });
+
+            $('#btn_pri_pag').click(function () {
+
+                cargarPagina("0",idHead,ascDescAct);
+            });
+            $('#btn_pag_ant').click(function () {
+
+                if (parseInt(($('#txt_pag').val())) == 1) {
+
+                } else {
+
+                    if (parseInt($('#txt_pag').val()) > parseInt(tPagina)) {
+                        pagina = parseInt(tPagina);
+
+                    } else {
+                        pagina = (parseInt($('#txt_pag').val()));
+                        pagina -= 2;
+                    }
+                    cargarPagina(pagina,idHead,ascDescAct);
+
+                }
+            });
+            $('#btn_nvo_cElmt').click(function () {
+                //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+                $('h4.modal-title').text('Nuevo Servicio');
+                $('#modCustom')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modCustom').modal('show');
+                $(':input, a').attr('tabindex', '-1');
+                $('#nvo_header').load('vpAgregarCatalogoServicio');
+            });
+            $('.btnDominio').click(function () {
+                //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+                $('#Dominio').attr('data-id',"");
+
+                var id =$(this).data('id');
+                var pais = $(this).data('pais');
+                var negocio =$(this).data('negocio');
+                var subgerencia=$(this).data('subgerencia');
+                var cadena= id+';'+pais+';'+negocio+';'+subgerencia;
+                //console.log("cadena antes de enviar "+cadena);
+                var URLpv= '@Html.Raw(Url.Action("vpDominioCatalogoServicio", "Mantenedor", new { id = "param-id", pais = "param-pais", negocio = "param-negocio", subgerencia = "param-subgerencia", }))';
+
+                URLpv=URLpv.replace("param-id", id).replace("param-pais", pais).replace("param-negocio", negocio).replace("param-subgerencia", subgerencia);
+                //console.log(URLpv);
+                // ////console.log("holi " +pais+" " +negocio +" " +id);
+                //$('#Dominio').attr('data-id',cadena);
+                // console.log("cadena antes de enviar "+$('#Dominio').attr('data-id'));
+                $('#modDominio h4.modal-title').text("Dominio");
+                $('#modDominio')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modDominio').modal('show');
+                $(':input, a').attr('tabindex', '-1');
+                $('#Dominio').load(URLpv);
+            });
+
+
+            $('#btn_descargar').click(function () {
+            
+                $.ajax({
+                    url: '@Html.Raw(Url.Action("ServicioFileXls", "Mantenedor"))',
+                    type: 'POST',
+                    async: false,
+                    success: function (data) {
+
+                        var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                        saveAs(blob, "ListadoServicios.csv");
+
+                    }
+                });
+
+            });
+        });
+    </script>
+    <div class="container">
+        <div class="row">
+            <table id="tblListarServicios" class=" table-responsive table table-striped table-condensed grilla">
+                <thead>
+                    <tr>
+                        <th ide="1" class="col-md-2">Servicio</th>
+                        <th ide="2" class="col-md-2">Descripción</th>
+                        <th ide="3" class="col-md-1">Tipo cobro inicial</th>
+                        <th ide="4" class="col-md-1">Costo inicial</th>
+                        <th ide="5" class="col-md-1">Variable inicial</th>
+                        <th ide="6" class="col-md-1">Tipo cobro mensual</th>
+                        <th ide="7" class="col-md-1">Costo mensual</th>
+                        <th ide="8" class="col-md-1">Variable mensual</th>
+                        <th class ="col-md-1">Tipo de Servicio</th>
+                        <th class="col-md-1">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DataRow col in Model.dtServicio.Rows)
+                    {
+                        <tr id="fila_@col.ItemArray.GetValue(0)" @if (col.ItemArray.GetValue(11).ToString() == "True") { string select = " class= 'tr alert alert-info' title=" + "el nuevo costo inicial:" + col.ItemArray.GetValue(12).ToString() + ",el nuevo costo mensual:" + col.ItemArray.GetValue(13).ToString() + ",estos costos seran aplicado apartir del día" + col.ItemArray.GetValue(14).ToString(); @select   ; } else { string select = "class= tr  "; @select     }>
+
+                            <td><input id="servicio_@col.ItemArray.GetValue(0)" value="@col.ItemArray.GetValue(1)" class="TextBoxAsLabel es-texto caracter-250" readonly /></td>
+                            <td><input id="descripcion_@col.ItemArray.GetValue(0)" value="@col.ItemArray.GetValue(2)" class="TextBoxAsLabel es-texto caracter-250" readonly /></td>
+                            @*<td><input id="responsable_@col.ItemArray.GetValue(0)" value="@col.ItemArray.GetValue(3)" class="TextBoxAsLabel es-texto-grilla" readonly /></td>*@
+                            <td>
+                                <select id="tipoCobroInicial_@col.ItemArray.GetValue(0)" disabled class="selectToLabel">
+                                    <option @if (col.ItemArray.GetValue(4).ToString() == "0") { string select = "selected"; @select      } value="0">No aplica</option>
+                                    <option @if (col.ItemArray.GetValue(4).ToString() == "1") { string select = "selected"; @select      } value="1">Costo fijo</option>
+                                    <option @if (col.ItemArray.GetValue(4).ToString() == "2") { string select = "selected"; @select      } value="2">Costo Variable</option>
+                                </select>
+                            </td>
+                            <td><input id="CostoUnidadInicial_@col.ItemArray.GetValue(0)" value="@col.ItemArray.GetValue(7)" class="TextBoxAsLabel es-flotante" size="6" readonly /></td>
+                            <td>
+                                <input id="tipoUnidad_@col.ItemArray.GetValue(0)" class="TextBoxAsLabel es-texto caracter-250" value="@col.ItemArray.GetValue(6).ToString()" readonly />
+                            </td>
+                            <td>
+                                <select id="tipoCobroMensual_@col.ItemArray.GetValue(0)" disabled class="selectToLabel">
+                                    <option @if (col.ItemArray.GetValue(5).ToString() == "0") { string select = "selected"; @select      } value="0">No aplica</option>
+                                    <option @if (col.ItemArray.GetValue(5).ToString() == "1") { string select = "selected"; @select      } value="1">Costo fijo</option>
+                                    <option @if (col.ItemArray.GetValue(5).ToString() == "2") { string select = "selected"; @select      } value="2">Costo Variable</option>
+                                </select>
+                            </td>
+                            <td><input id="CostoUnidadMensual_@col.ItemArray.GetValue(0)" value="@col.ItemArray.GetValue(8)" class="TextBoxAsLabel es-flotante" size="6" readonly /></td>
+                            <td>
+                                <input id="tipoUnidadMensual_@col.ItemArray.GetValue(0)" class="TextBoxAsLabel es-texto caracter-250" value="@col.ItemArray.GetValue(18).ToString()" readonly />
+                            </td>
+                            <td>
+                                <input class="TextBoxAsLabel es-texto caracter-250" value="@col.ItemArray.GetValue(19).ToString()" readonly />
+                            </td>
+                            <td>
+                                @if (!User.IsInRole("OBSERVADOR"))
+                                {
+                                <div class="btn-group btn-group-xs " role="group" style="display:inline-block; width:90px">
+
+                                    <button id="@col.ItemArray.GetValue(0)" data-toggle="modal" data-id="@{string id= col.ItemArray.GetValue(0).ToString();  @id}"
+                                            data-pais="@{string pais= col.ItemArray.GetValue(10).ToString();  @pais}" data-negocio="@{string negocio = col.ItemArray.GetValue(9).ToString(); @negocio}"
+                                            data-subgerencia="@{string subGerencia = col.ItemArray.GetValue(3).ToString(); @subGerencia}" type="button" class="btnDominio" title="Dominio" style="border:none;background-color:transparent;">
+                                        <span class="glyphicon glyphicon-globe"></span>
+                                    </button>
+                                    <button id="@col.ItemArray.GetValue(0)" data-id="@id" data-cumensual="" data-cuinicial=""
+                                            type="button" hidden class="btnGuardar" title="Guardar" style="border:none">
+                                        <span class="glyphicon glyphicon-ok"></span>
+                                    </button>
+                                    <button id="@col.ItemArray.GetValue(0)" type="button" hidden class="btnEliminar" title="Eliminar" style="border:none"><span class="glyphicon glyphicon-trash"></span></button>
+                                    <button id="@col.ItemArray.GetValue(0)" type="button" hidden class="btnCancelar" title="Cancelar" style="border:none"><span class="glyphicon glyphicon-remove"></span></button>
+                                    <button id="@col.ItemArray.GetValue(0)" type="button" class="btnEditar" title="Editar" style="border:none"><span class="glyphicon glyphicon-pencil"></span></button>
+                                   
+                                    <button id="@col.ItemArray.GetValue(0)" type="button" class="btnEditarCentroCosto" title="Agregar Centro de Costo" style="border: none"><span class="glyphicon glyphicon-plus"></span></button>
+                                    
+                                </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class=" pagination col-md-12 col-sm-12" style="background-color:#F9F9F9;height:28px;">
+                <div class=" form-inline " role="form">
+                    <div class="col-md-2 col-sm-2 col-md-offset-1">
+                        <p class="control-label">Total de Registros @Model.dtServicio.Rows[0][16]</p>
+                    </div>
+                    <div class="col-md-2 col-sm-3 col-md-offset-2 form-inline">
+                        <p class="control-label ">
+                            Ir a
+                            <input id="txt_pag" type="text" class="form-control solo-numero input-xs" style="width:15%" value="@(int.Parse(Model.dtServicio.Rows[0][17].ToString())+1) " />
+                            de @Model.dtServicio.Rows[0][15] Pág.
+                        </p>
+                    </div>
+                    <!-- /.btn-toolbar -->
+                    <div class="col-md-4 col-sm-4">
+                        <div id="btn_Func_Tools" role="toolbar">
+                            @if (!User.IsInRole("OBSERVADOR"))
+                            {
+                            <div class="btn-group btn-group-sm" role="group">
+
+                                <button id="btn_descargar" type="button" class="btn btn-default" title="Nuevo Elemento" style="border:none;background-color:transparent;"><span class="glyphicon glyphicon-download"></span></button>
+                                <button id="btn_nvo_cElmt" type="button" class="btn btn-default" title="Nuevo Elemento" style="border:none;background-color:transparent;"><span class="glyphicon glyphicon-plus"></span></button>
+                            </div>
+                            }
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                                <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                                <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                                <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>        <!-- /.btn-toolbar -->
+        </div>
+    </div>
+    <!-- /.modal -->
+    <div class="modal fade" id="modServicios">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="text-warning">No es posible eliminar.</h4>
+                </div>
+                <div id="contServicios" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    <div id="dialog" title="¿Desea continuar?">
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="alert alert-warning" role="alert">
+                <strong>Alerta!</strong> No hay Servicios creados <a id="btn_nuevo" href="#" data-toggle="modal" data-target="" class="alert-link"> Crear un Servicio</a>.
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#btn_nuevo').click(function () {
+            //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+            $('h4.modal-title').text('Nuevo Servicio');
+            $('#modCustom')
+                .prop('class', 'modal fade')
+                .addClass('right')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            $('#modCustom').modal('show');
+            $(':input, a').attr('tabindex', '-1');
+            $('#nvo_header').load('vpAgregarCatalogoServicio');
+        });
+
+       
+
+        error('@ViewBag.Error');
+    </script>
+}
+
+

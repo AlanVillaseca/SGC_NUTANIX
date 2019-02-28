@@ -1,0 +1,134 @@
+﻿
+@using System.Data;
+
+<script>
+    $(document).ready(function () {
+        var totalpaginas = '@Model.dtCotizaciones.Rows[0].ItemArray.GetValue(8)'
+        var pagina = '@ViewBag.Pagina'
+
+        $('.solo-numero').keypress(function (e) {
+            if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                 e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                return false;
+            }
+        });
+
+        $('#txt_pag').keypress(function (e) {
+
+            var key = e.which;
+
+            if (key == 13) {
+                if ($(this).val() <= totalpaginas && $(this).val() != '0') {
+
+                    var dir = '@Html.Raw(Url.Action("vpGrillaCotizaciones", "Retiro", new { id = ViewBag.IdCotizacion, pagina = "reemplazo" }))'
+
+                    dir = dir.replace("reemplazo", $('#txt_pag').val());
+
+                    $('#tb_proyectos').load(dir);
+                }
+
+            }
+        });
+
+        $("#tblListarComponentes tr").click(function () {
+
+            var idcomponente = $(this).attr('id');
+            var dir = '@Url.Action("Componentes", "Retiro", new { id = "reemplazo" })';
+
+            dir = dir.replace("reemplazo", idcomponente);
+
+            window.location.href = dir;
+        });
+    });
+
+</script>
+
+<style>
+    #paginacion {
+        position: absolute;
+        top: -46px;
+        width: 70px;
+        text-align: initial;
+        right: 20px;
+    }
+
+        #paginacion p {
+            position: absolute;
+            top: 4px;
+            left: 40px;
+            *vertical-align: middle;
+        }
+
+    .input-xs {
+        height: 22px;
+        padding: 5px 5px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+</style>
+
+<div id="tb_cot">
+    @if ((Model.dtCotizaciones.Rows[0].ItemArray.GetValue(8) + "") != "0")
+    {
+        <table id="tblListarComponentes" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Creado</th>
+                    <th>Descripción</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow col in Model.dtCotizaciones.Rows)
+                {
+                    <tr id="@col.ItemArray.GetValue(1)">
+                        <td>@col.ItemArray.GetValue(1)</td>
+                        <td>@col.ItemArray.GetValue(3)</td>
+                        <td>@col.ItemArray.GetValue(2)</td>
+                        <td>@col.ItemArray.GetValue(7)</td>
+                        <td>@col.ItemArray.GetValue(8)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="row" style="background-color:#F9F9F9;height:28px;">
+            <div class="col-md-2">
+                <div id="tot_reg" style="display:inline-block;">
+                    <p>Total de Registros @Model.dtCotizaciones.Rows[0][10]</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-md-offset-3 form-inline">
+                <p class="control-label ">
+                    Ir a
+                    <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:13%; display:initial;" value="@if (Model.dtCotizaciones.Rows[0][9].ToString() == "0") {@Html.Raw("1")}else{@Model.dtCotizaciones.Rows[0][9]} " />
+                    de <font id="ttl_pag">@Model.dtCotizaciones.Rows[0][9]</font> Pág.
+                </p>
+            </div>
+            <div class="col-md-2  col-md-offset-3">
+                <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                        <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                        <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    }
+    else
+    {
+        <div class="row alert alert-warning text-center">
+            No se encontraron coincidencias.
+        </div>
+    }
+</div>
+

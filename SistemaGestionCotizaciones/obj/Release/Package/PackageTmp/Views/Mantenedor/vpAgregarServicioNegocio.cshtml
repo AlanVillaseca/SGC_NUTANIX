@@ -1,0 +1,57 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+
+
+<div id="msg_wrn" class="row"><span></span></div>
+
+<div class="row">
+    <div id="contenedorModal" class="form-group ">
+        <div  class="col-md-4 col-sm-12  ">
+            <label class="control-label" for="">Nombre</label>
+            <input required id="nombre" type="text" name="descripcion" class="form-control  es-texto" placeholder="Servicio de negocio">
+        </div>
+        <div  class="col-md-4 col-sm-12  ">
+            <label class="control-label" for="">Descripcion</label>
+            <input required id="descripcion" type="text" name="descripcion" class="form-control  es-texto" placeholder="Negocio">
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $('#btn_enviar').click(function () {
+
+        // ////console.log("Enviar");
+        // ////console.log($("#select").val() + ' ' + $("#descripcion").val() + ' ' + $("#nombre").val())
+        if ($("#nombre").val().trim().length > 0 && $("#descripcion").val().trim().length > 0  && !$('.tr').children().hasClass('has-error')) {
+            var nombre = $("#nombre").val();
+            var descripcion = $("#descripcion").val();
+            var url;
+            // ////console.log("ifdatos" + "tipodato: " +tipoDato);
+                    url = '@Html.Raw(Url.Action("vpAgregarServicioNegocio", "Mantenedor", new { id = "param-id", descripcion = "param-descripcion" }))'
+                    url = url.replace("param-id", nombre)
+                             .replace("param-descripcion", descripcion);
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                       async:false
+                    });
+                    //alert('???');
+                    $(".modal").modal("toggle");
+        }
+        else {
+            // ////console.log('elseenviar');
+            if ($("#nombre").val().trim().length == 0) {
+                alert('Debe ingresar un nombre');
+                $("#nombre").focus();
+            }
+            if ($("#descripcion").val().trim().length == 0) {
+                alert('Debe ingresar una descripción');
+                $("#descripcion").focus();
+            }
+        }
+    });
+
+
+</script>

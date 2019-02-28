@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="~/Content/css/grilla.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/css/mantenedorDetalle.css" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+
+<script>
+    var nombre;
+    $(document).ready(function () {
+
+        function cargarPagina(id, idHead, ascDesc) {
+            var url = '@Html.Raw(Url.Action("vpGrillaDetalleCatalogoElemento", "Mantenedor", new { id = "param-id", ordenarPor = "param-name", ascDesc = "param-ascDesc" }))';
+            url = url.replace("param-id", id)
+                     .replace("param-name", idHead)
+                     .replace("param-ascDesc", ascDesc);
+            $('#tb_Header').load(url);
+        }
+
+        cargarPagina("0", "0", "0");
+
+
+        $('.filtro').change(function () {
+
+            var url = '@(Url.Action("vpGrillaDetalleCatalogoElemento", "Mantenedor"))';
+
+            $('#tb_Header').load(url, {
+                id: '0',
+                ordenarPor: '0',
+                ascDesc: '0',
+                idtipodato: $('#select_tipo').val(),
+                categoria: $('#select_categoria').val()
+            });
+
+        });
+
+    });
+
+</script>
+<div class="container">
+
+    <div class="row">
+        <h3 id="ttl">Mantenedor de Elemento</h3>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <ul>
+                <li>
+                    <label>Tipo de Dato</label>
+                </li>
+                <li>
+                    <fieldset>
+                        <select id="select_tipo" class="form-control input-sm filtro">
+                            <option value="-1" selected>Todos</option>
+                            <option value="1">Texto</option>
+                            <option value="2">Numerico</option>
+                            <option value="3">Lista</option>
+                            <option value="4">Booleano</option>
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+
+        </div>
+
+        <div class="col-md-3">
+            <ul>
+                <li>
+                    <label>Categoría</label>
+                </li>
+                <li>
+                    <fieldset>
+                        <select id="select_categoria" class="form-control input-sm filtro">
+                            <option value="-1" selected>Todos</option>
+                            @*<option value="1">Variable del Sistema</option>*@
+                            <option value="2">Variables</option>
+                            <option value="4">Configuración</option>
+                        </select>
+                    </fieldset>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="container">
+    <div class="row">
+        <div style="border-top:solid 2px #8FBE00;"></div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div id="tb_Header" class="grilla "></div>
+    </div>
+</div>
+<!-- /.modal -->
+<div class="row">
+
+    <div class="modal fade" id="modCustom">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Nuevo Catálogo de Elementos</h4>
+                </div>
+                <div id="nvo_header" class="modal-body ui-front" style="height:420px"> </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btn_enviar" type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal -->

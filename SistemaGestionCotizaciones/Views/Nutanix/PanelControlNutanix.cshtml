@@ -1,0 +1,264 @@
+﻿
+@{
+    ViewBag.Title = "PanelControlNutanix";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.NutanixFunciones
+@using System.Data
+@using System.Web.Script.Serialization;
+
+<style>
+textarea {
+  resize: none;
+}
+
+pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: red; }
+
+.legendLabel
+{
+    color:White;
+}
+
+</style>
+
+<script>
+    var jsonRequestFormat = '';
+    var jsonResponseFormat = '';
+    var scriptRequestFormat = '';
+    var base64RequesFormat = '';
+
+    //Llena Div con Codigo
+    function insertaCodigo(tipo) {
+        switch (tipo) {
+            case "jsonrequest":
+                $('#divCodigo').html(jsonRequestFormat);
+                break;
+            case "jsonresponse":
+                $('#divCodigo').html(jsonResponseFormat);
+                break;
+            case "script":
+                $('#divCodigo').html(scriptRequestFormat);
+                break;
+            case "base64":
+                $('#divCodigo').html(base64RequesFormat);
+                break;
+        }
+
+    }
+
+//inicio document ready
+$(document).ready(function () {
+
+    //Formatea Json
+    function syntaxHighlight(json) {
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+
+    //Llena tabla implementacion
+    var tablaImplementacion = $('#tablaImplementacion');
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("getListaPanelNutanix","Nutanix")',
+            async: false,
+            success: function (result) {
+                var implementar=JSON.parse(result);
+                _.each(implementar, function (pib) {
+                    var data = JSON.parse(pib.apiresponse);
+                    tablaImplementacion.append($('<tr id="' + pib.idcomponente + '"><td>' + pib.idcomponente + '</td><td>' + data.spec.name + '</td><td>' + data.status.execution_context.task_uuid + '</td><td>' + data.status.state + '</td><td> ' + pib.fecharesponse + '</td><td><a id="verDetalles" style=" background-color:#8fbe00" class="btn btn-primary btn-click-modal" data-toggle="modal" data-target="#modalDetalles">Más Detalles</td></tr>'))
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("datosMaquinaNutanix", "Nutanix")',
+                        async: false,
+                        data: { taskUUID: data.status.execution_context.task_uuid },
+                        success: function (response) {
+                            var general = JSON.parse(response);
+                            console.log(general);
+                        }
+                    });
+                })
+            }
+        });
+
+    //Ver Detalles VM
+    $(document).on("click", "#verDetalles", function () {
+        $fila = $(this).closest('tr');
+        var _idFila = $fila.prop('id');
+       
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("getDetallesPanelNutanix", "Nutanix")',
+            async: false,
+            data: { id: _idFila },
+            success: function (result) {
+                var implementar = JSON.parse(result);
+                _.each(implementar, function (pib) {
+
+                    var objJsonRequest = JSON.parse(pib.jsonrequest);
+                    var objJsonResponse = JSON.parse(pib.apiresponse);
+
+                    var strJsonResponse = JSON.stringify(objJsonResponse, null, 4);
+                    var strJsonRequest = JSON.stringify(objJsonRequest, null, 4);
+                    var formatRequest = syntaxHighlight(strJsonRequest);
+                    var formatResponse = syntaxHighlight(strJsonResponse);
+
+                    $('#txtFPeticion').val(pib.fecharequest);
+                    $('#txtVPU').val(objJsonResponse.spec.resources.num_sockets);
+                    $('#txtSocket').val(objJsonResponse.spec.resources.num_vcpus_per_socket);
+                    $('#txtRam').val(objJsonResponse.spec.resources.memory_size_mib);
+                    jsonRequestFormat = '<pre><code>' + formatRequest + '</code></pre>';
+                    jsonResponseFormat = '<pre><code>' + formatResponse + '</code></pre>';
+                    scriptRequestFormat = '<pre><code>' + pib.scriptrequest + '</code></pre>';
+                    base64RequesFormat = '<pre><code>' + pib.base64request + '</code></pre>';
+
+                })
+            }
+        }); //fin ajax       
+    
+    }); //fin boton
+
+}); //fin document ready
+
+</script>
+
+<div id="resultado"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4 col-sm-3">
+            <h3 id="ttl">Trazabilidad VM's</h3>
+        </div>
+    </div>
+    <div style="border-top:solid 2px #8FBE00;"></div>
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            <h5 style="padding-top:2%;"></h5>
+        </div>
+    </div>
+
+    <div id="tabla" class="row">
+        <table id="tablaImplementacion" class="table table-responsive table-hover table-striped">
+            <thead>
+                <tr>
+                    <th class="col-md-1">Id Componente</th>
+                    <th class="col-md-2">Nombre Maquiná VM</th>
+                    <th class="col-md-3">Task UUID</th>
+                    <th class="col-md-1">Estado</th>
+                    <th class="col-md-2">Fecha Creación</th>
+                    <th class="col-md-2">Detalles</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <!-- Inicio Modal Detalles -->
+    <div class="modal fade" id="modalDetalles" tabindex="-1" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Detalles</h5>
+                </div>
+                <div class="modal-body row">
+                    <div class="container-fluid">
+
+                        <div class="row" id="data_basica">
+
+                            <div id="divVPU" class="form-group col-md-2">
+                                <label for="inputState">VCPUs</label>
+                                <input class="form-control" id="txtVPU" name="txtVPU" type="text" disabled />
+                            </div>
+
+                            <div id="divSocket" class="form-group col-md-2">
+                                <label for="inputState">Sockets</label>
+                                <input class="form-control" id="txtSocket" name="txtSocket" type="text" disabled />
+                            </div>
+
+                            <div id="divRam" class="form-group col-md-2">
+                                <label for="inputState">RAM (MB)</label>
+                                <input class="form-control" id="txtRam" name="txtRam" type="text" disabled />
+                            </div>
+
+                            <div id="divFPeticion" class="form-group col-md-4">
+                                <label for="inputState">Fecha Request</label>
+                                <input class="form-control" id="txtFPeticion" name="txtRam" type="text" disabled />
+                            </div>
+                        </div>
+
+                        <div class="row" id="data_request">
+                            <div id="codJsonRequest" class="form-group col-md-3">
+                                <label for="inputState">Json Request</label>
+                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalCodigo" onclick="insertaCodigo('jsonrequest')">Json Enviado</button>
+                            </div>
+
+                            <div id="codScriptRequest" class="form-group col-md-3">
+                                <label for="inputState">Cloud Init</label>
+                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalCodigo" onclick="insertaCodigo('script')">Cloud Init Env.</button>
+                            </div>
+
+                            <div id="codBase64Request" class="form-group col-md-3">
+                                <label for="inputState">Base 64 String</label>
+                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalCodigo" onclick="insertaCodigo('base64')">Base64 Enviado</button>
+                            </div>
+
+                            <div id="codJsonResponse" class="form-group col-md-3">
+                                <label for="inputState">Json Response</label>
+                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalCodigo" onclick="insertaCodigo('jsonresponse')">Json Recibido</button>
+                            </div>
+                        </div>
+
+                        <div class="row" id="data_response">
+                            
+
+                        </div>
+
+                    </div>
+                </div>
+
+                    <div class="modal-footer">
+                        <button type="button" style="background-color:#8FBE00" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Fin Modal Detalles -->
+    <!-- Inicio Modal Codigo -->
+    <div class="modal fade" id="modalCodigo" tabindex="-1" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Codigo</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="divCodigo"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" style="background-color:#8FBE00" class="btn btn-primary" data-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Fin Modal Codigo-->
+
+</div>
+

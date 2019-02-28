@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewBag.Title = "nuevo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script type="text/javascript" src="~/Scripts/js/listarProyecto.js"></script>
+<script src="~/Scripts/js/paginacion.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/css/listarProyecto.css" />
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<style>
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    #loadingDiv {
+        position: absolute;
+        top: 400px;
+        left: 50%;
+    }
+</style>
+
+
+
+<div id="msg_wrn" class=""><span></span></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-sm-3">
+            <h3 id="ttl">Solicitud Cotizacion Servidor ankara</h3>
+        </div>
+    </div>
+
+    
+
+    <div class="row">
+        <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;"></div>
+    </div>
+
+
+
+
+    <table id="tblListarProyectos" class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-2" ide="2">Eliminar</th>
+                <th class="col-md-2" ide="5">Idcomponente</th>
+                <th class="col-md-4" ide="7">Componentes</th>
+                <th class="col-md-4" ide="7">Plantilla</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="checkbox"/></td>
+                <td>Componente</td>
+                <td>ankara</td>
+                <td>Server virtual Adessa</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        <div class="col-md-4 form-inline">
+            <span class="btn-group btn-group-xs">
+                <a id="btn_pri_pag" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-left fa-lg"></i></a>
+                <a id="btn_pag_ant" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-left fa-lg"></i></a>
+            </span>
+            <span>Pág. <input id="txt_pag" type="text" class="form-control input-xs solo-numero" style="width:8%; display:initial;" value="1" /> de <font id="total_pag">1</font></span>
+            <span class="btn-group btn-group-xs">
+                <a id="btn_pag_sig" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-right fa-lg"></i></a>
+                <a id="btn_ult_pag" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><i class="fa fa-angle-double-right fa-lg"></i></a>
+            </span>
+            (1 items)
+        </div>
+    </div>
+
+
+
+
+
+</div>

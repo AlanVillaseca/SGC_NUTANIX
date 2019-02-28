@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = "Error en la aplicacion";
+    
+}
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="alert">
+    <h3 class="text-success">Su sesión a expirado. </h3>
+    <p>Su conexión con el sistema de gestión de cotizaciones a expirado. Usted debe autenticarse nuevamente</p>
+    <img class="img-responsive" style="position:absolute;right:0;top:0;" src="~/Content/img/SGCLogo.png" />
+</div>
+<p><a href="@Url.Action("Login","Account")">Click aquí</a> para autenticarse.</p>

@@ -1,0 +1,86 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/underscore-min.js"></script>
+<link href="~/Content/css/grilla.css" rel="stylesheet" />
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function(){
+
+        var url = '@Url.Action("vpGrillaCentroCosto", "Mantenedor")';
+
+        $('#tb_centrocosto').load(url);
+
+
+    });
+</script>
+
+<style>
+    .centrado {
+        text-align: center;
+    }
+
+    .icono {
+        cursor: pointer;
+    }
+
+    .icono:hover {
+        color: #8FBE00;
+    }
+</style>
+
+<div class="container-fluid">
+    <h3 id="ttl">Mantenedor Centro de Costo</h3>
+    @if (!User.IsInRole("OBSERVADOR"))
+    {
+    <div id="cabecera" class="row">
+        <div class="col-md-2">
+            <label class="control-label">
+                Pais :
+            </label>
+            <select id="combo_pais" class="form-control"></select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="control-label">
+                Nombre de Gerencia :
+            </label>
+            <input id="input_gerencia" class="form-control input-sm es-requerido" type="text" />
+        </div>
+
+        <div class="col-md-1 centrado">
+            <label class="control-label">
+                Facturable :
+            </label>
+            <input id="check_facturable" type="checkbox" />
+        </div>
+
+        <div class="col-md-2">
+            <label class="control-label">
+                Codigo de Facturación :
+            </label>
+            <input id="input_facturable" class="form-control input-sm es-requerido" type="text" />
+        </div>
+
+        <div class="col-md-1 centrado">
+            <label class="control-label">
+                Agregar :
+            </label>
+            <span id="icono_agregar" class="glyphicon glyphicon-plus icono" />
+        </div>
+    </div>
+    }
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+    </div>
+
+    <div class="row">
+        <div id="tb_centrocosto" class="grilla"></div>
+    </div>
+
+</div>

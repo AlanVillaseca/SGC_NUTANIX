@@ -1,0 +1,834 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+
+
+<script src="~/Scripts/js/LimpiarTexto.js"></script>
+<link href="~/Content/css/mantenedorDetalle.css" rel="stylesheet" />
+
+
+
+<script>
+
+    var editando= false;
+    var idHead;
+    var ascDesc;
+    var ascDescAct;
+    var totalPagina,nroRegistros,paginaActual;
+    var tPagina,pagActual;
+
+    $(document).ready(function () {
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+        var negociopais = @Html.Raw(jss.Serialize(Model.dtNegocioPaisJson));
+        var servicionegocio = @Html.Raw(jss.Serialize(Model.dtServicioNegocioJson));
+        var pais=[];
+        var negocio=[];
+        var selservneg = '';
+        var tabservneg = '';
+        var text;
+        var existe = 0;
+        var ordenarPor = '@ViewBag.OrdenarPor';
+        var orden = '@ViewBag.Orden';
+
+        if(ordenarPor == 'Idserviciodenegocio') {
+
+            if(orden != 1){
+
+                $('#Idserviciodenegocio span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+            } 
+
+        }
+
+        if(ordenarPor == 'PaisNegocio') {
+
+            if(orden != 1) {
+
+                $('#PaisNegocio span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+            }
+
+        }
+
+        if(ordenarPor == 'Nombre') {
+
+            if(orden != 1) {
+
+                $('#Nombre span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+            }
+
+        }
+
+        if(JSON.stringify( negociopais) =='[]' && JSON.stringify(servicionegocio) == '[]') {
+
+            $('#divTabla').empty();
+
+            var html ='<div class="container">'+
+                             '<div class="row">'+
+                                 '<div class="alert alert-warning text-center" role="alert">'+
+                                     ' <strong>Alerta!</strong> Debe ingresar negocios, pais y negocio - pais .'+
+                                   ' </div>'+
+                              '</div>'+
+                        '</div>';
+            $('#divTabla').append(html);
+        }
+        
+        if(JSON.stringify( negociopais) =='[]' && JSON.stringify(servicionegocio) != '[]') {
+
+            $('#divTabla').empty();
+            var html ='<div class="container">'+
+                           '<div class="row">'+
+                                  ' <div class="alert alert-warning  text-center" role="alert">'+
+                                    ' <strong>Alerta!</strong> No hay Elementos creados <a id="btn_nuevo" href="#" data-toggle="modal" data-target="" class="alert-link"> Crear un Elementos</a>.'+
+                                  ' </div>'+
+                            '</div>'+
+                        ' </div>';
+            $('#divTabla').append(html);
+
+        }
+
+        pais = _.countBy(servicionegocio, "Idpais");
+
+
+        $('#tbody_serv_neg').empty();
+
+        selservneg = '<select class="form-control input-sm" id="serv_neg_sel">';
+        selservneg+= '<option idpais="0" idnegocio="0">Selecione un País - Negocio</option>';
+        var optionSelectmenu="";
+        
+        _.each(negociopais, function (i) {
+
+            selservneg+=     '<option idpais="' + i.Idpais + '" idnegocio="' + i.Idnegocio + '">' + i.Nombre + ' - ' + i.Descripcion + '</option>';
+        
+        });
+
+        selservneg +=  '</select>';
+
+        //////////////////////////////////////////////////////////////
+        //  LLenado de la tabla de servicio negocio
+        //
+        //
+        //////////////////////////////////////////////////////////////
+
+        _.each(servicionegocio, function(i) {
+
+            optionSelectmenu='';
+            optionSelectmenu = '<td><select id="serv_neg_sel_'+i.Idserviciodenegocio+'" disabled="disabled" class="selectToLabel " readonly >'
+            optionSelectmenu += '<option idpais="0"  idnegocio="0">Selecione un País- Negocio</option>';
+            
+            _.each(negociopais, function (j) {
+
+                if (i.Nombrepais == j.Nombre && i.Nombrenegocio == j.Descripcion  ) {
+                    
+                    optionSelectmenu +=  '<option selected idpais="' + j.Idpais + '" nPais="'+j.Nombre+'" idnegocio="' + j.Idnegocio + '"nNegocio="'+j.Descripcion +'" value="'+j.Idpais+j.Idnegocio+'">' + j.Nombre + ' - ' + j.Descripcion + '</option>';
+                
+                }
+                else {
+                    
+                    optionSelectmenu +=  '<option idpais="' + j.Idpais + '" nPais="'+j.Nombre+'" idnegocio="' + j.Idnegocio + '"nNegocio="'+j.Descripcion +'" value="'+j.Idpais+j.Idnegocio+'">' + j.Nombre + ' - ' + j.Descripcion + '</option>';
+                
+                }
+            });
+
+            optionSelectmenu +='</select></td>';
+            
+            tabservneg +=  '<tr id="fila_'+i.Idserviciodenegocio+'" class="tr">'+
+                               '<td><label id="id_'+i.Idserviciodenegocio+'"class="TextBoxAsLabel es-texto" readonly >'+ i.Idserviciodenegocio + '</label></td>'
+                               + optionSelectmenu +
+                                '<td><input id="nombre_'+i.Idserviciodenegocio+'" value="'+ i.Nombre + '" class="TextBoxAsLabel es-texto" readonly /></td>\
+                                <td><input id="descripcion_'+i.Idserviciodenegocio+'" value="'+ i.Descripcion + '" class="TextBoxAsLabel es-texto" readonly /></td>\
+                                <td>';
+
+            if ('@User.IsInRole("OBSERVADOR")' == 'False') {
+
+                tabservneg += '<div class="btn-group btn-group-xs" role="group" style="display:inline-block">' +
+                                       '<button id='+i.Idserviciodenegocio+' type="button" class="btnGuardar" title="Guardar" hidden style="border:none"><span class="glyphicon glyphicon-ok"></span></button>'+
+                                       '<button id='+i.Idserviciodenegocio+' type="button" class="btnCancelar" title="Cancelar" hidden style="border:none"><span class="glyphicon glyphicon-remove"></span></button>'+
+                                       '<button id='+i.Idserviciodenegocio+' type="button" class="btnEditar" title="Editar" style="border:none"><span class="glyphicon glyphicon-pencil"></span></button>';
+
+                //if(i.Utilizado == 'False'){
+
+                tabservneg += '<button id=' + i.Idserviciodenegocio + ' type="button" class="btnEliminar" title="Eliminar" style="border:none"><span class="glyphicon glyphicon-trash"></span></button>';
+
+                //} else {
+
+                //    tabservneg += '<button id='+i.Idserviciodenegocio+' type="button" class="btnEliminar" title="En Uso" style="border:none"><span class="glyphicon glyphicon-trash" style="color:red"></span></button>';
+
+                //}
+
+                tabservneg += ''
+                            +' </div> ';
+            }
+            tabservneg += '</td>'
+                       +' </tr>';
+
+            totalPagina = i.totalPaginas;
+            nroRegistros = i.totalRegistros;
+            paginaActual = i.paginaActual;
+        });
+
+        $('#tbody_serv_neg').append(tabservneg);
+        $('#pNumeroRegistros').text('Total de Registros '+nroRegistros+'.' );
+        $('#pTotalpaginas').append(
+            ' <p id="pTotalpaginas" class="control-label ">'
+                 +'Ir a '+
+                 '<input id="txt_pag" type="text" class="input-xs form-control solo-numero " style="width:25px" value="' + paginaActual + '" />'
+                 +'de ' + totalPagina + ' Pág.'
+             +'</p>');
+
+
+        //////////////////////////-----------------------------------------------------------------------------///////////////////
+
+        //////////////////////////////////////////////////////////////
+        //  funcion para guardar servicio  de negocio
+        //
+        //
+        //////////////////////////////////////////////////////////////
+
+        $('#guardar_serv_neg').click(function() {
+
+            var idpais = $("#serv_neg_sel option:selected" ).attr('idpais');
+            var idnegocio = $("#serv_neg_sel option:selected" ).attr('idnegocio');
+
+            $('#guardar_serv_neg').prop( "disabled", true );
+
+            if($('#modCustom #serv_neg_nom').val() != '' &&  $("#modCustom #serv_neg_desc").val() != ''
+                && $('#serv_neg_sel').val() != 0) {
+
+
+
+                _.each(servicionegocio, function(index) {
+
+
+                    if(limpiar(index.Nombre) == limpiar($('#serv_neg_nom').val())) {
+
+
+                        existe = 1;
+
+
+                    }
+
+                });
+
+
+                if (existe == 0) {
+
+                    var url = '@Html.Raw(Url.Action("vpAgregarServicioNegocio", "Mantenedor", new { id = "reemplazo", idnegocio = "reemplazo2", nombre = "reemplazo3", descripcion = "reemplazo4" }))'
+
+                    url = url.replace("reemplazo", idpais);
+                    url = url.replace("reemplazo2", idnegocio);
+                    url = url.replace("reemplazo3", $("#modCustom #serv_neg_nom" ).val().replace(/\ /g, '%20'));
+                    url = url.replace("reemplazo4", $("#modCustom #serv_neg_desc" ).val().replace(/\ /g, '%20'));
+
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        dataType: "html",
+                        async: false
+                    }).done(function() {
+                        alert('guardado');
+
+                    });
+
+                    location.reload();
+
+                } else {
+
+                    alert('El nombre del servicio negocio ya esta siendo utilizado');
+
+                }
+
+                existe = 0;
+
+            }
+            else {
+
+                alert('El campo nombre no puede estar vacio');
+
+            }
+
+            $('#modCustom #guardar_serv_neg').prop( "disabled", false );
+
+        });
+
+        $('#modCustom #serv_neg').append(selservneg);
+        
+        //////////////////////////-----------------------------------------------------------------------------///////////////////
+
+        //////////////////////////////////////////////////////////////
+        //  funcion para las acciones de la tabla
+        //
+        //
+        //////////////////////////////////////////////////////////////
+
+
+
+
+        $(document).ready(function () {
+
+            $('.btnGuardar').hide();
+            $('.btnCancelar').hide();
+            var IdserviciodenegocioA,Nombrepais,Nombrenegocio,Nombre,Descripcion;
+            var JsonBkpString = [];// string para guardar los datos recividos antes de editar
+            $('.btnEditar').click(function () { //al presionar el boton editar
+                $('.btnEditar').prop("disabled", true);
+                $('.btnEliminar').prop("disabled", true);
+                var idFila = $(this).attr("id");
+                editando= true;
+                $("#fila_" + idFila + ".tr").addClass("warning");
+                // alert("sorpresa #0= " + bkpString);
+                //bkpSring contiene = id +tipoDAto + Nombre +descripcion + categoria
+                // ////console.log("tipodato: "+$("#tipoDato_" + idFila ).val(););
+                // ////console.log("categoria: "+$("#categoria_" + idFila ).val());
+                JsonBkpString=[];
+                IdserviciodenegocioA    =  $('#id_'+ idFila ).text()  ;
+                //Nombrepais            =  $("#pais_" + idFila ).val()   ;
+                //Nombrenegocio         =  $("#negocio_" + idFila).val() ;
+                //Nombre                =  $("#nombre_" + idFila).val()  s ;
+                //Descripcion           =  $("#descripcion_" + idFila ).val();
+                JsonBkpString =JSON.parse(JSON.stringify(_.where(servicionegocio,{Idserviciodenegocio : $("#id_" + idFila).text()})));
+                //JsonBkpString =_.find(servicionegocio, function(item) { return item.Idserviciodenegocio === $("#id_" + idFila).text() });
+                //console.log(JSON.stringify(JsonBkpString));
+
+
+                //alert("sorpresa= " + bkpString);
+                //console.log(bkpString);
+                $("#fila_" + idFila + " .selectToLabel").attr("readonly", false).removeClass("selectToLabel").attr("disabled", false); //quita la clase y el atributo readonly
+                // activa el comboBox de la fila que se quiere editar
+                $("#fila_" + idFila + " input").removeClass("TextBoxAsLabel").attr("readonly", false); //quita la clase y el atributo readonly
+
+                $("#fila_" + idFila + " .btnGuardar").show();    //muestra boton guadar
+                $("#fila_" + idFila + " .btnCancelar").show();   //muestra boton cancelar
+                $("#fila_" + idFila + " .btnEditar").hide();     //oculta btn edit
+                //$("#fila_" + idFila + " .btnEliminar").hide();   //oculta btn eliminar
+                //alert('fineditar');
+            });
+
+            $('.btnCancelar').click(function () {
+                $('.btnEditar').show();
+                var idFila = $(this).attr("id");
+                //alert(idFila);
+                // separa los datos
+                // ////console.log(elementos[0] + elementos[1] + elementos[2] + elementos[3]+ elementos[4]);
+                // console.log(JSON.stringify(JsonBkpString));
+                // console.log(JsonBkpString.idPais+''+JsonBkpString.idNegocio);
+                $('#serv_neg_sel_'+ idFila).val(JsonBkpString[0].idPais+JsonBkpString[0].idNegocio)  ;                                                                 //restaura los valores previos
+
+                $("#nombre_" + idFila).val(JsonBkpString[0].Nombre)
+                $("#descripcion_" + idFila ).val( JsonBkpString[0].Descripcion);        //restaura los valores previos
+
+                $("#fila_" + idFila + " select").addClass("selectToLabel").attr("disabled", true);// deshabilita el comboBox de la fila editada
+                $("#fila_" + idFila + " input").addClass("TextBoxAsLabel").attr("readonly", false); //agrega la clase y el atributo readonly
+                $("#fila_" + idFila + " .btnGuardar").hide(); //oculta boton guadar
+                $("#fila_" + idFila + " .btnCancelar").hide();//oculta boton cancelar
+                $("#fila_" + idFila + " .btnEditar").show();  //muestra btn edit
+                //$("#fila_" + idFila + " .btnEliminar").show();//muesta btn eliminar
+                if ($('.tr').children().hasClass('has-error')) {
+                    $('.tr .control-label').remove();
+                    $('.tr label .has-error').removeClass('has-error');
+                }
+                bkpString = "";
+                $("#fila_" + idFila + ".tr").removeClass("warning");
+                $('.btnEditar').prop("disabled", false);
+                editando= false;
+            });
+
+            $('.btnGuardar').click(function () {
+
+                var idFila = $(this).attr("id");
+                var idpais = $("#serv_neg_sel_" + idFila +' option:selected').attr('idpais');
+                var nPais = $("#serv_neg_sel_" + idFila +' option:selected').attr('nPais');
+                var idnegocio = $("#serv_neg_sel_" + idFila+' option:selected' ).attr('idnegocio');
+                var nNegocio = $("#serv_neg_sel_" + idFila+' option:selected' ).attr('nNegocio');
+                var Nombre = $("#nombre_" + idFila).val().toString();
+                var Descripcion = $("#descripcion_" + idFila ).val().toString();
+
+                var match=_.where(servicionegocio,{Nombre : $("#nombre_" + idFila).val(), idPais: idpais, idNegocio: idnegocio});
+                //console.log(JSON.stringify(_.where(servicionegocio,{Nombre : $("#nombre_" + idFila).val().toString(), idPais: idpais, idNegocio: idnegocio})));
+                //console.log(jQuery.isEmptyObject(match));
+                //console.log('no hay match'+ (match[0].Nombre != $("#nombre_" + idFila).val()));
+                //console.log((match !=[]  && match[0].Idserviciodenegocio != idFila.toString()));
+
+                if(!_.isEmpty(match) )
+                {
+                    if( match[0].Idserviciodenegocio != idFila.toString()){
+                        alert( $("#nombre_" + idFila).val()+', El nombre del servicio negocio ya existe en ese pais y negocio.');
+                        return;
+                    }
+                }
+                var jsonDatos = [];
+                console.log(JsonBkpString[0].Descripcion);
+                if ( $("#nombre_" + idFila).val().trim().length > 0 && $("#descripcion_" + idFila).val().trim().length > 0
+                    &&  !$('.tr').children().hasClass('has-error') && !$('.tr').children().hasClass('has-error') &&
+                    $("#serv_neg_sel_" + idFila).val() != 0)
+                {
+                    //console.log('if');
+                    //console.log(idFila);
+                    //console.log(_.find(servicionegocio, function(item) { return item.Idserviciodenegocio === idFila.toString() }));
+                    jsonDatos =JSON.parse(JSON.stringify( _.where(servicionegocio,{Idserviciodenegocio : idFila.toString()}) ));
+                    console.log(JSON.stringify(JsonBkpString));
+                    if (! _.isEmpty(jsonDatos)) {
+                        console.log('if');
+                        //match.Idserviciodenegocio   =  $("#id_" + idFila + " label").text();
+
+
+                        jsonDatos[0].Nombrepais           = nPais.toString();
+                        jsonDatos[0].idPais               = idpais.toString();
+                        jsonDatos[0].Nombrenegocio        = nNegocio.toString();
+                        jsonDatos[0].idNegocio            = idnegocio.toString();
+                        jsonDatos[0].Nombre               = Nombre;
+                        jsonDatos[0].Descripcion          = Descripcion;
+                    }
+                    console.log(JSON.stringify(jsonDatos));
+                    console.log(JSON.stringify(_.where(servicionegocio,{Idserviciodenegocio : idFila.toString()})));
+                    console.log(jsonDatos[0].Descripcion);
+                    if(_.isEqual(jsonDatos,JsonBkpString))
+                    {
+                        alert('No hay cambios');
+                    }
+                    else
+                    {
+                        console.log(JSON.stringify(jsonDatos));
+                        console.log(JSON.stringify(JsonBkpString));
+
+                        //console.log('ajax');
+                        //console.log(JSON.stringify(jsonDatos));
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("jsonActualizarServicioDeNegocio")',
+                            data: JSON.stringify(jsonDatos),
+                            contentType: "application/json; charset=utf-8"
+
+                        }).done(function () {
+
+                            cargarPagina(paginaActual,idHead, ascDesc);
+
+                        });
+                        $("#fila_" + idFila + " input").addClass("TextBoxAsLabel").attr("readonly", false); //agrega la clase y el atributo readonly
+                        $("select").addClass('selectToLabel').attr("disabled", true);//deja todos los comboBox desactivados
+                        $("#fila_" + idFila + " .btnGuardar").hide();    //oculta boton guadar
+                        $("#fila_" + idFila + " .btnCancelar").hide();   //oculta boton cancelar
+                        $("#fila_" + idFila + " .btnEditar").show();     //muestra btn edit
+                        //$("#fila_" + idFila + " .btnEliminar").show();   //muesta btn eliminar
+                        $("#fila_" + idFila + ".tr").removeClass("warning");
+                        $('.btnEditar').show().prop("disabled", false);
+                        $('.btnGuardar').hide();
+                        $('.btnCancelar').hide();
+                        editando= false;
+                    }
+                }
+                else {
+                    //alert('else');
+                    if ($('.tr').children().hasClass('has-error')) {
+                        $('.tr').children('.has-error').focus();
+                    }
+                    if ($("#nombre_" + idFila).val().trim().length == 0) {
+                        alert('Debe ingresar un nombre');
+                        $("#nombre_" + idFila).focus();
+                    }
+                    if ($("#descripcion_" + idFila).val().trim().length == 0) {
+                        alert('Debe ingresar una descripción');
+                        $("#descripcion_" + idFila).focus();
+                    }
+                    if ($("#fila_" + idFila + " select").val() = "0") {
+                        alert('Debe selecionar un tipo de dato');
+                        $("#fila_" + idFila + " select").focus();
+                    }
+                    if ($("#serv_neg_sel_" + idFila).val() != 0){
+                        alert('Debe selecionar un Negocio - Pais.');
+                    }
+                }
+
+            });
+
+            $('.btnEliminar').click(function () {
+
+
+                var temp = $(this).attr('id');
+
+                var callback = function () {
+
+                    var url = '@Url.Action("eliminarServicioNegocio", "Mantenedor")'
+
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {id: temp},
+                        async: false
+                    });
+
+                    location.reload();
+
+                };
+
+                confirm('', '¿Esta seguro que desea borrar este servicio de negocio?', 'Cancelar', 'Eliminar', callback);
+
+
+
+            });
+            //////////////////////////-----------------------------------------------------------------------------///////////////////
+
+            //////////////////////////////////////////////////////////////
+            //  paginacion
+            //
+            //
+            //////////////////////////////////////////////////////////////
+
+
+            @if (ViewBag.ascDescAct == "a")
+            {
+                @:$('<span class="glyphicon glyphicon-arrow-up" style="cursor: default;" aria-hidden="true"></span>').appendTo($('#tb_serv_neg thead tr [ide = @ViewBag.idHeadAct]'));
+                                                                                                                    }
+
+            @if (ViewBag.ascDescAct == "d")
+            {
+                @:$('<span class="glyphicon glyphicon-arrow-down" style="cursor: default;" aria-hidden="true"></span>').appendTo($('#tb_serv_neg thead tr [ide = @ViewBag.idHeadAct]'));
+                        }
+
+
+            tPagina = totalPagina ;
+
+            pagActual = 0;
+            idHead='@ViewBag.idHeadAct';
+            ascDesc='@ViewBag.ascDescAct';
+            ascDescAct=ascDesc;
+            // alert(idHead+ascDesc);
+
+            function cargaPagina(pagina, ordenarPor, orden){
+
+                var url = '@Html.Raw(Url.Action("ServicioNegocio", "Mantenedor", new { id = "param-id", ordenarPor = "param-ordenarPor", orden = "param-orden" }))';
+                url = url.replace("param-id", pagina)
+                         .replace("param-ordenarPor", ordenarPor)
+                         .replace("param-orden", orden);
+
+
+                window.location.replace(url);
+
+            }
+
+
+
+
+            $('.solo-numero').keypress(function (e) {
+                if (!(e.which == '8' || e.which == '48' || e.which == '49' || e.which == '50' || e.which == '51' || e.which == '52' ||
+                     e.which == '53' || e.which == '54' || e.which == '55' || e.which == '56' || e.which == '57')) {
+                    return false;
+                }
+            });
+
+            
+
+            $('#txt_pag').focus(function () {
+                pagActual = $.trim($(this).val());
+                $(this).val($.trim($(this).val()));
+            });
+            $('#txt_pag').focusout(function () {
+                $(this).val(pagActual);
+            });
+            //////validacion
+
+            $('#btn_pag_sig').click(function () {
+
+                if(parseInt(paginaActual) < parseInt(totalPagina))
+                {
+
+                    cargaPagina(parseInt(paginaActual) + 1 , ordenarPor, orden)
+                }
+
+            });
+
+            $('#btn_ult_pag').click(function () {
+
+                cargaPagina(totalPagina , ordenarPor, orden)
+
+            });
+
+            $('#btn_pri_pag').click(function () {
+
+                cargaPagina(1 , ordenarPor, orden)
+            });
+
+            $('#btn_pag_ant').click(function () {
+
+                if(parseInt(paginaActual - 1) > 0)
+                {
+
+                    cargaPagina(parseInt(paginaActual) - 1 , ordenarPor, orden)
+                }
+            });
+
+            $('#txt_pag').keypress(function (e) {
+
+                var key = e.which;
+
+                if (key == 13) {
+
+                    var valor = parseInt($(this).val());
+
+                    if (valor > 0 && valor <= parseInt(totalPagina)) {
+
+                        cargaPagina(valor , ordenarPor, orden);
+                    }
+                }
+            });
+
+
+            //////////////////////////-----------------------------------------------------------------------------///////////////////
+
+            $('#btn_nvo_cElmt').click(function () {
+                //cambia el titulo <h4> de clase modal_title segun la vista parcial a mostrar
+                $('h4.modal-title').text('Nuevo Servicio de Negocio');
+                $('#modCustom')
+                    .prop('class', 'modal fade')
+                    .addClass('right')
+                    .modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                $('#modCustom input, textarea').val('');
+                $('#modCustom').modal('show');
+                $(':input, a').attr('tabindex', '-1');
+                $('#nvo_header').load();
+            });
+
+            $(function () {
+                $("#tabs").tabs();
+            });
+
+
+            $('#Idserviciodenegocio').click(function(){
+
+                if(ordenarPor == 'Idserviciodenegocio') {
+
+                    if(orden == 1){
+
+                        cargaPagina(1 , 'Idserviciodenegocio', 0);
+
+                        $('#Idserviciodenegocio span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+                        orden = 0;
+
+                    } else {
+
+                        cargaPagina(1 , 'Idserviciodenegocio', 1);
+
+                        $('#Idserviciodenegocio span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                        orden = 1;
+                    }
+
+                } else {
+
+                    $('#Idserviciodenegocio').css('background-color', '#f9f9f9');
+                    $('#PaisNegocio').css('background-color', '#fff');
+                    $('#Nombre').css('background-color', '#fff');
+
+                    ordenarPor = 'Idserviciodenegocio';
+                    orden = 1;
+
+                    cargaPagina(1 , 'Idserviciodenegocio', 1); orden = 1;
+
+                    $('#PaisNegocio span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+                    $('#Nombre span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                }
+
+            });
+
+            $('#PaisNegocio').click(function(){
+
+                if(ordenarPor == 'PaisNegocio') {
+
+                    if(orden == 1){
+
+                        cargaPagina(1 , 'PaisNegocio', 0);
+
+                        $('#PaisNegocio span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+                        orden = 0;
+
+                    } else {
+
+                        cargaPagina(1 , 'PaisNegocio', 1);
+
+                        $('#PaisNegocio span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                        orden = 1;
+                    }
+
+                } else {
+
+                    $('#PaisNegocio').css('background-color', '#f9f9f9');
+                    $('#Idserviciodenegocio').css('background-color', '#fff');
+                    $('#Nombre').css('background-color', '#fff');
+
+                    ordenarPor = 'PaisNegocio';
+                    orden = 1;
+
+                    cargaPagina(1 , 'PaisNegocio', 1); orden = 1;
+
+                    $('#Idserviciodenegocio span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+                    $('#Nombre span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                }
+
+            });
+
+            $('#Nombre').click(function(){
+
+                if(ordenarPor == 'Nombre') {
+
+                    if(orden == 1){
+
+                        cargaPagina(1 , 'Nombre', 0);
+
+                        $('#Nombre span').removeClass('fa-sort-asc').addClass('fa-sort-desc');
+
+                        orden = 0;
+
+                    } else {
+
+                        cargaPagina(1 , 'Nombre', 1);
+
+                        $('#Nombre span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                        orden = 1;
+                    }
+
+                } else {
+
+                    $('#Nombre').css('background-color', '#f9f9f9');
+                    $('#Idserviciodenegocio').css('background-color', '#fff');
+                    $('#PaisNegocio').css('background-color', '#fff');
+
+                    ordenarPor = 'Nombre';
+                    orden = 1;
+
+                    cargaPagina(1 , 'Nombre', 1); orden = 1;
+
+                    $('#Idserviciodenegocio span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+                    $('#PaisNegocio span').removeClass('fa-sort-desc').addClass('fa-sort-asc');
+
+                }
+
+            });
+
+        });
+    });
+</script>
+
+<style>
+    .orden {
+        cursor: pointer;
+    }
+</style>
+
+<div id="containerServicioDeNegocio" class="container-fluid">
+    
+    <div class="row">
+        <h3 id="ttl">Mantenedor Servicio Negocio</h3>
+    </div>
+   
+  
+    <div class="row">
+        <div style="border-top:solid 2px #8FBE00;"></div>
+    </div>
+
+
+    <div class="row grilla">
+        <table id="tb_serv_neg" class="table table-responsive table-striped table-condensed table-hover">
+            <thead>
+                <tr>
+                    <th id="Idserviciodenegocio" ide="1" class="col-md-1 orden">Cod<span class="fa fa-sort-asc"></span></th>
+                    <th id="PaisNegocio" class="col-md-1 orden">País - Negocio<span class="fa fa-sort-asc"></span></th>
+                    <th id="Nombre" ide="4" class="col-md-5 orden">Nombre<span class="fa fa-sort-asc"></span></th>
+                    <th ide="5" class="col-md-4">Descripcion</th>
+                    <th class="col-md-1">Acciones</th>
+
+                </tr>
+            </thead>
+            <tbody id="tbody_serv_neg"></tbody>
+        </table>
+    </div>
+
+    <div class="row">
+        <div id="divPaginacion" class=" pagination col-md-12 col-sm-12   " style="background-color:#F9F9F9;height:28px;">
+            <div class=" form-inline " role="form">
+                <div class="col-md-2 col-sm-2 col-md-offset-1 col-sm-offset-1">
+                    <p id="pNumeroRegistros" class="control-label">Total de Registros </p>
+                </div>
+                <div id="pTotalpaginas" class="col-md-2 col-sm-3 col-md-offset-2 col-sm-offset-2 ">
+
+                </div>
+            </div>
+
+            <!-- /.btn-toolbar -->
+            <div class="col-md-offset-9 col-sm-offset-9">
+                <div id="btn_Func_Tools" class="" role="toolbar">
+                    @if (!User.IsInRole("OBSERVADOR"))
+                    {
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="btn_nvo_cElmt" type="button" class="btn btn-default" title="Nuevo Servicio de Negocio" style="border:none;background-color:transparent;"><span class="glyphicon glyphicon-plus"></span></button>
+                    </div>
+                    }
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="btn_pri_pag" type="button" class="btn btn-default" title="Primera Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-backward"></span></button>
+                        <button id="btn_pag_ant" type="button" class="btn btn-default" title="Página Anterior" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                        <button id="btn_pag_sig" type="button" class="btn btn-default" title="Página Siguiente" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                        <button id="btn_ult_pag" type="button" class="btn btn-default" title="Última Página" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-step-forward"></span></button>
+                    </div>
+                </div>
+            </div>
+            <!-- /.btn-toolbar -->
+
+        </div>
+    </div>
+
+</div>
+<!-- /.modal -->
+<div class="row">
+
+    <div class="modal fade" id="modCustom">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div id="nvo_header" class="modal-body ui-front" style="height:185px">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="control-label">Nombre</label>
+                            <input id="serv_neg_nom" class="form-control input-sm es-requerido" type="text" placeholder="Ingresar Nombre" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="control-label">
+                                País - Negocio
+                            </label>
+                            <div id="serv_neg"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="control-label">Descripcion</label>
+                            <textarea id="serv_neg_desc" maxlength="254" class="form-control es-requerido"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="guardar_serv_neg" type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal -->

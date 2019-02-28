@@ -1,0 +1,774 @@
+﻿@{
+    ViewBag.Title = "nvaPlantillasElementos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.ManPlantillas
+
+@using System.Data
+@using System.Web.Script.Serialization;
+<script src="~/Scripts/underscore-min.js"></script>
+<script src="~/Scripts/js/selectMenu.js"></script>
+<link href="~/Content/css/modal.css" rel="stylesheet" />
+
+
+<style>
+    input[type=text]::-ms-clear {
+        display: none;
+    }
+
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    #sortable1,
+    #sortable2,
+    #sortable3,
+    #sortableN,
+    #sortableCosto,
+    #sortableImp {
+        min-width: 250px;
+        min-height: 100px;
+        list-style-type: none;
+        margin: 0;
+        padding: 5px 0 0 0;
+        float: left;
+        margin-right: 10px;
+    }
+
+    #tabVariables,
+    #tabCostos,
+    #tabImplementacion {
+        height: 500px;
+        overflow: auto;
+    }
+
+    #sortable1 li,
+    #sortable2 li,
+    #sortable3 li,
+    #sortableN li,
+    #sortableCosto li,
+    #sortableImp li {
+        margin: 0 5px 5px 5px;
+        padding: 5px;
+        font-size: 1.2em;
+        width: 230px;
+        cursor: pointer;
+    }
+
+    .clsVariable {
+        border-color: #0094ff !important;
+    }
+
+    .clsCosto {
+        border-color: #63a81f !important;
+    }
+
+    .clsImp {
+        border-color: #ff6a00 !important;
+    }
+
+    .connected-sortable li:hover {
+        cursor: pointer;
+    }
+
+    .cambia-nombre {
+        border: none;
+        z-index: 1;
+    }
+
+    .tabdrag {
+        border-bottom: 1px solid;
+        border-left: 1px solid;
+        border-right: 1px solid;
+        border-color: #DDD;
+    }
+
+    .tabdrop {
+        width: 100%;
+        height: 500px;
+        overflow: auto;
+    }
+
+    .uldrop {
+        width: 100%;
+        height: 470px;
+    }
+
+    .uldrag {
+        width: 100%;
+        height: 500px;
+    }
+
+    .glyp-close {
+        cursor: pointer;
+    }
+
+    .msgArrastreAqui {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        color: darkgray;
+    }
+
+    .glyp-amarillo {
+        color: #EDCF57;
+    }
+</style>
+
+<script>
+    /* Modal Confirm INI*/
+    function confirm(heading, question, cancelButtonTxt, okButtonTxt, callback) {
+
+        var confirmModal =
+          $('<div class="modal fade">' +
+              '<div class="modal-dialog">' +
+              '<div class="modal-content">' +
+              '<div class="modal-header">' +
+                '<h3 class="modal-title">' + heading +'</h3>' +
+              '</div>' +
+
+              '<div class="modal-body">' +
+                '<p>' + question + '</p>' +
+              '</div>' +
+
+              '<div class="modal-footer">' +
+                '<a href="#!" class="btn" data-dismiss="modal">' +
+                  cancelButtonTxt +
+                '</a>' +
+                '<a href="#!" id="okButton" class="btn btn-primary">' +
+                  okButtonTxt +
+                '</a>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+            '</div>');
+
+        confirmModal.find('#okButton').click(function(event) {
+            callback();
+            confirmModal.modal('hide');
+        });
+
+        confirmModal.modal('show');
+    };
+    /*Modal Confirm END*/
+    /* Modal alert INI*/
+    function c_alert(heading, text, cancelButtonTxt) {
+
+        var confirmModal =
+          $('<div class="modal fade">' +
+              '<div class="modal-dialog">' +
+              '<div class="modal-content">' +
+              '<div class="modal-header">' +
+                  '<h3 class="modal-title">' + heading +'</h3>' +
+              '</div>' +
+
+              '<div class="modal-body">' +
+                '<p>' + text + '</p>' +
+              '</div>' +
+
+              '<div class="modal-footer">' +
+                '<a href="#!" class="btn" data-dismiss="modal">' +
+                  cancelButtonTxt +
+                '</a>' +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+            '</div>');
+
+        /*confirmModal.find('#okButton').click(function(event) {
+            callback();
+            confirmModal.modal('hide');
+        });*/
+
+        confirmModal.modal('show');
+    };
+    /*Modal alert END*/
+
+    /*Contains Insensitive*/
+    $.extend($.expr[":"], {
+        "containsNC": function(elem, i, match, array) {
+            return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+        }
+    });
+
+
+
+    var tabCount = 2;
+
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var hojasxPadre = @Html.Raw(jss.Serialize(@Model.hojasxPadre));
+        var parametrosCostoJson = @Html.Raw(jss.Serialize(@Model.parametrosCostoJson));
+        var variablesJson = @Html.Raw(jss.Serialize(@Model.VariablesJson));
+        var ImplementacionesJson = @Html.Raw(jss.Serialize(@Model.implementacionesJson));
+        var familiasJson = @Html.Raw(jss.Serialize(@Model.familiasJson));
+
+        // Click on tab
+        var hojasxPadreVacio = hojasxPadre;
+        $(".nav-tabs")
+            .on("click", "a", function (e) {
+                e.preventDefault();
+                if($(this).hasClass('crea-nuevo-tab')) return;
+                $(this).tab('show');
+
+                var label = $(this).attr('href') + ' label';
+                $(label).css({
+                    'margin-left' : - $(label).width()/2,
+                    'margin-top' : - $(label).height()/2
+                });
+            })
+            .on("click", "span.glyp-close", function () {
+                var id = $(this).parent().attr('href');
+                var nume = $(id).find('li').length;
+                if(nume > 0)
+                {
+
+                    var respDM = '  <p>\
+                                        <span class="glyphicon glyphicon-warning-sign glyp-amarillo"></span>\
+                                        Este tab contiene elementos que deben ser removidos antes de poder eliminarlo.\
+                                    </p>\
+                                    <p>\
+                                        Actualmente hay <b id="msgnumelem">'+ nume +'</b> elementos.\
+                                    </p>'
+                    c_alert('Error', respDM, 'Cerrar');
+
+                }
+                else
+                {
+                    $(this).closest( "li" ).remove();
+                    $(id).remove();
+                    $(".nav-tabs li").children('a').first().click();
+                }
+            });
+
+        // Click on Crea Nuevo Tab
+        $('.crea-nuevo-tab').click(function (e) {
+            e.preventDefault();
+            var id = ++tabCount;
+            $(this).closest('li').before('<li><a href="#nuevoTab_' + id + '"><input type="hidden" class="cambia-nombre" value="Nuevo Tab"/><span class="cambia-tab" ordenTab="'+ id +'">Nuevo Tab&nbsp;&nbsp;</span><span class="glyphicon glyphicon-remove glyp-close"></span></a></li>');
+            $('#tabContent').append('<div id="nuevoTab_' + id + '"class="tab-pane tabdrop""><label id="msgaa" class="msgArrastreAqui">Arrastre Aquí</label><ul id="sortableN" class="connected-sortable uldrop"></ul></div>');
+            $('#tabs1 li a[href=#nuevoTab_' + id + ']').click();
+
+            $(".connected-sortable")
+                .sortable({
+                    connectWith: ".connected-sortable"
+                });
+
+            $("#nuevoTab_" + id)
+                .on( "sortreceive", function( event, ui ) {
+                    $(this).find('#msgaa').hide();
+                });
+        });
+
+        // Hide mensage cuando arrastra
+        $("#nuevotabImpl")
+            .on( "sortreceive", function( event, ui ) {
+                $('#msgaaimp').hide();
+            });
+
+        $("#nuevotabCostos")
+            .on( "sortreceive", function( event, ui ) {
+                $('#msgaacos').hide();
+            });
+
+        $("#nuevoTab_1")
+            .on( "sortreceive", function( event, ui ) {
+                $('#msgaa').hide();
+            });
+
+        _.each(familiasJson, function(i){
+            if($('#cmbFamilia option[value='+i.idFamilia+']').length == 0){
+                $('#cmbFamilia').append('<option value="'+ i.idFamilia +'">'+i.Familia+'</option>');
+            }
+        });
+        //$('select').selectmenu('refresh');
+        $('#cmbFamilia').selectmenu({
+            select: function (event, ui) {
+                var idFamilia = $(this).val();
+
+                $('#cmbSubfamilia').html('');
+
+                _.each(_.where(familiasJson, {idFamilia : idFamilia}), function(i){
+                    $('#cmbSubfamilia').append('<option value="'+ i.idSubFamilia +'">'+i.Subfamilia+'</option>');
+
+                });
+                $('#cmbSubfamilia').selectmenu('refresh', true);
+            }
+        });
+
+        _.each(parametrosCostoJson, function(i){
+            $('#sortable1').append('<li class="ui-state-default clsCosto" id=' + i.id + '>' +i.nombre + '</li>');
+        });
+
+        _.each(variablesJson, function(i){
+            $('#sortable2').append('<li class="ui-state-default clsVariable" id=v' + i.id + '>' +i.nombre + '</li>');
+        });
+
+        _.each(ImplementacionesJson, function(i){
+            $('#sortable3').append('<li class="ui-state-default clsImp" id=i' + i.id + '>' +i.nombre + '</li>');
+        });
+
+        // Connecta tab con sus respectivos origen-destino
+        $(".connected-sortable-imp").sortable({
+            connectWith: ".connected-sortable-imp"
+        });
+
+        $(".connected-sortable-cos").sortable({
+            connectWith: ".connected-sortable-cos"
+        });
+
+        $(".connected-sortable").sortable({
+            connectWith: ".connected-sortable"
+        });
+
+        // Cambia el nombre del tab
+        $(document).on('dblclick','.cambia-tab', function (e) {
+
+            $(this).parent().children('input').prop('type', 'text');
+            $(this).parent().children('input').val($(this).text()).select();
+            $(this).toggle();
+        });
+
+        $(document).on('keypress', 'input.cambia-nombre',function(e){
+            var p = e.which;
+            if(p==13){
+                $(this).blur();
+            }
+        });
+
+        $(document).on('blur', 'input.cambia-nombre',function(e){
+            $(this).parent().children('input').prop('type', 'hidden');
+            $(this).parent().children('span.cambia-tab').text($(this).parent().children('input').val() + ' ');
+            $(this).parent().children('span.cambia-tab').toggle();
+        });
+
+
+        var $varContext = null;
+        
+        $('.clsVariable').dblclick(function (e) {
+
+            $('#compVariables #divControl').empty();
+            $('#compVariables #divControl').append('<label class="control-label">Valor Predefinido</label>');
+            $('#compVariables #pNomVariable').text($(this).text());
+
+            $varContext = $(this);
+            
+            $.ajax({
+                dataType: "json",
+                url: '@Url.Action("jsonVariable")',
+                data: {id : $(this).attr('id').substr(1)}
+            }).done(function(varJson){
+
+                if (varJson.length == 1){
+                    _.each(varJson, function(j){
+                        if (j.Idtipodato == 1){
+                            $('#compVariables #divControl').append('<input id="varControl" class="form-control input-sm" type="text" />');
+                        }
+                        if (j.Idtipodato == 2){
+                            $('#compVariables #divControl').append('<input id="varControl" type="text" class="es-numerico form-control input-sm" />');
+                        }
+                        if (j.Idtipodato == 4){
+                            $('#compVariables #divControl').append('<input id="varControl" type="checkbox" />');
+                        }
+                    });
+                }
+                else{
+                    //if (i.Idtipodato == 3){
+                    $('#compVariables #divControl').append('<select class="form-control input-sm" id="varControl"></select>');
+                    $('#compVariables #divControl select').append('<option value=""> - </option>');
+                    _.each(varJson, function(i){
+                        $('#compVariables #divControl select').append('<option value="'+ i.Idlistavalores +'">'+ i.Valor +'</option>');
+                    });
+                    //$('#varControl').selectmenu();
+                    $('#varControl').val($varContext.attr('predefinido')); 
+                    //$('#varControl').selectmenu('refresh');
+                    //}
+                }
+
+                $('#varControl').val($varContext.attr('predefinido'));                
+                if ($varContext.attr('editable') == 'True'){
+                    $('#chkEditable').prop('checked', true);
+                }
+                else{
+                    $('#chkEditable').prop('checked', false);
+                }
+
+                if ($varContext.attr('requerido') == 'True'){
+                    $('#chkObligatorio').prop('checked', true);
+                }
+                else{
+                    $('#chkObligatorio').prop('checked', false);
+                }
+
+
+
+                $('#modCustom')
+                              .prop('class', 'modal fade')
+                              .addClass('right')
+                              .modal({
+                                  backdrop: 'static',
+                                  keyboard: false
+                              });
+                $('#modCustom').modal('show');
+                $(':input, a').attr('tabindex', '-1');
+
+            });
+
+
+
+
+        });
+        
+        $(document).on('click','.marca-obligatorio', function() {
+            $(".obligatorio").prop("checked", true);
+        });
+
+        $(document).on('click','.marca-opcional', function() {
+            $(".opcional").prop("checked", true);
+        });
+
+        $(document).on('click','.marca-noaplica', function() {
+            $(".noAplica").prop("checked", true);
+        });
+
+        $('#guardar').click(function(){
+
+            var vEdit = 'False';
+            var vObliga = 'False';
+            var vPred = $('#varControl').val();
+
+            if ($('select#varControl').length > 0){
+                if ($('select#varControl').val().length > 0){
+                    vEdit = 'False';
+                }
+                else{                   
+                    vEdit = 'True';   
+                }
+            }
+            else{
+            if ($('#chkEditable').prop( "checked" )){
+                    vEdit = 'True';
+                }
+            }
+
+            if ($('#chkObligatorio').prop( "checked" )){
+                vObliga = 'True';
+            }
+
+            $varContext.attr('predefinido',vPred);
+            $varContext.attr('Editable',vEdit);
+            $varContext.attr('requerido',vObliga);
+            $('#modCustom').modal('toggle');
+        });
+
+        // Guardar
+        $('#grdaPlantilla').click(function(){
+
+            $('#grdaPlantilla').prop('disabled',true);
+            if($('#lst_pltilla').validar()){
+                $('#grdaPlantilla').prop('disabled',false);
+                return;
+            }
+
+            var heading = 'Guardar Plantilla';
+            var question = '¿Desea guardar la plantilla?';
+            var cancelButtonTxt = 'Cancelar';
+            var okButtonTxt = 'Aceptar';
+
+            var callback = function() {
+                var filtrado = '';
+                hojasxPadre = JSON.parse(JSON.stringify(hojasxPadreVacio));               
+                $('.cambia-tab' ).each(function( index ) {
+                    var tabs = $(this).text();
+                    var attrOrdenTab = $(this).attr('ordenTab');
+                    var orden = 1;
+
+                    $($(this).parent().attr("href")).children('ul').children('li').each(function (){
+                        var idPadre = $(this).attr('id');
+
+                        var attrPred = $(this).attr('predefinido');
+                        var attrEdit = $(this).attr('editable');
+                        var attrObliga = $(this).attr('requerido');
+
+                        for (var i=0; i<hojasxPadre.length; i++) {
+                            if (hojasxPadre[i].id_padre == idPadre) {
+                                hojasxPadre[i].tabs = tabs;
+                                hojasxPadre[i].nombrePlantilla = $('#txtNomPlantilla').val();
+
+                                hojasxPadre[i].Predefinido = attrPred;
+                                hojasxPadre[i].Editable = attrEdit;
+                                hojasxPadre[i].Requerido = attrObliga;
+                                hojasxPadre[i].OrdenTab = attrOrdenTab;
+                                hojasxPadre[i].Orden = orden;
+                                orden = orden + 1;
+                                //break;
+                            }
+
+                            if($('#softAdicional').prop('checked')) {
+                                hojasxPadre[i].softAdicional = 1;
+                            } else {
+                                hojasxPadre[i].softAdicional = 0;
+                            }
+
+                            hojasxPadre[i].Subfamilia = $('#cmbSubfamilia').val();
+                        }
+
+                        //alert();
+
+                        filtrado = _.reject(hojasxPadre, {tabs: ""});
+                        //console.log(JSON.stringify(filtrado));
+
+
+                    });
+                });
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("jsonReceiver")',
+                    data: JSON.stringify(filtrado),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).always(function(r){
+                    //alert(JSON.stringify(r));
+                    var respJson = JSON.parse(JSON.stringify(r));
+                    if (respJson.length > 0)
+                    {
+                        var respDM;
+                        respDM = 'No se pudo guardar la Plantilla. Favor agregar las siguientes variables:';
+                        respDM = respDM + '<br>';
+
+                        _.each(respJson, function(i){
+                            respDM = respDM + '<br>'+ i.Nombreatributo;
+                        });
+
+                        c_alert('Error', respDM, 'Cerrar');
+                    }
+                    else{
+                        window.location='@Url.Action("ManPlantillas", "Mantenedor")';
+                    }
+                });
+
+            };
+
+            confirm(heading, question, cancelButtonTxt, okButtonTxt, callback);
+            $('#grdaPlantilla').prop('disabled',false);
+        });
+
+        //Software adicional - ini
+        var contLista = 0;
+        $("#btnAgregar").click(function () {
+            var nombre = $("#txtNombre").val();
+            var valLic = $("#txtValLic").val();
+            var valMan = $("#txtValMan").val();
+            contLista = contLista + 1;
+            $('#lista #listaBody').append("<div id=trx"+contLista.toString() + " class='row'><div class='col-md-4'>" + nombre + "</div><div class='col-md-3'>  " + valLic + "</div><div class='col-md-3'>" + valMan + "</div><div class='col-md-1'><a class='btnEliminar ' style='cursor:pointer;' id=x"+ contLista.toString() +"><span class='glyphicon glyphicon-remove'></span></a></div></div>");
+        });
+
+        $(document).on("click", ".btnEliminar", function () {
+            var ide = $(this).attr("id");
+            $("#tr"+ide).remove();
+        });
+        //Software adicional - fin
+
+        $('select').selectmenu();
+
+        $('#botnesss').click(function (e) {
+            $('#confirm')
+                .modal({ backdrop: 'static', keyboard: false })
+                .one('click', '#delete', function (e) {
+                    //delete function
+                });
+        });
+
+        /************************************************************************/
+        /*                            BOTÓN BÚSQUEDA                            */
+        /************************************************************************/
+
+        $('#txtBusqueda1').keyup(function(){
+            if($(this).val().length == 0){
+                $('#sortable1 li').each(function(){
+                    $(this).show();
+                });
+            }else{
+                $('#sortable1 li').each(function(){
+                    $(this).hide().filter(':containsNC('+ $('#txtBusqueda1').val() +')').show();
+                });
+
+            }
+        });
+
+        $('#txtBusqueda2').keyup(function(){
+            if($(this).val().length == 0){
+                $('#sortable2 li').each(function(){
+                    $(this).show();
+                });
+            }else{
+                $('#sortable2 li').each(function(){
+                    $(this).hide().filter(':containsNC('+ $('#txtBusqueda2').val() +')').show();
+                });
+
+            }
+        });
+
+        $('#txtBusqueda3').keyup(function(){
+            if($(this).val().length == 0){
+                $('#sortable3 li').each(function(){
+                    $(this).show();
+                });
+            }else{
+                $('#sortable3 li').each(function(){
+                    $(this).hide().filter(':containsNC('+ $('#txtBusqueda3').val() +')').show();
+                });
+
+            }
+        });
+
+        //setea texto tab activo y otros.
+        $('#msgaa').css({
+            'margin-left' : - $('#msgaa').width()/2,
+            'margin-top' : - $('#msgaa').height()/2
+        });
+
+        $('#msgaacos').css({
+            'margin-left' : - $('#msgaacos').width()/2,
+            'margin-top' : - $('#msgaacos').height()/2
+        });
+
+        $('#msgaaimp').css({
+            'margin-left' : - $('#msgaaimp').width()/2,
+            'margin-top' : - $('#msgaaimp').height()/2
+        });
+    });
+
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+
+    <div class="container-fluid">
+        <div class="row">
+            <h3 id="ttl" class="col-md-4 col-sm-4">Nueva Plantilla</h3>
+        </div>
+
+
+        <div id="lst_pltilla" class="form-group row">
+            <div class="col-md-2 col-sm-2">
+                <label class="control-label">Familia</label>
+                <select class="selectmenu" id="cmbFamilia"></select>
+            </div>
+            <div class="col-md-2 col-sm-2">
+                <label class="control-label">Subfamilia</label>
+                <select class="selectmenu" id="cmbSubfamilia"></select>
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <label class="control-label">Nombre Plantilla</label>
+                <input id="txtNomPlantilla" type="text" class="form-control input-sm es-requerido" placeholder="Plantilla" />
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <ul id="tabs1" class="nav nav-tabs" data-tabs="tabs">
+                    <li role="presentation" class="active"><a href="#nuevotabImpl"><span class="cambia-tab">Implementación </span></a></li>
+                    <li role="presentation"><a href="#nuevotabCostos"><span class="cambia-tab">Costos </span></a></li>
+                    <li role="presentation"><a href="#nuevoTab_1"><input type="hidden" class="cambia-nombre" value="Nuevo Tab" /><span class="cambia-tab" ordentab="1">Nuevo Tab&nbsp;&nbsp;</span><span class="glyphicon glyphicon-remove glyp-close"></span></a></li>
+                    <li role="presentation"><a href="#" class="crea-nuevo-tab">+</a></li>
+                </ul>
+                <div id="tabContent" class="tab-content tabdrag">
+                    <div id="nuevotabImpl" class="tab-pane active tabdrop">
+                        <label id="msgaaimp" class="msgArrastreAqui">Arrastre Aquí (solo implementación)</label>
+                        <ul id="sortableImp" class="connected-sortable-imp uldrop"></ul>
+                    </div>
+                    <div id="nuevotabCostos" class="tab-pane tabdrop">
+                        <label id="msgaacos" class="msgArrastreAqui">Arrastre Aquí (solo costo)</label>
+                        <ul id="sortableCosto" class="connected-sortable-cos uldrop"></ul>
+                    </div>
+                    <div id="nuevoTab_1" class="tab-pane tabdrop">
+                        <label id="msgaa" class="msgArrastreAqui">Arrastre Aquí</label>
+                        <ul id="sortableN" class="connected-sortable uldrop"></ul>
+                    </div>
+                </div>
+            </div>
+            <div id="listaParam" class="col-md-4">
+                <ul id="tabs2" class="nav nav-tabs" data-tabs="tabs">
+                    <li id="liSoftAdicional" role="presentation" class="active"><a href="#tabCostos">Costos</a></li>
+                    <li role="presentation"><a href="#tabVariables">Variables</a></li>
+                    <li role="presentation"><a href="#tabImplementacion">Implementación</a></li>
+                </ul>
+                <div class="tab-content tabdrag">
+                    <div id="tabImplementacion" class="tab-pane container-fluid" style="padding-left:1px">
+                        <input id="txtBusqueda3" type="text" class="form-control input-xs" style="margin:1%;" placeholder="Filtrar">
+                        <ul id="sortable3" class="connected-sortable-imp uldrag"></ul>
+                    </div>
+                    <div id="tabCostos" class="tab-pane container-fluid active" style="padding-left:1px">
+                        <input id="txtBusqueda1" type="text" class="form-control input-xs" style="margin:1%;" placeholder="Filtrar">
+                        <ul id="sortable1" class="connected-sortable-cos uldrag"></ul>
+                    </div>
+                    <div id="tabVariables" class="tab-pane container-fluid" style=" padding-left:1px">
+                        <input id="txtBusqueda2" type="text" class="form-control input-xs" style="margin:1%;" placeholder="Filtrar">
+                        <ul id="sortable2" class="connected-sortable uldrag"></ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <input type="checkbox" id="softAdicional"> Software Adicional
+            </div>
+            <div class="col-md-offset-4  col-md-2">
+                <button id="grdaPlantilla" class="form-control btn btn-primary btn-xs"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Plantilla</button>
+            </div>
+        </div>
+
+    </div>
+    <!-- /.modal -->
+    <div class="modal fade" id="modCustom">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Comportamiento</h4>
+                </div>
+                <div id="compVariables" class="modal-body ui-front container-fluid">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label class="control-label">Nombre de la Variable</label>
+                            <p id="pNomVariable"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="divControl" class="col-sm-8">
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="control-label">Editable</label>
+                            <input id="chkEditable" class="form-control" type="checkbox" />
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="control-label">Obligatorio</label>
+                            <input id="chkObligatorio" class="form-control" type="checkbox" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="guardar" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+
+
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+}
+
+
+

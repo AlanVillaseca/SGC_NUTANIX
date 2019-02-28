@@ -1,0 +1,776 @@
+﻿@model SistemaGestionCotizaciones.Models.DetalleMantenedor
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script src="~/Scripts/js/validador.js"></script>
+
+
+@{JavaScriptSerializer jss = new JavaScriptSerializer();}
+
+
+<script>
+
+
+    $(document).ready(function(){
+
+
+        var tiposervicio = @Html.Raw(jss.Serialize(Model.dtTipoServicioJson));
+        var paises = @Html.Raw(jss.Serialize(Model.dtPaisesJson));
+        var negocios = @Html.Raw(jss.Serialize(Model.dtNegociosJson));
+        var centrocosto = @Html.Raw(jss.Serialize(Model.dtCentroCostoJson));
+        var Json = [];
+        var valores = '';
+        var elemento = '';
+
+        $.ajax({
+            dataType: "json",
+            url: '@Url.Action("jsonListaCatalagoDeServicio", "Mantenedor")',
+            async: false,
+        }).done(function (varJson) {
+
+            Json = varJson;
+
+        });
+
+        _.each(tiposervicio, function(i) {
+
+            $('#tiposervicio').append('<option value="' + i.Idtiposervicio + '">' + i.Nombre + '</option>');
+
+        });
+
+        
+
+        _.each(centrocosto, function(i){
+            $('#centrocosto').append('<option value="' + i.id + '">' + i.gerencia + '</option>');
+        });
+
+        _.each(paises, function(i) {
+
+            $('#Dominiopais').append('<option value="' + i.Idpais + '">' + i.Nombre + '</option>');
+
+        });
+
+        _.each(negocios, function(i) {
+
+            $('#Dominionegocio').append('<option value="' + i.Idnegocio + '">' + i.Descripcion + '</option>');
+
+        });
+
+
+        $('#tiposervicio').change(function() {
+
+            elemento = '';
+
+            $('#tCobIn_catServ').empty();
+            $('#divLbInicial').empty();
+            $('#divUnidadInicial').empty();
+            $('#tCobMen_catServ').empty();
+            $('#divLbMensual').empty();
+            $('#divUnidadMensual').empty();
+
+            if($('#tiposervicio').val() == '1') {
+
+                elemento = '<label class="control-label">Tipo cobro inicial</label>\
+                            <select id="cmbTipoCobroInicial" class="form-control input-sm">\
+                                <option selected value="0">No aplica</option>\
+                                <option value="1">Costo fijo</option>\
+                                <option value="2">Costo Variable</option>\
+                            </select>';
+
+                $('#tCobIn_catServ').append(elemento);
+
+                elemento = '<label class="control-label">Tipo cobro mensual</label>\
+                            <select id="cmbTipoCobroMensual" class="form-control input-sm">\
+                                <option selected value="0">No aplica</option>\
+                                <option value="1">Costo fijo</option>\
+                                <option value="2">Costo Variable</option>\
+                            </select>';
+
+                $('#tCobMen_catServ').append(elemento);
+
+
+            }
+
+            if($('#tiposervicio').val() == '2') {
+
+                elemento = '<label class="control-label">Tipo cobro inicial</label>\
+                            <select id="cmbTipoCobroInicial" class="form-control input-sm">\
+                                <option selected value="0">No aplica</option>\
+                                <option value="1">Costo fijo</option>\
+                                <option value="2">Costo Variable</option>\
+                            </select>';
+
+                $('#tCobIn_catServ').append(elemento);
+
+            }
+
+            //if($('#tiposervicio').val() == '3') {
+
+                //elemento = '<label class="control-label">Tipo cobro inicial</label>\
+                //            <select id="cmbTipoCobroInicial" class="form-control input-sm">\
+                //                <option selected value="0">No aplica</option>\
+                //                <option value="2">Costo Variable</option>\
+                //            </select>';
+
+                //$('#tCobIn_catServ').append(elemento);
+
+                //elemento = '<label class="control-label">Tipo cobro mensual</label>\
+                //            <select id="cmbTipoCobroMensual" class="form-control input-sm">\
+                //                <option selected value="0">No aplica</option>\
+                //                <option value="1">Costo fijo</option>\
+                //                <option value="2">Costo Variable</option>\
+                //            </select>';
+
+                //$('#tCobMen_catServ').append(elemento);
+
+            //}
+
+        });
+
+        $(document).off('change', '#cmbTipoCobroInicial').on('change', '#cmbTipoCobroInicial', function() {
+
+            elemento = '';
+
+            $('#divLbInicial').empty();
+            $('#divUnidadInicial').empty();
+
+            if($('#cmbTipoCobroInicial').val() == '1') {
+
+                elemento = '<label class="control-label">Ingrese la unidad inicial</label>\
+                            <input id="CostoUnidadInicial" class="form-control es-texto">';
+
+                $('#divLbInicial').append(elemento);
+
+            }
+
+            if($('#cmbTipoCobroInicial').val() == '2') {
+
+                elemento = '<label class="control-label">Ingrese la unidad inicial</label>\
+                            <input id="CostoUnidadInicial" class="form-control es-texto">';
+
+                $('#divLbInicial').append(elemento);
+
+                elemento = '<label class="control-label">Variable de costo inicial</label>\
+                            <input id="tbTpoUniInicial" class="form-control es-texto">';
+
+                $('#divUnidadInicial').append(elemento);
+
+            }
+
+        });
+
+
+        $(document).off('change', '#cmbTipoCobroMensual').on('change', '#cmbTipoCobroMensual', function() {
+
+            elemento = '';
+
+            $('#divLbMensual').empty();
+            $('#divUnidadMensual').empty();
+
+            if($('#cmbTipoCobroMensual').val() == '1') {
+
+                elemento = '<label id="lbCostoMensual" class="control-label" for="CostoUnidadMensual">Ingrese la unidad mensual</label>\
+                            <input id="CostoUnidadMensual" class="form-control input-sm solo-numero-coma  es-flotante">';
+
+                $('#divLbMensual').append(elemento);
+
+            }
+
+            if($('#cmbTipoCobroMensual').val() == '2') {
+
+                elemento = '<label id="lbCostoMensual" class="control-label" for="CostoUnidadMensual">Costo unidad mensual</label>\
+                            <input id="CostoUnidadMensual" class="form-control input-sm solo-numero-coma  es-flotante">';
+
+                $('#divLbMensual').append(elemento);
+
+                elemento = '<label class="control-label">Variable de costo mensual</label>\
+                            <input id="tbTpoUniMensual" class="form-control es-texto">';
+
+                $('#divUnidadMensual').append(elemento);
+
+            }
+
+        });
+
+
+        //$('#cmbTipoCobroInicial').selectmenu({
+        //    select: function (event, data) {
+        //        switch ($(this).val()) {
+
+        //            case "0": {
+        //                $('#divLbInicial , #divUnidadInicial').hide();
+        //                break;
+        //            }
+        //            case "1": {
+        //                $('#divLbInicial , #divUnidadInicial').hide();
+        //                $('#divLbInicial').show();
+        //                $('#lbCostoInicial').text('Costo inicial');
+        //                $('#CostoUnidadInicial').attr('placeholder', 'Costo inicial');
+        //                break;
+        //            }
+        //            case "2": {
+        //                $('#divLbInicial , #divUnidadInicial').show();
+        //                $('#lbCostoInicial').text('Costo unidad inicial');
+        //                $('#CostoUnidadInicial').attr('placeholder', 'Costo unidad inicial');
+        //                break;
+        //            }
+        //        }
+
+        //    }
+        //});
+
+        //$('#cmbTipoCobroMensual').selectmenu( {
+        //    select: function (event, data) {
+        //        switch ($(this).val()) {
+
+        //            case "0":
+        //            {
+        //                $('#divLbMensual , #divUnidadMensual').hide();
+        //                break;
+        //            }
+        //            case "1":
+        //            {
+        //                    $('#divLbMensual , #divUnidadMensual').hide();
+        //                    $('#divLbMensual').show();
+        //                    $('#lbCostoMensual').text('Costo mensual');
+        //                    $('#CostoUnidadMensual').attr('placeholder', 'Costo Mensual');
+        //                    break;
+        //            }
+        //            case "2":
+        //            {
+        //                    $('#divLbMensual , #divUnidadMensual').show();
+        //                    $('#lbCostoMensual').text('Costo unidad mensual');
+        //                    $('#CostoUnidadMensual').attr('placeholder', 'Costo unidad Mensual');
+        //                    break;
+        //            }
+        //        }
+
+        //    }
+        //});
+
+        //--------------------------fin---------------------------------------
+
+        //-----------------------funcion que carga el tipo de unidades ya usadas en el catalog de servicios--
+
+        var availableTags = new Array();
+
+        var URLjs = '@Url.Action("jsonListaUnidadesCS", "Mantenedor")';
+
+
+        $.ajax({
+            dataType: "json",
+            url: URLjs,
+            async: false
+        }).done(function (varJson) {
+
+            if (JSON.stringify(varJson) != '[]') {
+
+                _.each(varJson, function (i) {
+                    availableTags.push(i.Tipounidad);
+                });
+
+                $('#tbTpoUniInicial').autocomplete( {
+                    source: availableTags
+                });
+
+                $('#tbTpoUniMensual').autocomplete( {
+                    source: availableTags
+                });
+            }
+
+        });
+
+        //--------------------------fin---------------------------------------
+
+        //-----------------------funcion que que guarda y valida un servicio---------
+
+
+        $('#btn_enviar').click(function () {
+
+            var TipoCobroInicial = '';
+            var TipoCobroMensual = '';
+            var CostoUnidadInicial = '';
+            var CostoUnidadMensual = '';
+            var TpoUniInicial = '';
+            var TpoUniMensual = '';
+            var banderaInicial = '';
+            var banderaMensual = '';
+            var nombre = '';
+            var descripcion = '';
+            var subgerencia = '';
+            var existe = false;
+            var tiposervicio = $('#tiposervicio').val();
+            var jsonServicio = [];
+            var dominiopais = $('#Dominiopais').val();
+            var dominionegocio = $('#Dominionegocio').val();
+            var centrocosto = $('#centrocosto').val();
+
+
+            _.each(Json, function (i) {
+
+
+                if (i.Nombreservicio.toLowerCase() == $("#nombre").val().toLowerCase()) {
+
+                    alert('El nombre del servicio ya existe');
+
+                    existe = true;
+                }
+            });
+
+	    if($('#centrocosto').val() == 0){
+		alert('Debe seleccionar un centro de costo');
+		return;
+            }
+		
+
+            if($('#nombre').val() != '' && $('#descripcion').val() != '' && existe == false) {
+
+
+                nombre = $('#nombre').val();
+                descripcion = $('#descripcion').val();
+                
+                if($('#cmbTipoCobroInicial').val() != undefined) {
+
+                    TipoCobroInicial = $('#cmbTipoCobroInicial').val();
+
+                }
+                if($('#CostoUnidadInicial').val() != undefined) {
+
+                    CostoUnidadInicial = $('#CostoUnidadInicial').val();
+
+                }
+                if($('#tbTpoUniInicial').val() != undefined) {
+
+                    TpoUniInicial = $('#tbTpoUniInicial').val();
+
+                }
+                if($('#cmbTipoCobroMensual').val() != undefined) {
+
+                    TipoCobroMensual = $('#cmbTipoCobroMensual').val();
+
+                }
+                if($('#CostoUnidadMensual').val() != undefined) {
+
+                    CostoUnidadMensual = $('#CostoUnidadMensual').val();
+
+                }
+                if($('#tbTpoUniMensual').val() != undefined) {
+
+                    TpoUniMensual = $('#tbTpoUniMensual').val();
+
+                }
+
+                //if($('#tiposervicio').val() == '1') {
+
+                    
+
+                //}
+                //if($('#tiposervicio').val() == '2') {
+
+
+
+                //}
+                //if($('#tiposervicio').val() == '3') {
+
+
+
+                //}
+
+                jsonServicio.push({
+                    Nombreservicio: nombre,
+                    Descripcion: descripcion,
+                    SubGerencia: subgerencia,
+                    Tipocobroinicial: TipoCobroInicial,
+                    Tipocobromensual: TipoCobroMensual,
+                    Tipounidad: TpoUniInicial,
+                    TipounidadMensual: TpoUniMensual,
+                    Costounidadinicial: CostoUnidadInicial,
+                    Costounidadmensual: CostoUnidadMensual,
+                    DominioPais: dominiopais,
+                    DominioNegocio: dominionegocio,
+                    TipoServicio: tiposervicio,
+                    CentroCosto: centrocosto
+                });
+
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("jsonGuardarServicio")',
+                    data: JSON.stringify(jsonServicio),
+                    contentType: "application/json; charset=utf-8",
+                    async: false,
+                    datatype: 'json'
+
+                }).done(function () {
+
+                    location.reload();
+                });
+
+
+            } else {
+
+                if(!existe) {
+
+                    alert('Se debe ingresar nombre y descripcion para el servicio');
+
+                }
+
+            }
+
+            @*
+
+            switch (TipoCobroInicial) {
+
+
+                case "0": {
+                    CostoUnidadInicial = 'NULL';
+                    TpoUniInicial = 'NULL';
+                    banderaInicial = true;
+                    break;
+                }
+                case "1": {
+                    if ($('#CostoUnidadInicial').val().length > 0) {
+
+                        CostoUnidadInicial = $('#CostoUnidadInicial').val();
+                        TpoUniInicial = 'NULL';
+                        banderaInicial = true;
+
+                    }
+                    else {
+                        banderaInicial = false;
+                    }
+                    break;
+                }
+                case "2": {
+                    if ($('#CostoUnidadInicial').val().length > 0 && $('#tbTpoUniInicial').val().length > 0) {
+                        CostoUnidadInicial = $('#CostoUnidadInicial').val();
+                        TpoUniInicial = $('#tbTpoUniInicial').val();
+                        $('#tbTpoUniInicial').autocomplete({
+                            source: availableTags
+                        });
+                        banderaInicial = true;
+                    }
+                    else {
+                        banderaInicial = false;
+                    }
+
+                    break;
+                }
+            }
+
+            switch (TipoCobroMensual) {
+
+
+                case "0": {
+                    CostoUnidadMensual = 'NULL';
+                    TpoUniMensual = 'NULL';
+                    banderaMensual = true;
+                    break;
+                }
+                case "1": {
+                    if ($('#CostoUnidadMensual').val().length > 0) {
+
+                        CostoUnidadMensual = $('#CostoUnidadMensual').val();
+                        TpoUniMensual = 'NULL';
+                        banderaMensual = true;
+
+                    }
+                    else {
+                        banderaMensual = false;
+                    }
+                    break;
+                }
+                case "2": {
+                    if ($('#CostoUnidadMensual').val().length > 0 && $('#tbTpoUniMensual').val().length > 0) {
+                        CostoUnidadMensual = $('#CostoUnidadMensual').val();
+                        TpoUniMensual = $('#tbTpoUniMensual').val();
+                        $('#tbTpoUniMensual').autocomplete({
+                            source: availableTags
+                        });
+                        banderaMensual = true;
+                    }
+                    else {
+                        banderaMensual = false;
+                    }
+
+                    break;
+                }
+            }
+
+            if ($('#nvo_header').validar()) {
+                if ($('#nombre').val().length == 0) { alert('debe ingresar un nombre'); }
+                if ($('#descripcion').val().length == 0) { alert('debe ingresar una descripcion'); }
+                if ($('#subGerencia').val().length == 0) { alert('debe seleccionar una subgerencia'); }
+                if ((TipoCobroInicial == 0 && TipoCobroMensual == 0)) {
+                    alert('debe selecciona almenos un tipo de cobro');
+                }
+                if (!banderaInicial) {
+                    if (!$('#CostoUnidadInicial').val().length > 0 && (TipoCobroInicial == 1 || TipoCobroInicial == 2)) {
+                        alert('debe ingresar un costo inicial');
+                    }
+                    if (!$('#tbTpoUniInicial').val().length > 0 && TipoCobroInicial == 2) {
+                        alert('debe ingresar un tipo de unidad para el costo inicial');
+                    }
+                }
+                if (!banderaMensual) {
+                    if (!$('#CostoUnidadMensual').val().length > 0 && (TipoCobroMensual == 1 || TipoCobroMensual == 2)) {
+                        alert('debe ingresar un costo mensual');
+                    }
+                    if (!$('#tbTpoUniMensual').val().length > 0 && TipoCobroMensual == 2) {
+                        alert('debe ingresar un tipo de unidad para el costo mensual');
+                    }
+
+                }
+                return;
+            }
+
+            $('#btn_enviar').attr('disabled', true);
+
+            URLjsCs = URLjsCs.replace("param-nombre", $("#nombre").val())
+                             .replace("param-negocio", $('#Dominionegocio').val())
+                             .replace("param-pais", $('#Dominiopais').val());
+
+            $.ajax({
+                dataType: "json",
+                url: URLjsCs,
+                async: false,
+            }).done(function (varJson) {
+                //mi codigo
+                // console.log(JSON.stringify(varJson));
+                Json = varJson;
+
+            });
+            var existe = false;
+            // console.log(' alo'+JSON.stringify(Json));
+            var pais, negocio, cmbPais, cmbNegocio;
+
+            _.each(Json, function (i) {
+                negocio = i.DominioNegocio;
+                pais = i.DominioPais;
+                cmbPais = $('#Dominionegocio').val();
+                cmbNegocio = $('#Dominiopais').val();
+
+                if (cmbPais) {
+                    cmbPais = 0;
+                }
+                if (cmbNegocio) {
+                    cmbNegocio = 0;
+                }
+
+
+                if (i.Nombreservicio.toLowerCase() == $("#nombre").val().toLowerCase() && negocio == cmbNegocio
+                    && pais == cmbPais) {
+
+                    existe = true;
+                }
+            });
+
+            if (existe) {
+                alert('El nombre que intenta ingresar, no esta disponible, intente con otro nombre o con dominio distinto.');
+                return;
+            }
+
+            if ($('#nombre').val().length > 0 && $('#descripcion').val().length > 0 && banderaInicial && banderaMensual
+                && !(TipoCobroInicial == 0 && TipoCobroMensual == 0 && !existe)) {
+                //console.log('if');
+
+                var nombre = $('#nombre').val();
+                var descripcion = $('#descripcion').val();
+                var subgerencia = $('#subGerencia').val();
+                var dominiopais = $('#Dominiopais').val();
+                var dominionegocio = $('#Dominionegocio').val();
+
+                
+
+
+
+                jsonServicio.push({
+                    Nombreservicio: nombre,
+                    Descripcion: descripcion,
+                    SubGerencia: subgerencia,
+                    Tipocobroinicial: TipoCobroInicial,
+                    Tipocobromensual: TipoCobroMensual,
+                    Tipounidad: TpoUniInicial,
+                    TipounidadMensual: TpoUniMensual,
+                    Costounidadinicial: CostoUnidadInicial,
+                    Costounidadmensual: CostoUnidadMensual,
+                    DominioPais: dominiopais,
+                    DominioNegocio: dominionegocio,
+                    TipoServicio: tiposervicio
+                });
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("jsonGuardarServicio")',
+                    data: JSON.stringify(jsonServicio),
+                    contentType: "application/json; charset=utf-8",
+                    async: false,
+                    datatype: 'json'
+
+                }).done(function () {
+
+                    $("#modCustom").modal("toggle");
+                    $('#btn_enviar').attr('disabled', false);
+                    location.reload();
+                });
+
+            }
+            else {
+
+                if ($('#nombre').val().length == 0) { alert('debe ingresar un nombre'); }
+                if ($('#descripcion').val().length == 0) { alert('debe ingresar una descripcion'); }
+                if ($('#subGerencia').val().length == 0) { alert('debe seleccionar una subgerencia'); }
+                if ((TipoCobroInicial == 0 && TipoCobroMensual == 0)) {
+                    alert('debe selecciona almenos un tipo de cobro');
+                }
+                if (!banderaInicial) {
+                    if (!$('#CostoUnidadInicial').val().length > 0 && (TipoCobroInicial == 1 || TipoCobroInicial == 2)) {
+                        alert('debe ingresar un costo inicial');
+                    }
+                    if (!$('#tbTpoUniInicial').val().length > 0 && TipoCobroInicial == 2) {
+                        alert('debe ingresar un tipo de unidad para el costo inicial');
+                    }
+                }
+                if (!banderaMensual) {
+                    if (!$('#CostoUnidadMensual').val().length > 0 && (TipoCobroMensual == 1 || TipoCobroMensual == 2)) {
+                        alert('debe ingresar un costo mensual');
+                    }
+                    if (!$('#tbTpoUniMensual').val().length > 0 && TipoCobroMensual == 2) {
+                        alert('debe ingresar un tipo de unidad para el costo mensual');
+                    }
+
+                }
+                $('#btn_enviar').attr('disabled', false);
+            }*@
+            //--------------------------fin---------------------------------------
+        });
+
+    });
+</script>
+<script src="~/Scripts/js/soloNumeroComa.js"></script>
+<style>
+    div.ui-selectmenu-open {
+        max-height: 80px;
+        overflow-x: hidden;
+        z-index: 65535 !important;
+        overflow-y: auto;
+    }
+
+    #Dominionegocio .ui-selectmenu-open {
+        max-height: 80px;
+    }
+</style>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+
+<div class="row">
+    <div id="nom_catServ" class="form-group col-sm-4 col-xs-12">
+        <label class="control-label" for="">Servicio</label>
+        <input id="nombre" type="text" required name="Nombreservicio" class="form-control input-sm es-requerido es-texto caracter-250" placeholder="Nombre">
+    </div>
+
+    <div id="des_catServ" class="form-group col-sm-4 col-xs-12">
+        <label class="control-label" for="">Descripción </label>
+        <input id="descripcion" type="text" required name="descripcion" class="form-control input-sm es-requerido es-texto caracter-250" placeholder="Descripción">
+    </div>
+
+
+</div>
+
+<div class="row">
+
+    <div class="form-group col-sm-4 col-xs-12">
+        <label class="control-label" for="">Tipo de Servicio</label>
+
+        <select id="tiposervicio" class="form-control input-sm">
+            <option value="0" selected>Sin Selección</option>
+        </select>
+    </div>
+
+    <div class="form-group col-sm-4 col-xs-12">
+        <label class="control-label" for="">Centro costo</label>
+
+        <select id="centrocosto" class="form-control input-sm">
+            <option value="0" selected>Sin Selección</option>
+        </select>
+    </div>
+
+</div>
+
+<div id="costoinicial" class="row">
+
+    <div id="tCobIn_catServ" class="form-group col-sm-4 col-xs-4">
+
+        @*<label class="control-label" for="">Tipo cobro inicial</label>
+        <select class="selectmenu" id="cmbTipoCobroInicial" style="overflow-y: scroll">
+            <option selected value="0">No aplica</option>
+            <option value="1">Costo fijo</option>
+            <option value="2">Costo Variable</option>
+        </select>*@
+
+    </div>
+    
+
+    <div id="divLbInicial" class="form-group col-sm-4 col-xs-4">
+
+        @*<label id="lbCostoInicial" class="control-label" for="CostoUnidadInicial">Costo unidad inicial</label>
+        <input id="CostoUnidadInicial" title="debe ingresar un numero con dos decimales" type="text" class="form-control input-sm solo-numero-coma es-flotante" size="6" placeholder="Costo unidad inicial">*@
+    
+    </div>
+
+    <div id="divUnidadInicial" class="form-group col-sm-4 col-xs-4">
+
+        @*<label for="tbTpoUniInicial" class="control-label">Ingrese la unidad inicial</label>
+        <input id="tbTpoUniInicial" class="form-control es-texto">*@
+
+    </div>
+
+</div>
+
+<div id="costomensual" class="row">
+
+    <div id="tCobMen_catServ" class="form-group col-sm-4 col-xs-4">
+        @*<label class="control-label" for="cmbTipoCobroMensual">Tipo cobro mensual</label>
+        <select class="selectmenu" id="cmbTipoCobroMensual" style="overflow-y: scroll">
+            <option selected value="0">No aplica</option>
+            <option value="1">Costo fijo</option>
+            <option value="2">Costo Variable</option>
+        </select>*@
+    </div>
+
+    <div id="divLbMensual" class="form-group col-sm-4 col-xs-4">
+        @*<label id="lbCostoMensual" class="control-label" for="CostoUnidadMensual">Costo unidad mensual</label>
+        <input id="CostoUnidadMensual" title="debe ingresar un numero con dos decimales" type="text" class="form-control input-sm solo-numero-coma  es-flotante" size="6" placeholder="Costo unidad mensual">*@
+    </div>
+
+    <div id="divUnidadMensual" class="form-group col-sm-4 col-xs-4">
+        @*<label for="tbTpoUniMensual" class="control-label">Ingrese la unidad mensual</label>
+        <input id="tbTpoUniMensual" class="form-control es-texto">*@
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div id="des_header" class="form-group col-sm-4 col-xs-12">
+        <label class="control-label" for="">Dominio pais</label>
+
+        <select id="Dominiopais" class="form-control input-sm">
+            <option selected value="null">Todos</option>
+        </select>
+
+    </div>
+
+    <div id="des_header" class="form-group col-sm-4 col-xs-12">
+        <label class="control-label" for="">Dominio Negocio</label>
+
+        <select id="Dominionegocio" class="form-control input-sm" required>
+            <option selected value="null">Todos</option>
+        </select>
+
+    </div>
+
+</div>
+

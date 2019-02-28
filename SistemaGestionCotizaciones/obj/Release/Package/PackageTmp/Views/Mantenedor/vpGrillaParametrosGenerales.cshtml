@@ -1,0 +1,148 @@
+﻿
+@using System.Data;
+
+@if (Model.dtParametrosGenerales.Rows.Count > 0 )
+{
+
+    <script>
+        $(document).ready(function () {
+
+
+            function b64toBlob(b64Data, contentType, sliceSize) {
+                contentType = contentType || '';
+                sliceSize = sliceSize || 512;
+                var byteCharacters = atob(b64Data);
+                var byteArrays = [];
+                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+                    var byteNumbers = new Array(slice.length);
+                    for (var i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    var byteArray = new Uint8Array(byteNumbers);
+                    byteArrays.push(byteArray);
+                }
+                var blob = new Blob(byteArrays, { type: contentType });
+                return blob;
+            }
+
+        /*
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(0).append('Id de catalogo de elemento, que acota las categorias de costo mostradas en pantallas y reportes.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(1).append('Tiempo en años para la depreciación de componentes con hardware.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(2).append('Tiempo en años para la depreciación de componentes con software.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(3).append('Día en el que cada mes se facturan las cotizaciones a las 23:50.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(4).append('Días en los que expira la última versión de una cotización en estado creada.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(5).append('Elementos que se añaden como columnas en el reporte de componentes facturados.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(6).append('Subcomponente que se desglosan en el reporte resumen cotización facturados.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(7).append('Elementos de Costos que se añaden como columnas en el reporte de componentes facturados.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(8).append('Subcomponentes que se añaden como columnas en el reporte de componentes facturados.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(9).append('Elemento que representa el último filtro en la pantalla de reporte cotización facturados.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(10).append('Elemento que se considera el alias para la implementación.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(11).append('Condición de borde en UF para el cálculo de refacturación.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(12).append('Incremento x cargo administración  en UF para el cálculo de refacturación.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(13).append('Porcentaje adicional x cargo administración para el cálculo de refacturación.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(14).append('Número de columnas por página en cada grilla.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(15).append('Tasa de interés.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(16).append('Valor del dólar actualizado al crear un nuevo componente.');
+
+            $('#tblListarComponentes tbody td:nth-last-child(2)').eq(17).append('Valor del UF actualizado al crear un nuevo componente.');
+
+            */
+            $('#btn_descargar').click(function () {
+
+                $.ajax({
+                    url: '@Url.Action("ParametrosGeneralesFileXls", "Mantenedor")',
+                    type: 'POST',
+                    async: false,
+                    success: function (data) {
+
+                        var blob = b64toBlob(data, "application/vnd.ms-excel;");
+                        saveAs(blob, "ListadoParametrosGenerales.csv");
+
+                    }
+                });
+
+            });
+
+        });
+    </script>
+    
+    <style>
+        th{
+            text-align: center;
+        }
+
+        .centrar{
+            text-align: center;
+        }
+
+        .derecha{
+            text-align: right;
+        }
+    </style>
+    
+    <table id="tblListarComponentes" class="table table-hover table-striped table-responsive table-condensed">
+        <thead>
+            <tr>
+                <th class="col-md-2 col-sm-2">Nombre</th>
+                <th class="col-md-2 col-sm-2">Valor</th>
+                <th class="col-md-2 col-sm-2">Fecha de Modificación</th>
+                <th class="col-md-4 col-sm-4">Descripción</th>
+                <th class="col-md-2 col-sm-2">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (DataRow col in Model.dtParametrosGenerales.Rows)
+            {
+                <tr id="@("t"+col.ItemArray.GetValue(0).ToString().Trim())">
+                    <td>@col.ItemArray.GetValue(0).ToString().Trim()</td>
+                    <td><p id="@col.ItemArray.GetValue(0).ToString().Trim()" class="derecha">@col.ItemArray.GetValue(1)</p></td>
+                    <td><p id="@col.ItemArray.GetValue(0).ToString().Trim()" class="centrar">@col.ItemArray.GetValue(6)</p></td>
+                    <td><p id="@col.ItemArray.GetValue(0).ToString().Trim()" class="izquierda">@col.ItemArray.GetValue(7)</p></td>
+                    <td class="centrar">
+                        @if (!User.IsInRole("OBSERVADOR"))
+                        {
+                        <span valor="@col.ItemArray.GetValue(0).ToString().Trim()" class="glyphicon glyphicon-pencil"></span>
+                        <span valor="@col.ItemArray.GetValue(0).ToString().Trim()" class="glyphicon glyphicon-ok" style="display:none"></span>
+                        <span valor="@col.ItemArray.GetValue(0).ToString().Trim()" class="glyphicon glyphicon-remove" style="display:none"></span>
+                        }
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+
+    <div class="row" style="background-color:#F9F9F9;height:28px;">
+        
+        <div class="col-md-offset-10">
+            <div id="btn_Func_Tools" class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button id="btn_descargar" type="button" class="btn btn-default" title="Descargar Tabla" style="border:none;background-color:#F9F9F9;"><span class="glyphicon glyphicon-download"></span></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+}
+else
+{
+    <div class="alert alert-warning">No se encontraron coincidencias.</div>
+}

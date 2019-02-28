@@ -1,0 +1,351 @@
+﻿@{
+    ViewBag.Title = "Detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.DetalleProyecto
+@using System.Data;
+
+<link rel="stylesheet" type="text/css" href="~/Content/css/proyectoDetalle.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/css/grilla.css" />
+<script src="~/Scripts/Blob.js"></script>
+<script src="~/Scripts/FileSaver.js"></script>
+<script type="text/javascript" src="~/Scripts/js/proyectoDetalle.js"></script>
+<style>
+    #modCustom {
+        right: 0;
+        left: auto;
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+
+    #modDialog {
+        position: fixed;
+        bottom: 0px;
+        right: 0px;
+        top: auto;
+        left: auto;
+    }
+
+    .modal.fade .modal-dialog {
+        -webkit-transition-property: transform;
+        -webkit-transition-duration: 0;
+        transition-property: transform;
+        transition-duration: 0;
+    }
+
+    .modal.fade {
+        transition: none;
+    }
+
+        .modal.fade:not(.in).right .modal-dialog {
+            -webkit-transform: translate3d(25%, 0, 0);
+            transform: translate3d(25%, 0, 0);
+        }
+
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    #loadingDiv {
+        position: absolute;
+        top: 400px;
+        left: 50%;
+    }
+
+
+</style>
+<script>
+    $(document).ready(function () {
+        var url = '@Html.Raw(Url.Action("vpGrillaDetalle", "Proyecto", new { id = Model.id, idproyecto = ViewBag.idProyecto, estado = "reemplazo" }))';
+        var idProyecto = '@ViewBag.idProyecto';
+        var estado = '@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(15)';
+        url = url.replace("reemplazo", estado.replace(/\ /g, ''));
+
+        $('#hiddenIDProy').val(idProyecto);
+
+        $('#tb_cot').load(url);
+
+        $('#loadingDiv').hide();
+        $(document).ajaxStart(function () {
+            $('#loadingDiv').show();
+        }).ajaxStop(function () {
+            $('#loadingDiv').hide();
+        });
+
+        $("#btnGuardar").click(function () {
+
+            if ($('#nvo_cot').validar()) {
+                return;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("NuevaCotizacion")',
+                async: false,
+                data: { id: idProyecto, descCotizacion: $('#descCotizacion').val() },
+                success: function (result) {
+                    if (result.length > 0) {
+                        alert(result);
+                    }
+                    else {
+                        $('#modNuevoProy').modal('toggle');
+
+                    }
+                }
+            });
+            $('#tb_cot').load(url);
+        });
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+
+                var byteArray = new Uint8Array(byteNumbers);
+
+                byteArrays.push(byteArray);
+            }
+
+            var blob = new Blob(byteArrays, { type: contentType });
+            return blob;
+        }
+
+        $('#aDownload').click(function () {
+
+            $.ajax({
+                url: '/Proyecto/DescargaAdjunto',
+                type: 'POST',
+                async: false,
+                data: { id: idProyecto },
+                success: function (data) {
+                    var blob = b64toBlob(data, "application/octet-stream;");
+                    saveAs(blob, $('#aDownload').text());
+                }
+            });
+        });
+
+
+    });
+</script>
+
+@if (ViewBag.Error == "")
+{
+    <input id="hiddenIDProy" type="hidden" />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-sm-3">
+                <h3 id="ttl">Proyecto</h3>
+            </div>
+            <div class="col-md-9 col-sm-9 text-right">
+                <ol class="breadcrumb">
+                    <li><a href="@Url.Action("Listar","Proyecto")">Inicio</a></li>
+                    <li class="active">Proyecto: @Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(0)</li>
+                </ol>
+            </div>
+        </div>
+
+
+        @*<h3 id="ttl">Proyecto: @Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(9) @Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(0)</h3>*@
+
+        <div class="row">
+            <div id="desc" class="form-group col-md-2">
+                <label for="">Código</label>
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(9)</p>
+            </div>
+            <div id="desc" class="form-group col-md-2">
+                <label for="">Nombre</label>
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(0)</p>
+            </div>
+            <div id="pyct_est" class="form-group col-md-2">
+                <label for="">Estado del Proyecto</label>
+                @if (Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(19).Equals(0))
+                {
+                    <p class="form-control-static">Crear cotizaci&oacute;n</p>
+                }
+                else
+                {
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(2)</p>
+                }
+            </div>
+            <div id="usu_cr" class="form-group col-md-2">
+                <label for="">Creado por</label>
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(4)</p>
+            </div>
+            <div id="usu_asig" class="form-group col-md-2">
+                <label for="">Asignado a</label>
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(6)</p>
+            </div>
+
+            <div id="pyct_serv" class="form-group col-md-2">
+                <label for="">Servicio de Negocio</label>
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(8)</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="desc" class="form-group col-md-2">
+                <label for="">Gerencia Solicitante</label>
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(17)</p>
+            </div>
+            <div id="desc" class="form-group col-md-2">
+                <label for="">Jefe de Proyectos Solicitante</label>
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(11)</p>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="">Negocio</label>
+                <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(13)</p>
+            </div>
+            <div id="desc" class="form-group col-md-2">
+                <label class="control-label" for="">Usuario Asignado</label>
+
+
+                @if (Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(21) != null)
+                {
+                    <p class="form-control-static">@Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(21)</p>
+                }
+
+
+            </div>
+            <div id="desc" class="form-group col-md-2">
+                <label class="control-label" for="">Documento Adjunto</label>
+                
+                @{string archivo = "";}
+
+                @if(Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(20) != null)
+                {
+                    string[] documento = Model.dtDetalleProyecto.Rows[0].ItemArray.GetValue(20).ToString().Split(char.Parse("\\"));
+                    archivo = documento[documento.Length - 1];
+                }
+                
+
+                <a id="aDownload" style="cursor:pointer;">@archivo</a>
+            </div>
+        </div>       
+        <div class="row">
+            <div style="border-top:solid 2px #8FBE00;left:50px;right:50px;margin-right:auto;margin-left:auto;"></div>
+        </div>
+        <div class="row">
+            <div id="tb_cot" class="grilla"></div>
+        </div>
+
+        <!-- /.btn-toolbar -->
+        <!-- /.btn-toolbar -->
+
+
+
+        <div id='loadingDiv'>
+            <img src="~/Content/img/loading2.gif" />
+        </div>
+
+    </div>
+
+    <!-- /.modal -->
+    <div class="modal fade" id="modNuevoProy">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Nueva Cotización</h4>
+                </div>
+                <div id="nvo_cot" class="modal-body" style="height:200px">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btnGuardar" type="button" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    <!-- /.modal -->
+    <div class="modal fade" id="modAsignJDP">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Asignar Jefe de Proyectos</h4>
+                </div>
+                <div id="compVariables" class="modal-body ui-front container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bs-callout bs-callout-danger bsError" style="display: none;">
+                                <label id="errLabel"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <label class="control-label">Nombre</label>
+                            <select id="modJDPSel" class="form-control input-sm">                               
+                                @foreach (DataRow col in Model.dtJefeDeProyectos.Rows)
+                                {
+                                    <option value="@col.ItemArray.GetValue(1)">@col.ItemArray.GetValue(2)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btnGuardarJDP" type="button" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+     <!-- /.modal -->
+    <div class="modal fade" id="modAsignImp">
+        <div class="modal-dialog" id="modDialog">
+            <div class="modal-content">
+                <div class="modal-header ttl_modal">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Asignar Implementador</h4>
+                </div>
+                <div id="compVariables" class="modal-body ui-front container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bs-callout bs-callout-danger bsError" style="display: none;">
+                                <label id="errLabel"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <label class="control-label">Nombre</label>
+                            <select id="modImpSel" class="input-sm form-control">
+                                @foreach (DataRow col in Model.dtImplementadores.Rows)
+                                {
+                                    <option value="@col.ItemArray.GetValue(1)">@col.ItemArray.GetValue(2)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btnGuardarImp" type="button" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- /.modal -->
+}
+else
+{
+    <script>
+        error('@ViewBag.Error');
+    </script>
+}
+
+

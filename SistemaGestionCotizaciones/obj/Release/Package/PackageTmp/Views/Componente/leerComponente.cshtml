@@ -1,0 +1,199 @@
+﻿@{
+    ViewBag.Title = "Componente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SistemaGestionCotizaciones.Models.Componente
+@using System.Data
+
+<style>
+    #frm_vriabl {
+        position: absolute;
+        top: 200px;
+        left: 90px;
+    }
+
+    #loadingDiv {
+        position: absolute;
+        top: 500px;
+        left: 30%;
+        background: rgba(255,255,255,0.7);
+    }
+
+    .modCustom {
+        right: 0;
+        left: auto;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        text-align: center;
+    }
+
+    .modDialog {
+        position: fixed;
+        bottom: 0px;
+        right: 0px;
+        top: auto;
+        left: auto;
+    }
+
+    #reemplazo {
+        text-align: center;
+    }
+
+        #reemplazo input {
+            margin: 0 auto;
+        }
+
+    .ui-icon {
+        background-image: url('../../Content/prueba/images/ui-icons_222222_256x240.png');
+    }
+
+    .fila {
+        display: inline-table;
+        width: 180px;
+        height: 60px;
+    }
+
+    .input-sm {
+        *width: 150px;
+    }
+
+    textarea {
+        width: 450px;
+        height: 200px;
+        resize: none;
+        color: #555;
+        vertical-align: middle;
+        background-color: #FFF;
+        border: 1px solid #CCC;
+        border-radius: 4px;
+    }
+
+        textarea:focus {
+            border-color: #66AFE9;
+            outline: 0px none;
+            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(102, 175, 233, 0.6);
+        }
+</style>
+<script>
+    $(document).ready(function () {
+
+        var idComponente = '@Model.idComponente';
+        
+
+        $("#hiddenCot").val(idComponente);
+
+        $('#loadingDiv').hide();
+
+        //$(document).ajaxStart(function () {
+
+        //    $('#modal-cargando').modal('show');  // show Loading Div
+
+        //}).ajaxStop(function () {
+
+        //    $('#modal-cargando').modal('hide'); // hide loading div
+
+        //});
+
+        var url = '@Html.Raw(Url.Action("vpComponente", "Componente"))'
+        url = url + '/' + idComponente + '?estado=' + @ViewBag.Estado;
+        
+        $('#dmc_newArbol').load(url);
+
+
+
+
+
+
+
+
+    });
+</script>
+
+<div id="msg_wrn" class=""><span></span></div>
+
+@if (ViewBag.Error == "")
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <h3 id="ttl">Componente</h3>
+            </div>
+            <div class="col-md-9 text-right">
+                @if (ViewBag.Estado != "20" && ViewBag.Estado != "21")
+                {
+                <ol class="breadcrumb">
+                    <li><a href="@Url.Action("Listar","Proyecto")">Inicio</a></li>
+                    <li><a href="@Url.Action("Detalle", "Proyecto", new { id = Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(0) })">Proyecto: @Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(1)</a></li>
+                    <li><a id="urlCoti" href="@Url.Action("Detalle", "Cotizacion", new { id = Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(2) })">Cotizacion: @Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(3)</a></li>
+                    <li class="active">Componente: @Model.dtBreadcrumbs.Rows[0].ItemArray.GetValue(5)</li>
+                </ol>
+                }
+            </div>
+        </div>   
+
+
+        <div id="config" class="modal fade modCustom">
+            <div class="modal-dialog modDialog">
+                <div class="modal-content">
+                    <div class="modal-header ttl_modal">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <div id="vpmodal"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @*
+        <div id="lst_pltilla" class="form-group row">
+            <div class="col-lg-4">
+                <ul>
+                    <li>
+                        <label for="">Seleccione Plantilla</label>
+                    </li>
+                    <li>
+                        <fieldset>
+                        <select id="cmb_pltilla" class="form-control input-sm" disabled>
+                            foreach (DataRow col in Model.dtListaPlantilla.Rows)
+                                {
+                                <option value="@col.ItemArray.GetValue(0)" selected>col.ItemArray.GetValue(1)</option>
+                                }
+                            </select>
+                        </fieldset>
+                    </li>
+                </ul>
+            </div>
+
+        </div> *@
+        <input id="hiddenCot" type="hidden" />
+        <div id="dmc_newArbol"></div>
+        <div id='loadingDiv'>
+            <img src="~/Content/img/loading2.gif" />
+        </div>
+    </div> @**** FIN CONTENEDOR ****@
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal-cargando" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog" style="width:85px">
+
+            <div class="modal-content">
+                <div class="modal-body">
+                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+
+                    <label>Cargando...</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal -->
+
+}
+else
+{
+    <script>error('@ViewBag.Error');</script>
+
+}

@@ -1,0 +1,456 @@
+﻿@{
+    ViewBag.Title = "edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SistemaGestionCotizaciones.Models.Security.Usuario
+@using System.Data;
+@using System.Web.Script.Serialization;
+
+<script>
+    $(document).ready(function () {
+
+        @{JavaScriptSerializer jss = new JavaScriptSerializer();}
+        var NegociosUsuario = @Html.Raw(jss.Serialize(Model.negociosUsuarioJson));
+        var CentroCostoUsuario = @Html.Raw(jss.Serialize(Model.centroCostoUsuarioJson));
+        var RolesUsuario = @Html.Raw(jss.Serialize(Model.rolesUsuarioJson));
+        var NegociosPais = @Html.Raw(jss.Serialize(Model.negocioPaisJson));
+        var CentroCosto = @Html.Raw(jss.Serialize(Model.centroCostoJson));
+        var Roles = @Html.Raw(jss.Serialize(Model.rolesJson));
+        var DatosUsuario = @Html.Raw(jss.Serialize(Model.datosUsuarioJson));
+        var negociopais = '';
+        var centrocostohtml = '';
+        var rol = '';
+        var roles = '';
+        var idnegocio = '';
+        var idpais = '';
+        var idroles = '';
+        var centrocostousuariohtml = '';
+        var respaldocentrocosto = '';
+        var concatcentrocosto = '';
+
+        negociopais = '<ul>\
+                        <li>\
+                            <fieldset>\
+                                <select id="cmb_negocios" class="chosen-select">';
+
+        _.each(NegociosPais, function(index) {
+
+            negociopais += '<option idnegocio="' + index.Idpais + '" idpais="' + index.Idnegocio + '">' + index.Nombre + ' - ' + index.Descripcion + '</option>';
+
+        });
+
+        negociopais += '</select>\
+                            </fieldset>\
+                        </li>\
+                    </ul>';
+
+        $('#cmb_negocio_pais').append(negociopais);
+        /*
+        centrocostohtml = '<ul>\
+                        <li>\
+                            <fieldset>\
+                                <select id="cmb_centrocosto" class="input-sm form-control" >';
+                                */
+        centrocostohtml = '<ul>\
+                        <li>\
+                            <fieldset>\
+                                <select data-placeholder="Buscar" id="cmb_centrocosto" class="chosen-select" >';
+                                
+
+        _.each(CentroCosto, function(index){
+            centrocostohtml += '<option value="' + index.id + '" glosa="' + index.gerencia + '">' + index.gerencia +  '</option>';
+        });
+
+        centrocostohtml += '</select>\
+                            </fieldset>\
+                        </li>\
+                    </ul>';
+
+        $('#divCentroCosto').append(centrocostohtml);
+
+        _.each(NegociosUsuario, function(index) {
+
+            roles += '<li class="row">\
+                        <label class="control-label col-md-4" style="text-align:left">' + index.Nombre + ' - ' + index.Descripcion + '</label>\
+                        <label class="control-label col-md-2"><span class="glyphicon glyphicon-trash negocio" idnegocio="' + index.Idpais + '" idpais="' + index.Idnegocio + '"></span></label>\
+                    </li>';
+
+        });
+
+        $('#lt_negocios').append(roles);
+
+        _.each(CentroCostoUsuario, function(index) {
+
+            centrocostousuariohtml += '<li class="row" id="centrocosto_'+ index.idcentrocosto +'">\
+                        <label class="control-label col-md-4" style="text-align:left">' + index.Gerencia + ' </label>\
+                        <label class="control-label col-md-2"><span class="glyphicon glyphicon-trash centrocosto" idcentrocosto="' + index.idcentrocosto + '" idsecusuario="' + index.idsecusuario + '"></span></label>\
+                    </li>';
+
+            concatcentrocosto = concatcentrocosto + index.idcentrocosto + ";";
+
+        });
+
+        $('#lt_centrocosto').append(centrocostousuariohtml);
+
+        _.each(Roles, function(index) {
+            if(index.id == 6){
+                rol += '<li><input id="' + index.id + '" class="rol facturador"  type="checkbox" />' + index.nombre + '</li>';
+            }else{
+                rol += '<li><input id="' + index.id + '" class="rol" type="checkbox"/>' + index.nombre + '</li>';
+            }
+            
+
+        });
+
+        $('#lt_roles').append(rol);
+
+        _.each(DatosUsuario, function(index) {
+
+            $('#txt_usuario').val(index.username);
+            $('#txt_nombre').val(index.displayname);
+            $('#txt_email').val(index.email);
+
+            if(index.activo == 'True') {
+
+                $('#activo').prop('checked', true);
+
+            }
+
+        });
+
+
+        $('.rol.facturador').click(function(){
+            var contador = 0;
+            $('.rol:checked').each(function(){
+                if($(this).attr('id') == "6"){
+                    contador = 1;
+                }
+            });
+            
+            
+            if(contador > 0){
+                $('#centrocostofacturador').show();
+                if(concatcentrocosto == "")
+                    concatcentrocosto = respaldocentrocosto;
+            }else{
+                $('#centrocostofacturador').hide();
+                respaldocentrocosto = concatcentrocosto;
+                concatcentrocosto = '';
+            }
+           
+            
+        });
+        $('#centrocostofacturador').hide();
+        _.each(RolesUsuario, function(index) {
+            $('#' + index.idsecrol).prop('checked', true );
+            if(index.idsecrol == "6"){
+                $('#centrocostofacturador').show();
+            }
+        });
+
+
+
+
+
+        $('#btnAgregarNegocioPais').click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("AgregarNegocioPais", "Usuario")',
+                dataType: "html",
+                data: {
+                    idnegocio:  $('#cmb_negocios option:selected').attr('idnegocio'),
+                    idpais:     $('#cmb_negocios option:selected').attr('idpais'),
+                    idusuario:  '@ViewBag.idusuario'
+                },
+                async: false
+            });
+
+            location.reload();
+        });
+
+        $('#btnAgregarCentroCosto').click(function() {
+            var glosaCentroCosto = $('#cmb_centrocosto option:selected').attr('glosa');
+            var valueCentroCosto = $('#cmb_centrocosto').val();
+            var validar = 0;
+            var arr = concatcentrocosto.split(";");
+            arr.forEach(function(index){
+                if(index == valueCentroCosto){
+                    validar = 1;
+                }
+            });
+
+            if(validar > 0){
+                alert("Ya se ingreso el centro de costo");
+            }else{
+                var insertCC = '<li class="row" id="centrocosto_'+ valueCentroCosto +'"><label  class="control-label col-md-4" style="text-align:left">' + glosaCentroCosto + ' </label>\
+                        <label class="control-label col-md-2"><span class="glyphicon glyphicon-trash centrocosto"  idcentrocosto="' + valueCentroCosto + '" </label>\'</li>';
+                $('#lt_centrocosto').append(insertCC);
+                concatcentrocosto = concatcentrocosto + valueCentroCosto +  ";";
+               
+            }
+
+            
+        });
+
+
+        $('.glyphicon-trash.centrocosto').click(function(){
+            var idcentrocosto = $(this).attr("idcentrocosto");
+            var aux = concatcentrocosto;
+            aux = aux.replace(idcentrocosto + ";", '');
+            if(aux == ""){
+                alert("Los usuarios no deben quedar sin centro de costo.");
+            }else{
+                $('#centrocosto_' + idcentrocosto).hide();
+                concatcentrocosto = concatcentrocosto.replace(idcentrocosto + ";", '');
+            }
+
+        });
+
+        $('.glyphicon-trash.negocio').click(function(){
+
+
+            idnegocio = $(this).attr('idnegocio');
+            idpais = $(this).attr('idpais');
+
+
+            if($('.glyphicon-trash').length > 1) {
+
+
+                var callback = function () {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("EliminaNegocioPais", "Usuario")',
+                        dataType: "html",
+                        data: {
+                            idnegocio:  idnegocio,
+                            idpais:     idpais,
+                            idusuario:  '@ViewBag.idusuario'
+                        },
+                        async: false
+                    });
+
+                    location.reload();
+
+                };
+
+                confirm('', '¿Esta seguro que desea eliminar este negocio asociado?', 'Cancelar', 'Eliminar', callback);
+
+            } else {
+
+                alert('El usuario no puede quedar sin negocios asociados.');
+
+            }
+
+
+
+
+        });
+
+
+        $('#guardar_cambios').click(function() {
+
+
+            idroles = '';
+
+            $('.rol:checked').each(function(){
+
+                idroles += $(this).attr('id');
+
+                if(idroles != '') {
+
+                    idroles += ','
+
+                }
+
+            });
+
+            idroles = idroles.slice(0,-1);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ModificarRoles", "Usuario")',
+                dataType: "html",
+                data: {
+                    idroles:  idroles,
+                    centrocosto: concatcentrocosto,
+                    idusuario:  '@ViewBag.idusuario',
+                    activo: $('#activo').is(':checked')
+                },
+                async: false
+            });
+
+            window.location.href = '/Usuario';;
+
+        });
+
+
+    });
+</script>
+
+<style>
+    .glyphicon-plus{
+        cursor: pointer;
+    }
+    .glyphicon-trash{
+        cursor: pointer;
+    }
+    li {
+        list-style-type: none;
+    }
+
+</style>
+
+<div class="container">
+    <div class="row">
+        <h3 id="ttl">Editar Usuario</h3>
+        <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+        <br />
+
+        @*@using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()*@
+
+            <div class="form-horizontal">
+
+                @*@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.Usuario.Id)*@
+
+                <div class="form-group">
+
+                    <label class="control-label col-md-2">Usuario</label>
+
+                    @*@Html.LabelFor(model => model.Usuario.Username, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                    <div class="col-md-3">
+
+                        <input id="txt_usuario" class="form-control" type="text" disabled />
+
+                        @*@Html.EditorFor(model => model.Usuario.Username, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.Usuario.Username, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-md-2">Nombre</label>
+
+                    @*@Html.LabelFor(model => model.Usuario.Displayname, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                    <div class="col-md-6">
+
+
+                        <input id="txt_nombre" class="form-control" type="text" disabled/>
+
+                        @*@Html.EditorFor(model => model.Usuario.Displayname, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.Usuario.Displayname, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-md-2">Dirección de Correo</label>
+
+                    @*@Html.LabelFor(model => model.Usuario.Email, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                    <div class="col-md-6">
+
+                        <input id="txt_email" class="form-control" type="text" disabled/>
+
+                        @*@Html.EditorFor(model => model.Usuario.Email, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.Usuario.Email, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-md-2">Pais - Negocio</label>
+
+                    <div id="cmb_negocio_pais" class="col-md-4">
+                        @*@Html.DropDownListFor(model => model.SelectedNegocioPais, Model.NegocioPaises
+                            .Select(s => new SelectListItem { Text = s.Nombre, Value = s.Id, Selected = s.Idpais == Model.Usuario.Idpais && s.Idnegocio == Model.Usuario.Idnegocio}),
+                            new { @class = "form-control input-sm" })
+
+                        @Html.ValidationMessageFor(model => model.SelectedNegocioPais, "", new { @class = "text-danger" })*@
+                    </div>
+                    <div class="col-md-2">
+                        <span class="glyphicon glyphicon-plus" id="btnAgregarNegocioPais"></span>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="control-label col-md-2">Negocios Asociados</label>
+
+                    <div id="lt_negocios" class="col-md-10"></div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-md-2">Activo</label>
+                    @*@Html.LabelFor(model => model.Usuario.Activo, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                    <div class="col-md-6">
+                        <div class="checkbox">
+
+                            <input id="activo" type="checkbox" />
+
+                            @*@Html.EditorFor(model => model.Usuario.Activo)
+                    @Html.ValidationMessageFor(model => model.Usuario.Activo, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+
+                <div id="centrocostofacturador">
+                    <div class="form-group" >
+                        <label class="control-label col-md-2">Centro de Costo</label>
+                        <div id="divCentroCosto" class="col-md-4">
+                        </div>
+                        <div class="col-md-2">
+                            <span class="glyphicon glyphicon-plus" id="btnAgregarCentroCosto"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2">Centro de Costo Asociados</label>
+                        <div id="lt_centrocosto" class="col-md-10">
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="form-group">
+
+                    <label class="control-label col-md-2">Roles Asignados</label>
+
+                    <div id="lt_roles" class="col-md-8"></div>
+
+                </div>
+
+                <div class="col-md-12 col-sm-12" style="border-top:solid 2px #8FBE00;"></div>
+                <br />
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+
+                        <button type="button" class="btn btn-danger" title="Cancelar" onclick="@("window.location.href='" + Url.Action("Index", "Usuario") + "'");">
+                            <span class="glyphicon glyphicon-floppy-remove"></span> Cancelar
+                        </button>
+
+                        <button id="guardar_cambios" type="submit" class="btn btn-primary" title="Salvar Cambios">
+                            <span class="glyphicon glyphicon-floppy-save"></span> Grabar
+                        </button>
+
+                    </div>
+                </div>
+
+            </div>
+        @* } *@
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function(){
+        $('.chosen-select').chosen({width: "100%"});
+    });
+    
+</script>
